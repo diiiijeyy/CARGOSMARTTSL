@@ -1,0 +1,14 @@
+ <table class="table align-middle table-hover shadow-sm rounded" id="shipmentTable" style="border-collapse: separate; border-spacing: 0 10px;">
+      <thead class="table-light">
+        <tr>
+          <th><i class="fas fa-box me-2 text-secondary"></i>Shipment ID</th>
+          <th><i class="fas fa-truck me-2 text-secondary"></i>Service</th>
+          <th><i class="fas fa-clipboard-check me-2 text-secondary"></i>Status</th>
+          <th><i class="fas fa-map-marker-alt me-2 text-secondary"></i>Origin</th>
+          <th><i class="fas fa-map-marked-alt me-2 text-secondary"></i>Destination</th>
+          <th><i class="fas fa-calendar-alt me-2 text-secondary"></i>Date</th>
+          <th><i class="fas fa-shipping-fast me-2 text-secondary"></i>Tracking</th>
+        </tr>
+      </thead>
+      <tbody id="shipment-history"><tr><td colspan="7" class="text-danger text-center">Failed to load shipment history. Please try again later.</td></tr></tbody>
+    </table>

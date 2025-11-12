@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>TSL Freight Movers INC.</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="../assets/img/f-icon.png" rel="icon">
+  <link href="../assets/img/l-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Amatic+SC:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="../assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="../assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="../assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="./styles/notifications.css" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css">
+
+  <!-- Script -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+  <!-- Preloader -->
+  <div id="preloader"></div>
+
+  <!-- Navbar -->
+  <nav>
+    <div class="logo-name">
+      <div class="logo-image">
+        <img src="../assets/img/logo.png" alt="TSL Logo">
+      </div>
+      <span class="logo_name">TSL FREIGHT<br> MOVERS, INC.</span>
+    </div>
+
+    <div class="menu-items">
+      <ul class="nav-links">
+        <li>
+          <a href="./admin.html">
+            <i class="uil uil-estate"></i>
+            <span class="link-name">Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="./client-management.html">
+            <i class="uil uil-users-alt"></i>
+            <span class="link-name">Clients</span>
+          </a>
+        </li>
+        <li>
+          <a href="./booking-management.html">
+            <i class="uil uil-schedule"></i>
+            <span class="link-name">Bookings</span>
+          </a>
+        </li>
+        <li>
+          <a href="./shipment.html">
+            <i class="uil uil-ship"></i>
+            <span class="link-name">Shipments</span>
+          </a>
+        </li>
+        <li>
+          <a href="./admin-invoice.html">
+            <i class="uil uil-receipt"></i>
+            <span class="link-name">Invoice</span>
+          </a>
+        </li>
+        <li>
+          <a href="./reports.html">
+            <i class="uil uil-file-alt"></i>
+            <span class="link-name">Reports</span>
+          </a>
+        </li>
+        <li>
+          <a href="./auditlogs.html">
+            <i class="uil uil-history"></i>
+            <span class="link-name">Audit Log</span>
+          </a>
+        </li>
+        <li>
+          <a href="./settings-admin.html">
+            <i class="uil uil-cog"></i>
+            <span class="link-name">Settings</span>
+          </a>
+        </li>
+      </ul>
+
+      <ul class="logout-mode">
+        <li>
+          <a href="../login.html">
+            <i class="uil uil-signout"></i>
+            <span class="link-name">Logout</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <!-- End Navbar -->
+
+  <main class="dashboard">
+    <div class="top d-flex align-items-center justify-content-between px-3 py-2">
+      <!-- Left side -->
+      <div class="d-flex align-items-center">
+        <i class="fas fa-bars hamburger-menu me-3" id="hamburgerMenu"></i>
+        <div class="d-flex flex-column">
+          <h4 class="dashboard-title mb-0">Notifications</h4>
+          <p class="dashboard-date mb-0" id="current-date" data-field="currentDate">—</p>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center">
+        <a href="./notification.html" class="position-relative">
+          <i class="fas fa-bell fs-5 text-white"></i>
+          <span id="notifCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"> 0 </span> 
+        </a>
+      </div>
+    </div>
+
+    <!-- Notifications Section -->
+    <section class="mx-3 mb-4">
+      <div class="container-fluid mt-4">
+        <div class="px-3 mt-3 notifications-container">
+          <!-- Header -->
+          <div class="d-flex flex-column mb-4">
+            <h3 class="fw-semibold text-dark mb-1" style="font-size:1.3rem;">
+              Hi, <span>Super Admin</span>! 
+            </h3>
+            <p class="text-muted mb-0" style="font-size:0.95rem;">
+              Stay updated with the latest notifications from client bookings
+            </p>
+          </div>
+
+          <!-- Filter Tabs + Actions -->
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="filter-container p-2 rounded shadow-sm bg-white">
+              <ul class="nav nav-pills small gap-2" id="notifTabs">
+                <li class="nav-item">
+                  <a class="nav-link active" data-bs-toggle="pill" href="#all">
+                    <i class="bi bi-bell me-1"></i> All
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-bs-toggle="pill" href="#unread">
+                    <i class="bi bi-dot me-1"></i> Unread
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <button class="btn btn-sm btn-outline-primary" id="markAllRead">
+              <i class="bi bi-check2-all me-1"></i> Mark All as Read
+            </button>
+          </div>
+
+          <!-- Notification Items -->
+          <div class="tab-content">
+            <!-- All -->
+            <div class="tab-pane fade show active" id="all">
+              <p class="text-muted small" id="noNotifications">Loading notifications...</p>
+              <div id="notificationList"></div>
+            </div>
+
+            <!-- Unread -->
+            <div class="tab-pane fade" id="unread">
+              <p class="text-muted small">Unread notifications will appear here.</p>
+              <div id="unreadNotificationList"></div>
+            </div>
+
+            <!-- Invoice -->
+            <div class="tab-pane fade" id="invoice">
+              <p class="text-muted small">Invoice-related notifications will appear here.</p>
+              <div id="invoiceNotificationList"></div>
+            </div>
+
+            <!-- Booking -->
+            <div class="tab-pane fade" id="booking">
+              <p class="text-muted small">Booking notifications will appear here.</p>
+              <div id="bookingNotificationList"></div>
+            </div>
+
+            <!-- Shipments -->
+            <div class="tab-pane fade" id="shipments">
+              <p class="text-muted small">Shipment updates will appear here.</p>
+              <div id="shipmentNotificationList"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- JS Scripts -->
+  <script>
+    // Date
+    document.addEventListener("DOMContentLoaded", () => {
+      const currentDateElement = document.getElementById("current-date");
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      currentDateElement.textContent = now.toLocaleDateString('en-US', options);
+    });
+
+    // Hamburger menu toggle
+    document.addEventListener("DOMContentLoaded", function () {
+      const hamburgerMenu = document.getElementById("hamburgerMenu");
+      const nav = document.querySelector("nav");
+      hamburgerMenu.addEventListener("click", () => nav.classList.toggle("active"));
+      document.addEventListener("click", (e) => {
+        if (!nav.contains(e.target) && !hamburgerMenu.contains(e.target)) {
+          nav.classList.remove("active");
+        }
+      });
+    });
+
+    // Preloader
+    window.addEventListener("load", function () {
+      const preloader = document.getElementById("preloader");
+      if (preloader) {
+        preloader.style.opacity = "0";
+        preloader.style.visibility = "hidden";
+        setTimeout(() => preloader.remove(), 600);
+      }
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="./script/notifications.js"></script>
+</body>
+
+</html>

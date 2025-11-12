@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>TSL Freight Movers</title>
+  <meta content="Welcome to your shipment tracking dashboard! Keep an eye on your deliveries, check statuses, and view shipment details anytime." name="description">
+  <meta content="TSL Freight Movers, shipment tracking, deliveries, cargo, dashboard" name="keywords">
+
+  <!-- Favicons -->
+  <link href="../../assets/img/f-icon.png" rel="icon">
+  <link href="../../assets/img/l-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Amatic+SC:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="../../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../../assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="../../assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="../../assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="../../assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="../../client/styles/clientshipment.css" rel="stylesheet">
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+
+  <!-- Icon Libraries -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+</head>
+
+<body>
+  <!-- Preloader -->
+  <div id="preloader"></div>
+
+  <!-- ======= Navbar ======= -->
+  <nav>
+    <div class="logo-name">
+      <div class="logo-image">
+        <img src="../../assets/img/logo.png" alt="TSL Logo">
+      </div>
+      <span class="logo_name">TSL FREIGHT<br>MOVERS, INC.</span>
+    </div>
+
+    <div class="menu-items">
+      <ul class="nav-links">
+        <li>
+          <a href="./clientdashboard.html">
+            <i class="uil uil-estate"></i>
+            <span class="link-name">Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="./bookings.html">
+            <i class="uil uil-schedule"></i>
+            <span class="link-name">Book</span>
+          </a>
+        </li>
+        <li>
+          <a href="./shipment.html" class="active">
+            <i class="uil uil-ship"></i>
+            <span class="link-name">Shipments</span>
+          </a>
+        </li>
+        <li>
+          <a href="../pages/history.html">
+            <i class="uil uil-history"></i>
+            <span class="link-name">History</span>
+          </a>
+        </li>
+        <li>
+          <a href="../pages/invoices.html">
+            <i class="uil uil-receipt"></i>
+            <span class="link-name">Invoices</span>
+          </a>
+        </li>
+      </ul>
+
+      <ul class="logout-mode">
+        <li>
+          <a href="../../login.html">
+            <i class="uil uil-signout"></i>
+            <span class="link-name">Logout</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <!-- End Navbar -->
+
+  <!-- Dashboard -->
+  <main class="dashboard">
+    <!-- Dashboard Top Bar -->
+    <div class="top d-flex align-items-center justify-content-between px-3 py-2">
+      <i class="fas fa-bars hamburger-menu me-2" id="hamburgerMenu"></i>
+      <div class="d-flex flex-column">
+        <h4 class="dashboard-title mb-0">Dashboard</h4>
+        <p class="dashboard-date mb-0" id="current-date" data-field="currentDate">—</p>
+      </div>
+
+      <!--- Profile and Notifications --->
+      <div class="profile-dropdown position-relative">
+        <div class="profile-wrapper position-relative d-inline-block">
+          <i class="fas fa-user-circle profile-icon" id="profileIcon"></i>
+          <span id="notifCount" class="notif-badge">0</span>
+        </div>
+        <div class="dropdown-menu" id="profileDropdown">
+          <a href="./profile.html"><i class="uil uil-user"></i> Profile</a>
+          <a href="./notifications.html"><i class="uil uil-bell"></i> Notifications</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shipment Tracking Section -->
+    <section class="mx-3 mb-4">
+      <div class="container-fluid mt-4">
+        <div class="px-3 mt-3">
+          <div class="d-flex flex-column">
+            <h3 class="fw-semibold text-dark mb-1" style="font-size:1.3rem;">
+              Track your shipments, <span id="username">Client</span>!
+            </h3>
+            <p class="text-muted mb-0" style="font-size:0.95rem;">
+              Stay updated on delivery statuses and details.
+            </p>
+          </div>
+        </div>
+
+        <!-- Map + Sidebar -->
+        <section class="map-section">
+          <div id="map"></div>
+
+          <div class="shipment-sidebar">
+            <h5 class="sidebar-title">Shipments</h5>
+
+            <!-- Filters -->
+            <div class="shipment-filters">
+              <input type="text" id="searchInput" placeholder="Search Tracking ID..." class="filter-input">
+              <select id="statusFilter" class="filter-select">
+  <option value="all">All Shipments</option>
+  <option value="order shipped">Order Shipped</option>
+  <option value="in transit">In Transit</option>
+</select>
+
+            </div>
+
+            <!-- Dynamic Shipment List -->
+            <div id="shipment-list">
+              <p class="text-muted mt-3 text-center">Loading shipments...</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center mt-5">
+    <p>© 2025 Shipment Tracking System</p>
+  </footer>
+
+  <!-- Utility Scripts -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // Update current date
+      const currentDateElement = document.getElementById("current-date");
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      currentDateElement.textContent = now.toLocaleDateString('en-US', options);
+    });
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const hamburgerMenu = document.getElementById("hamburgerMenu");
+      const nav = document.querySelector("nav");
+
+      hamburgerMenu.addEventListener("click", function () {
+        nav.classList.toggle("active");
+      });
+
+      document.addEventListener("click", function (e) {
+        if (!nav.contains(e.target) && !hamburgerMenu.contains(e.target)) {
+          nav.classList.remove("active");
+        }
+      });
+    });
+  </script>
+
+  <script>
+    window.addEventListener("load", function () {
+      const preloader = document.getElementById("preloader");
+      if (preloader) {
+        preloader.style.opacity = "0";
+        preloader.style.visibility = "hidden";
+        setTimeout(() => preloader.remove(), 600);
+      }
+    });
+  </script>
+
+  
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+  <script src="../script/shipment.js"></script>
+</body>
+</html>

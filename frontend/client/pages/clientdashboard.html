@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>TSL Freight Movers INC.</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!--- Favicons --->
+  <link href="../../assets/img/f-icon.png" rel="icon">
+  <link href="../../assets/img/l-icon.png" rel="apple-touch-icon">
+
+  <!--- Google Fonts --->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Amatic+SC:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!--- Vendor CSS Files --->
+  <link href="../../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../../assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="../../assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="../../assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="../../assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="../../client/styles/clientdashboard.css" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+  <!--- Preloader --->
+  <div id="preloader"></div>
+
+  <!--- Navbar --->
+  <nav>
+    <div class="logo-name">
+      <div class="logo-image">
+        <img src="../../assets/img/logo.png" alt="TSL Logo">
+      </div>
+      <span class="logo_name">TSL FREIGHT<br>MOVERS, INC.</span>
+    </div>
+
+    <div class="menu-items">
+      <ul class="nav-links">
+        <li>
+          <a href="clientdashboard.html" class="active">
+            <i class="uil uil-estate"></i>
+            <span class="link-name">Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="./bookings.html">
+            <i class="uil uil-schedule"></i>
+            <span class="link-name">Book</span>
+          </a>
+        </li>
+        <li>
+          <a href="shipment.html">
+            <i class="uil uil-ship"></i>
+            <span class="link-name">Shipments</span>
+          </a>
+        </li>
+        <li>
+          <a href="history.html">
+            <i class="uil uil-history"></i>
+            <span class="link-name">History</span>
+          </a>
+        </li>
+        <li>
+          <a href="invoices.html">
+            <i class="uil uil-receipt"></i>
+            <span class="link-name">Invoices</span>
+          </a>
+        </li>
+      </ul>
+
+      <ul class="logout-mode">
+        <li>
+          <a href="../../login.html">
+            <i class="uil uil-signout"></i>
+            <span class="link-name">Logout</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <!--- End Navbar --->
+
+  <!--- Dashboard --->
+  <main class="dashboard">
+    <div class="top d-flex align-items-center justify-content-between px-3 py-2">
+      <i class="fas fa-bars hamburger-menu me-2" id="hamburgerMenu"></i>
+      <div class="d-flex flex-column">
+        <h4 class=" dashboard-title fw-semibold" id="greetingText">Good day, <span id="username">Client</span>!</h4>
+        <p class="dashboard-date mb-0" id="current-date" data-field="currentDate">—</p>
+      </div>
+
+      <!--- Profile and Notifications --->
+      <div class="profile-dropdown position-relative">
+        <div class="profile-wrapper position-relative d-inline-block">
+          <i class="fas fa-user-circle profile-icon" id="profileIcon"></i>
+          <span id="notifCount" class="notif-badge">0</span>
+        </div>
+        <div class="dropdown-menu" id="profileDropdown">
+          <a href="./profile.html"><i class="uil uil-user"></i> Profile</a>
+          <a href="./notifications.html"><i class="uil uil-bell"></i> Notifications</a>
+        </div>
+      </div>
+    </div>
+
+    <section class="mx-3 mb-4">
+      <div class="container-fluid mt-2">
+        <div class="px-3 mt-3">
+          <div class="d-flex flex-column">
+            <h3 class="fw-semibold text-dark mb-1" style="font-size:1.3rem;">
+              Dashboard
+            </h3>
+            <p class="text-muted mb-0" style="font-size:0.95rem;">
+              Here’s what’s happening with your shipments today.
+            </p>
+          </div>
+        </div>
+
+        <!--- KPI Cards --->
+        <div class="row g-3 custom-row mb-4 mt-1">
+          <!--- Total Bookings --->
+          <div class="stat-card d-flex justify-content-between align-items-center p-3">
+            <div>
+              <small class="text-muted">Total Bookings</small>
+              <h3 class="mb-1 fw-bold data" id="totalBookingsEl" data-stat="total_bookings">0</h3>
+              <small class="text-primary">This Month</small>
+            </div>
+            <div class="text-end">
+              <i class="fas fa-calendar-check stat-icon icon-bookings"></i>
+            </div>
+          </div>
+
+          <!--- Land Freight --->
+          <div class="stat-card d-flex justify-content-between align-items-center p-3">
+            <div>
+              <small class="text-muted">Land Freight</small>
+              <h3 class="mb-1 fw-bold data" data-stat="land_freight">0</h3>
+              <small class="text-success">In Progress</small>
+            </div>
+            <div class="text-end">
+              <i class="fas fa-truck stat-icon icon-land"></i>
+            </div>
+          </div>
+
+          <!--- Air Freight --->
+          <div class="stat-card d-flex justify-content-between align-items-center p-3">
+            <div>
+              <small class="text-muted">Air Freight</small>
+              <h3 class="mb-1 fw-bold data" data-stat="air_freight">0</h3>
+              <small class="text-success">In Progress</small>
+            </div>
+            <div class="text-end">
+              <i class="fas fa-plane-departure stat-icon icon-air"></i>
+            </div>
+          </div>
+
+          <!--- Sea Freight --->
+          <div class="stat-card d-flex justify-content-between align-items-center p-3">
+            <div>
+              <small class="text-muted">Sea Freight</small>
+              <h3 class="mb-1 fw-bold data" data-stat="sea_freight">0</h3>
+              <small class="text-success">In Progress</small>
+            </div>
+            <div class="text-end">
+              <i class="fas fa-ship stat-icon icon-sea"></i>
+            </div>
+          </div>
+
+          <!--- Pending Shipments --->
+          <div class="stat-card d-flex justify-content-between align-items-center p-3">
+            <div>
+              <small class="text-muted">Pending Bookings</small>
+              <h3 class="mb-1 fw-bold data" data-stat="pendingclient_bookings">0</h3>
+              <small class="text-warning">Awaiting Confirm</small>
+            </div>
+            <div class="text-end">
+              <i class="fas fa-box-open stat-icon icon-pending"></i>
+            </div>
+          </div>
+        </div>
+
+        <!--- Monthly Trends & Updates --->
+        <div class="row g-4 d-flex align-items-stretch">
+          <div class="col-lg-8">
+            <div class="card shadow-sm p-3 h-100" style="border:1px solid #dee2e6;border-radius:12px;background:#fff;">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <div>
+                  <h6 class="mb-0">Monthly Booking Trends</h6>
+                  <small class="text-muted">Total bookings per month</small>
+                </div>
+                <div class="dropdown export-dropdown">
+                  <button class="btn btn-sm dropdown-toggle" type="button" id="exportDropdown"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-download me-1"></i> Export
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportDropdown">
+                    <li><a class="dropdown-item" href="#" id="exportPDF">PDF</a></li>
+                    <li><a class="dropdown-item" href="#" id="exportExcel">CSV / Excel</a></li>
+                  </ul>
+                </div>
+              </div>
+
+              <canvas id="bookingTrendsChart" height="270" data-chart="bookingTrends"></canvas>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="card shadow-sm p-3 h-100"
+              style="border:1px solid #dee2e6;border-radius:12px;background:#fff;">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6>Recent Updates</h6>
+                <span class="badge stat-badge" data-updates="newCount">0 new</span>
+              </div>
+              <div class="list-group small" id="recentUpdates" data-list="recentUpdates"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Bookings & Quick Actions -->
+        <div class="row mt-4">
+          <div class="col-lg-8">
+            <div class="card shadow-sm h-100"
+              style="border:1px solid #dee2e6;border-radius:12px;background:#fff;">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h6 class="mb-0">Recent Bookings</h6>
+                  <button class="btn view-all-btn btn-sm">View All Bookings</button>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Booking ID</th>
+                        <th>Route</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Reason</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody data-table="recentBookings">
+                      <tr class="text-muted">
+                        <td colspan="7" class="text-center py-4">No bookings yet</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4 mt-lg-0 mt-3">
+            <div class="card shadow-sm h-100 p-3"
+              style="border:1px solid #dee2e6;border-radius:12px;background:#fff;">
+              <h6 class="mb-3">Quick Actions</h6>
+              <div class="row g-3">
+                <div class="col-12">
+                  <a href="./shipmentform.html" class="quick-action d-flex align-items-center p-3"
+                    style="border:1px solid #dee2e6;border-radius:12px;background:#fff;text-decoration:none;">
+                    <div class="icon-circle bg-primary text-white me-3"><i class="uil uil-schedule"></i></div>
+                    <div>
+                      <h6 class="mb-0 fw-semibold text-dark">Book New Shipment</h6>
+                      <small class="text-muted">Start a new booking request</small>
+                    </div>
+                  </a>
+                </div>
+
+                <div class="col-12">
+                  <a href="./shipment.html" class="quick-action d-flex align-items-center p-3"
+                    style="border:1px solid #dee2e6;border-radius:12px;background:#fff;text-decoration:none;">
+                    <div class="icon-circle bg-success text-white me-3"><i class="uil uil-search"></i></div>
+                    <div>
+                      <h6 class="mb-0 fw-semibold text-dark">Track Shipment</h6>
+                      <small class="text-muted">View status & progress</small>
+                    </div>
+                  </a>
+                </div>
+
+                <div class="col-12">
+                  <a href="./invoices.html" class="quick-action d-flex align-items-center p-3"
+                    style="border:1px solid #dee2e6;border-radius:12px;background:#fff;text-decoration:none;">
+                    <div class="icon-circle bg-warning text-white me-3"><i class="uil uil-receipt"></i></div>
+                    <div>
+                      <h6 class="mb-0 fw-semibold text-dark">View Invoices</h6>
+                      <small class="text-muted">Check billing records</small>
+                    </div>
+                  </a>
+                </div>
+
+                <div class="col-12">
+                  <div class="quick-action contacts-box p-3"
+                    style="border:1px solid #dee2e6;border-radius:12px;background:#fff;">
+                    <h6 class="mb-2 fw-semibold">Contacts</h6>
+                    <p class="mb-1 text-muted">sales@tsl.ph, operations@tsl.ph, cs@tsl.ph, sales2@tsl.ph</p>
+                    <p class="mb-1 text-muted">
+                      Unit 232 MIASCOR Cargo Center, Ninoy Aquino Avenue,<br>
+                      Sto. Niño, Parañaque City, Philippines
+                    </p>
+                    <p class="mb-1 text-muted">(02) 8373-8008 / (02) 8330-1371</p>
+                    <a href="https://www.facebook.com/tslfreightmoversinc/" target="_blank" class="facebook-link">
+                      Visit us on Facebook
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+        <div class="row mt-4 mb-1"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Welcome Modal -->
+  <div class="modal fade" id="welcomeModal" tabindex="-1" aria-labelledby="welcomeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-3 shadow">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-semibold" id="welcomeModalLabel">Welcome Back!</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <img src="../../assets/img/logo.png" alt="TSL Logo" class="mb-3"
+            style="width: 70px; height: 70px; object-fit: contain;">
+          <p class="mb-2">Great to see you again, <span id="usernameWelcome">Client</span>!</p>
+          <p class="text-muted small">
+            Check your latest shipments, bookings, and updates right here on your dashboard.
+          </p>
+        </div>
+        <div class="modal-footer border-0 justify-content-center">
+          <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">Get Started</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cancel Booking Modal -->
+  <div class="modal fade" id="cancelBookingModal" tabindex="-1" aria-labelledby="cancelBookingLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg rounded-4">
+        <div class="modal-body p-4">
+          <p class="text-uppercase text-danger fw-semibold mb-1" style="font-size: 0.9rem;"> Cancel Booking</p>
+          <h5 class="fw-bold mb-3" style="font-size: 1.45rem;"> You’re about to cancel your booking.</h5>
+          <div class="text-center mb-3">
+            <i class="fas fa-calendar-times" style="font-size: 4rem; color: #dc3545;"></i></div>
+          <p class="text-muted mb-2">Please provide a reason for canceling this booking:</p>
+          <textarea class="form-control mb-4" id="cancelReason" rows="3" placeholder="Enter your reason..."></textarea>
+          <div class="d-flex justify-content-end gap-3 mt-3">
+            <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
+              Stay booked
+            </button>
+            <button type="button" class="btn btn-danger px-4" id="confirmCancelBtn">
+              Cancel Booking
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const exportPDF = document.getElementById("exportPDF");
+    const exportExcel = document.getElementById("exportExcel");
+
+    if (exportPDF) {
+      exportPDF.addEventListener("click", (e) => {
+        e.preventDefault();
+        exportBookingTrendsToPDF();
+      });
+    }
+
+    if (exportExcel) {
+      exportExcel.addEventListener("click", (e) => {
+        e.preventDefault();
+        exportDashboardToExcel();
+      });
+    }
+  });
+</script>
+
+
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const usernameEl = document.getElementById("username");
+    const greetingEl = document.getElementById("greetingText");
+    const currentDateEl = document.getElementById("current-date");
+
+    const now = new Date();
+    const hour = now.getHours();
+
+    currentDateEl.textContent = now.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    });
+
+    let greeting = "Good day";
+    if (hour >= 5 && hour < 12) greeting = "Good morning";
+    else if (hour >= 12 && hour < 17) greeting = "Good afternoon";
+    else greeting = "Good evening";
+    
+    const username = localStorage.getItem("clientName") || "Client";
+    usernameEl.textContent = username;
+
+    greetingEl.innerHTML = `${greeting}, <span id="username">${username}</span>!`;
+  });
+</script>
+
+
+  <!--- Vendor JS --->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+  <!-- Dashboard JS -->
+  <script src="../script/clientdashboard.js"></script>
+
+</body>
+</html>

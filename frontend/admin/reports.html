@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>TSL Freight Movers INC.</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!--- Favicons --->
+  <link href="../assets/img/f-icon.png" rel="icon">
+  <link href="../assets/img/l-icon.png" rel="apple-touch-icon">
+
+  <!--- Google Fonts --->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Amatic+SC:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!--- Vendor CSS Files --->
+  <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="../assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="../assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="../assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!--- Main CSS File --->
+  <link href="./styles/analytics.css" rel="stylesheet">
+
+  <!--- Icons --->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css">
+
+  <!--- Flatpickr --->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+  <!--- Preloader --->
+  <div id="preloader"></div>
+
+  <!--- Navbar --->
+  <nav>
+    <div class="logo-name">
+      <div class="logo-image">
+        <img src="../assets/img/logo.png" alt="TSL Logo">
+      </div>
+      <span class="logo_name">TSL FREIGHT<br> MOVERS, INC.</span>
+    </div>
+
+    <div class="menu-items">
+      <ul class="nav-links">
+        <li>
+          <a href="./admin.html">
+            <i class="uil uil-estate"></i>
+            <span class="link-name">Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="./client-management.html">
+            <i class="uil uil-users-alt"></i>
+            <span class="link-name">Clients</span>
+          </a>
+        </li>
+        <li>
+          <a href="./booking-management.html">
+            <i class="uil uil-schedule"></i>
+            <span class="link-name">Bookings</span>
+          </a>
+        </li>
+        <li>
+          <a href="./shipment.html">
+            <i class="uil uil-ship"></i>
+            <span class="link-name">Shipments</span>
+          </a>
+        </li>
+        <li>
+          <a href="./admin-invoice.html">
+            <i class="uil uil-receipt"></i>
+            <span class="link-name">Invoice</span>
+          </a>
+        </li>
+        <li>
+          <a href="./reports.html" class="active">
+            <i class="uil uil-file-alt"></i>
+            <span class="link-name">Reports</span>
+          </a>
+        </li>
+        <li>
+          <a href="./auditlogs.html">
+            <i class="uil uil-history"></i>
+            <span class="link-name">Audit Log</span>
+          </a>
+        </li>
+        <li>
+          <a href="./settings-admin.html">
+            <i class="uil uil-cog"></i>
+            <span class="link-name">Settings</span>
+          </a>
+        </li>
+      </ul>
+
+      <ul class="logout-mode">
+        <li>
+          <a href="../login.html">
+            <i class="uil uil-signout"></i>
+            <span class="link-name">Logout</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <!--- End Navbar --->
+
+  <main class="dashboard">
+    <div class="top d-flex align-items-center justify-content-between px-3 py-2">
+      <div class="d-flex align-items-center">
+        <i class="fas fa-bars hamburger-menu me-3" id="hamburgerMenu"></i>
+        <div class="d-flex flex-column">
+          <h4 class=" dashboard-title fw-semibold" id="greetingText">Good day, <span>Super Admin</span>!</h4>
+          <p class="dashboard-date mb-0" id="current-date" data-field="currentDate">—</p>
+        </div>
+      </div>
+      <div class="d-flex align-items-center">
+        <a href="./notification.html" class="position-relative">
+          <i class="fas fa-bell fs-5 text-white"></i>
+          <span id="notifCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            0 </span>
+        </a>
+      </div>
+    </div>
+
+    <section class="mx-3 mb-4">
+      <div class="container-fluid mt-4">
+        <!--- Tabs --->
+        <div class="d-flex w-100 mb-3">
+          <button class="tab-btn tab-btn-active flex-fill mx-1" data-target="operational">Operational Manager</button>
+          <button class="tab-btn flex-fill mx-1" data-target="accounting">Accounting</button>
+          <button class="tab-btn flex-fill mx-1" data-target="clients">Clients</button>
+        </div>
+
+        <!--- Report Sections --->
+        <div class="row g-4">
+
+          <!--- Operational Section --->
+          <div id="operational" class="report-section col-12">
+            <div class="row g-4">
+
+              <!--- Shipment Volume Report --->
+              <div class="col-lg-6 col-md-6">
+                <div class="card shadow-sm p-3 h-100 d-flex flex-column justify-content-between">
+                  <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h6 class="mb-0 d-flex align-items-center">
+                      <span
+                        class="d-inline-flex justify-content-center align-items-center rounded-circle bg-light text-primary me-2"
+                        style="width:32px;height:32px;">
+                        <i class="bi bi-bar-chart"></i>
+                      </span>
+                      Shipment Volume Report
+                    </h6>
+                    <div class="d-flex align-items-center gap-2">
+                      <button id="filterShipmentVolumeBtn" class="filterBtn">
+                        <i class="fas fa-filter me-1"></i>
+                      </button>
+                      <div class="btn-group">
+                        <button type="button" class="export-btn btn-sm dropdown-toggle" data-bs-toggle="dropdown"
+                          aria-expanded="false" data-bs-toggle="dropdown" aria-expanded="false">
+                          <i class="fas fa-file-export"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                          <li><a class="dropdown-item export-option" href="#" data-format="pdf"
+                              data-target="shipmentVolume">
+                              <i class="fas fa-file-pdf text-danger me-2"></i> PDF
+                            </a></li>
+                          <li><a class="dropdown-item export-option" href="#" data-format="csv"
+                              data-target="shipmentVolume">
+                              <i class="fas fa-file-csv text-success me-2"></i> CSV
+                            </a></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="text-muted small mb-0 ms-4">Shows total shipments in the selected time.</p>
+                  <div class="d-flex justify-content-center">
+                    <div class="chart-container" style="height:260px; width:90%;">
+                      <canvas id="shipmentVolume"></canvas>
+                    </div>
+                  </div>
+                  <p class="small text-muted text-center mt-3">Total shipments <span id="shipmentVolumeLabel">this
+                      month</span>:<strong id="shipmentVolumeTotal">0</strong></p>
+                </div>
+              </div>
+
+              <!--- On-Time vs Late --->
+              <div class="col-lg-6 col-md-6">
+                <div class="card shadow-sm p-3 h-100 d-flex flex-column justify-content-between">
+                  <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h6 class="mb-0 d-flex align-items-center">
+                      <span
+                        class="d-inline-flex justify-content-center align-items-center rounded-circle bg-light text-primary me-2"
+                        style="width:32px;height:32px;">
+                        <i class="bi bi-clock-history"></i>
+                      </span>
+                      On-Time vs Late
+                    </h6>
+                    <div class="d-flex align-items-center gap-2">
+                      <button id="filterOnTimeLateBtn" class="filterBtn">
+                        <i class="fas fa-filter me-1"></i>
+                      </button>
+                      <div class="btn-group">
+                        <button type="button" class="export-btn btn-sm dropdown-toggle" data-bs-toggle="dropdown"
+                          aria-expanded="false" data-bs-toggle="dropdown" aria-expanded="false">
+                          <i class="fas fa-file-export"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                          <li><a class="dropdown-item export-option" href="#" data-format="pdf"
+                              data-target="onTimeLate">
+                              <i class="fas fa-file-pdf text-danger me-2"></i> PDF
+                            </a></li>
+                          <li><a class="dropdown-item export-option" href="#" data-format="csv"
+                              data-target="onTimeLate">
+                              <i class="fas fa-file-csv text-success me-2"></i> CSV
+                            </a></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="text-muted small mb-0 ms-4">Compares on-time and late deliveries.</p>
+                  <div class="d-flex justify-content-center">
+                    <div class="chart-container" style="height:260px; width:80%;">
+                      <canvas id="onTimeLate"></canvas>
+                    </div>
+                  </div>
+                  <p id="onTimeLatePercentage" class="small text-muted text-center mt-3">On-time deliveries:
+                    <strong>0%</strong>
+                  </p>
+                </div>
+              </div>
+
+              <!--- Booking Status Reports --->
+              <div class="col-lg-6 col-md-6">
+                <div class="card shadow-sm p-3 h-100 d-flex flex-column justify-content-between">
+                  <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h6 class="mb-0 d-flex align-items-center">
+                      <span
+                        class="d-inline-flex justify-content-center align-items-center rounded-circle bg-light text-primary me-2"
+                        style="width:32px;height:32px;">
+                        <i class="bi bi-truck"></i>
+                      </span>Booking Status Reports
+                    </h6>
+                    <div class="d-flex align-items-center gap-2">
+                      <button id="filterShipmentStatusBtn" class="filterBtn">
+                        <i class="fas fa-filter me-1"></i>
+                      </button>
+                      <div class="btn-group">
+                        <button type="button" class="export-btn btn-sm dropdown-toggle" data-bs-toggle="dropdown"
+                          aria-expanded="false" data-bs-toggle="dropdown" aria-expanded="false">
+                          <i class="fas fa-file-export"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                          <li><a class="dropdown-item export-option" href="#" data-format="pdf"
+                              data-target="shipmentStatus">
+                              <i class="fas fa-file-pdf text-danger me-2"></i> PDF
+                            </a></li>
+                          <li><a class="dropdown-item export-option" href="#" data-format="csv"
+                              data-target="shipmentStatus">
+                              <i class="fas fa-file-csv text-success me-2"></i> CSV
+                            </a></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="text-muted small mb-0 ms-4">Shows bookings by their current status.</p>
+                  <div class="d-flex justify-content-center">
+                    <div class="chart-container" style="height:260px; width:90%;">
+                      <canvas id="shipmentStatus"></canvas>
+                    </div>
+                  </div>
+                  <p id="shipmentStatusSummary" class="small text-muted text-center mt-3">Approved: <strong>0</strong> |
+                    Pending: <strong>0</strong> | Completed: <strong>0</strong></p>
+                </div>
+              </div>
+
+              <!--- Top Clients by Booking --->
+              <div class="col-lg-6 col-md-6">
+                <div class="card shadow-sm p-3 h-100 d-flex flex-column justify-content-between">
+                  <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h6 class="mb-0 d-flex align-items-center">
+                      <span
+                        class="d-inline-flex justify-content-center align-items-center rounded-circle bg-light text-primary me-2"
+                        style="width:32px;height:32px;">
+                        <i class="bi bi-people"></i>
+                      </span>
+                      Top Clients by Booking
+                    </h6>
+                    <div class="d-flex align-items-center gap-2">
+                      <button id="filterTopClientsBtn" class="filterBtn">
+                        <i class="fas fa-filter me-1"></i>
+                      </button>
+                      <div class="btn-group">
+                        <button type="button" class="export-btn btn-sm dropdown-toggle" data-bs-toggle="dropdown"
+                          aria-expanded="false" data-bs-toggle="dropdown" aria-expanded="false">
+                          <i class="fas fa-file-export"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                          <li><a class="dropdown-item export-option" href="#" data-format="pdf"
+                              data-target="topClients">
+                              <i class="fas fa-file-pdf text-danger me-2"></i> PDF
+                            </a></li>
+                          <li><a class="dropdown-item export-option" href="#" data-format="csv"
+                              data-target="topClients">
+                              <i class="fas fa-file-csv text-success me-2"></i> CSV
+                            </a></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="text-muted small mb-0 ms-4">Shows clients with the most bookings.</p>
+                  <div class="d-flex justify-content-center">
+                    <div class="chart-container" style="height:260px; width:90%;">
+                      <canvas id="topClients"></canvas>
+                    </div>
+                  </div>
+                  <p class="small text-muted text-center mt-3">Top performing clients by volume</p>
+                </div>
+              </div>
+
+              <!--- Client Shipment and Bookings History Table --->
+              <div class="col-lg-12 col-md-12">
+                <div class="card shadow-sm p-3 h-100 d-flex flex-column justify-content-between">
+                  <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h6 class="mb-0 d-flex align-items-center">
+                      <span
+                        class="d-inline-flex justify-content-center align-items-center rounded-circle bg-light text-primary me-2"
+                        style="width:32px;height:32px;">
+                        <i class="bi bi-clock"></i>
+                      </span>
+                      Client Shipment and Booking History
+                    </h6>
+                    <div class="d-flex align-items-center gap-2">
+                      <button id="filterRevenueTrendBtn" class="filterBtn">
+                        <i class="fas fa-filter me-1"></i>
+                      </button>
+                      <div class="btn-group">
+                        <button type="button" class="export-btn btn-sm dropdown-toggle" data-bs-toggle="dropdown"
+                          aria-expanded="false" data-bs-toggle="dropdown" aria-expanded="false">
+                          <i class="fas fa-file-export"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                          <li><a class="dropdown-item export-option" href="#" data-format="pdf"
+                              data-target="clientHistory">
+                              <i class="fas fa-file-pdf text-danger me-2"></i> PDF
+                            </a></li>
+                          <li><a class="dropdown-item export-option" href="#" data-format="csv"
+                              data-target="clientHistory">
+                              <i class="fas fa-file-csv text-success me-2"></i> CSV
+                            </a></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="text-muted small mb-0 ms-4">Lists all shipments and booking made by each client.</p>
+                  <div class="table-responsive" style="max-height:300px; overflow-y:auto;">
+                    <table id="clientHistoryTable" class="table table-striped table-hover mb-0">
+                      <thead class="table-dark">
+                        <tr>
+                          <th>#</th>
+                          <th>Company Name</th>
+                          <th>Tracking #</th>
+                          <th>Service Type</th>
+                          <th>Origin</th>
+                          <th>Destination</th>
+                          <th>Status</th>
+                          <th>Shipment Date</th>
+                        </tr>
+                      </thead>
+                      <tbody id="clientHistoryTableBody"></tbody>
+                    </table>
+                  </div>
+                  <p class="small text-muted text-center mt-3">Shipment / Booking history per client</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!--- Accounting Section --->
+          <div id="accounting" class="report-section col-12" style="display:none;">
+            <div class="row g-4">
+
+              <!--- Sales Trend Report --->
+              <div class="col-md-6">
+                <div class="card shadow-sm h-100">
+                  <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                      <h5 class="fw-semibold mb-0">
+                        <i class="bi bi-graph-up text-primary me-2"></i>
+                        Sales Trend Report
+                      </h5>
+                      <div class="d-flex align-items-center gap-2">
+                        <button id="filterSalesTrendBtn" class="filterBtn">
+                          <i class="fas fa-filter me-1"></i>
+                        </button>
+                        <div class="btn-group">
+                          <button type="button" class="export-btn btn-sm dropdown-toggle" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            <i class="fas fa-file-export"></i>
+                          </button>
+                          <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item export-option" href="#" data-format="pdf"
+                                data-target="monthlyRevenueChart">
+                                <i class="fas fa-file-pdf text-danger me-2"></i> PDF
+                              </a></li>
+                            <li><a class="dropdown-item export-option" href="#" data-format="csv"
+                                data-target="monthlyRevenueChart">
+                                <i class="fas fa-file-csv text-success me-2"></i> CSV
+                              </a></li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                    <p class="text-muted small mb-0 ms-4">Shows monthly income from paid invoices.</p>
+                    <div class="chart-container" style="height: 350px;">
+                      <canvas id="monthlyRevenueChart"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!--- Revenue by Client Report --->
+              <div class="col-md-6">
+                <div class="card shadow-sm h-100">
+                  <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                      <h5 class="fw-semibold mb-0">
+                        <i class="bi bi-person-badge text-primary me-2"></i>
+                        Sales by Client Report
+                      </h5>
+                      <div class="d-flex align-items-center gap-2">
+                        <button id="filterRevenueByClientBtn" class="filterBtn">
+                          <i class="fas fa-filter me-1"></i>
+                        </button>
+                        <div class="btn-group">
+                          <button type="button" class="export-btn btn-sm dropdown-toggle" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            <i class="fas fa-file-export"></i>
+                          </button>
+                          <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item export-option" href="#" data-format="pdf"
+                                data-target="revenueByClientChart">
+                                <i class="fas fa-file-pdf text-danger me-2"></i> PDF
+                              </a></li>
+                            <li><a class="dropdown-item export-option" href="#" data-format="csv"
+                                data-target="revenueByClientChart">
+                                <i class="fas fa-file-csv text-success me-2"></i> CSV
+                              </a></li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                    <p class="text-muted small mb-0 ms-4">Shows income earned from each client.</p>
+                    <div class="chart-container" style="height: 350px;">
+                      <canvas id="revenueByClientChart"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Invoice Status Report -->
+              <div class="col-lg-6 col-md-6">
+                <div class="card shadow-sm p-3 h-100 d-flex flex-column justify-content-between">
+                  <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h6 class="mb-0 d-flex align-items-center">
+                      <span
+                        class="d-inline-flex justify-content-center align-items-center rounded-circle bg-light text-primary me-2"
+                        style="width:32px;height:32px;">
+                        <i class="bi bi-receipt"></i>
+                      </span>
+                      Invoice Status Report
+                    </h6>
+                    <div class="d-flex align-items-center gap-2">
+                      <button id="filterInvoiceStatusBtn" class="filterBtn">
+                        <i class="fas fa-filter me-1"></i>
+                      </button>
+                      <div class="btn-group">
+                        <button type="button" class="export-btn btn-sm dropdown-toggle" data-bs-toggle="dropdown"
+                          aria-expanded="false">
+                          <i class="fas fa-file-export"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                          <li><a class="dropdown-item export-option" href="#" data-format="pdf"
+                              data-target="invoiceStatus">
+                              <i class="fas fa-file-pdf text-danger me-2"></i> PDF
+                            </a></li>
+                          <li><a class="dropdown-item export-option" href="#" data-format="csv"
+                              data-target="invoiceStatus">
+                              <i class="fas fa-file-csv text-success me-2"></i> CSV
+                            </a></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="text-muted small mb-0 ms-4">Shows paid and unpaid invoice totals.</p>
+                  <div class="d-flex justify-content-center">
+                    <div class="chart-container" style="height:260px; width:80%;">
+                      <canvas id="invoiceStatus"></canvas>
+                    </div>
+                  </div>
+                  <p class="small text-muted text-center mt-3">Paid vs Unpaid invoices</p>
+                </div>
+              </div>
+
+              <!-- Aging Report -->
+              <div class="col-lg-6 col-md-6">
+                <div class="card shadow-sm p-3 h-100 d-flex flex-column justify-content-between">
+                  <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h6 class="mb-0 d-flex align-items-center">
+                      <span
+                        class="d-inline-flex justify-content-center align-items-center rounded-circle bg-light text-primary me-2"
+                        style="width:32px;height:32px;">
+                        <i class="bi bi-hourglass-split"></i>
+                      </span>
+                      Aging Report (Unpaid Invoices by Age)
+                    </h6>
+                    <div class="d-flex align-items-center gap-2">
+                      <button id="filterAgingReportBtn" class="filterBtn">
+                        <i class="fas fa-filter me-1"></i>
+                      </button>
+                      <div class="btn-group">
+                        <button type="button" class="export-btn btn-sm dropdown-toggle" data-bs-toggle="dropdown"
+                          aria-expanded="false">
+                          <i class="fas fa-file-export"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                          <li><a class="dropdown-item export-option" href="#" data-format="pdf"
+                              data-target="agingReport">
+                              <i class="fas fa-file-pdf text-danger me-2"></i> PDF
+                            </a></li>
+                          <li><a class="dropdown-item export-option" href="#" data-format="csv"
+                              data-target="agingReport">
+                              <i class="fas fa-file-csv text-success me-2"></i> CSV
+                            </a></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="text-muted small mb-0 ms-4">Groups unpaid invoices by overdue days.</p>
+                  <div class="d-flex justify-content-center">
+                    <div class="chart-container" style="height:260px; width:90%;">
+                      <canvas id="agingReport"></canvas>
+                    </div>
+                  </div>
+                  <p class="small text-muted text-center mt-3">Breakdown of overdue invoices by age (30, 60, 90+ days)
+                  </p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+
+          <!-- Clients Section -->
+          <div id="clients" class="report-section col-12" style="display:none;">
+            <div class="row g-4">
+              <div class="col-12">
+                <div class="card shadow-sm p-3 h-100">
+                  <h6 class="mb-3 d-flex align-items-center">
+                    <span
+                      class="d-inline-flex justify-content-center align-items-center rounded-circle bg-light text-primary me-2"
+                      style="width:32px;height:32px;">
+                      <i class="bi bi-people"></i>
+                    </span>
+                    Clients Overview
+                  </h6>
+                  <div class="table-responsive">
+                    <table class="table table-striped">
+                      <thead>
+                        <tr>
+                          <th>Client Name</th>
+                          <th>Total Bookings</th>
+                          <th>Total Sales</th>
+                          <th>On-time Delivery %</th>
+                          <th>Late Shipments</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>Acme Corp</td>
+                          <td>45</td>
+                          <td>$120,000</td>
+                          <td>87%</td>
+                          <td>5</td>
+                        </tr>
+                        <tr>
+                          <td>Global Logistics</td>
+                          <td>32</td>
+                          <td>$95,500</td>
+                          <td>92%</td>
+                          <td>3</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Custom Range Modal -->
+  <div class="modal fade" id="dateRangeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;width:92%;">
+      <div class="modal-content border-0 shadow-sm">
+        <div class="modal-header" style="background:#0077b6;color:#fff;">
+          <h6 class="modal-title mb-0">Select Date Range</h6>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <label class="form-label small text-muted mb-2">Date range</label>
+          <input id="dateRangeInput" class="form-control" placeholder="YYYY-MM-DD to YYYY-MM-DD" />
+          <small class="text-muted d-block mt-2">Tip: pick start then end date</small>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+          <button id="applyDateRangeBtn" type="button" class="btn btn-primary">Apply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Footer -->
+  <footer class="text-center mt-5">
+    <p>CargoSmart: Shipment Tracking System with Data Analytics</p>
+  </footer>
+
+  <!--- JS Scripts --->
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="./script/data-analytics.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const greetingEl = document.getElementById("greetingText");
+      const currentDateEl = document.getElementById("current-date");
+
+      const now = new Date();
+      const hour = now.getHours();
+
+      currentDateEl.textContent = now.toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
+
+      let greeting = "Good day";
+      if (hour >= 5 && hour < 12) greeting = "Good morning";
+      else if (hour >= 12 && hour < 17) greeting = "Good afternoon";
+      else greeting = "Good evening";
+
+      greetingEl.textContent = `${greeting}, Super Admin!`;
+    });
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const exportButtons = document.querySelectorAll(".exportBtn");
+
+      exportButtons.forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const type = btn.dataset.type;
+          const chartId = btn.dataset.chart;
+          const tableId = btn.dataset.table;
+
+          if (chartId) {
+            await exportChart(chartId, type);
+          } else if (tableId) {
+            await exportTable(tableId, type);
+          } else {
+            showNotification("Export Error", "No target found to export.", "error");
+          }
+        });
+      });
+    });
+
+
+    async function exportChart(chartId, type = "pdf") {
+      const canvas = document.getElementById(chartId);
+      if (!canvas) {
+        showNotification("Error", "Chart not found.", "error");
+        return;
+      }
+
+      const chartTitle = canvas.closest(".card").querySelector("h5, h6")?.innerText || "Chart Export";
+
+      if (chartId === "shipmentVolume" && type === "pdf") {
+        exportShipmentVolumeTablePDF();
+        return;
+      }
+
+      if (
+        chartId === "shipmentStatus" ||
+        chartTitle.toLowerCase().includes("booking status")
+      ) {
+        exportBookingStatusTablePDF();
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+
+
+      if (type === "pdf") {
+        const pdf = new jsPDF({ orientation: "landscape" });
+        const imgData = canvas.toDataURL("image/png", 1.0);
+        pdf.setFontSize(16);
+        pdf.text(chartTitle, 15, 15);
+        pdf.addImage(imgData, "PNG", 10, 25, 270, 140);
+        pdf.save(`${chartTitle}.pdf`);
+        showNotification("Exported", `${chartTitle} saved as PDF.`, "success");
+      } else if (type === "png") {
+        const link = document.createElement("a");
+        link.href = canvas.toDataURL("image/png");
+        link.download = `${chartTitle}.png`;
+        link.click();
+        showNotification("Exported", `${chartTitle} saved as PNG.`, "success");
+      }
+    }
+
+    async function exportTable(tableId, type = "excel") {
+      const table = document.getElementById(tableId) || document.querySelector(`#${tableId} table`);
+      if (!table) {
+        showNotification("Error", "Table not found.", "error");
+        return;
+      }
+
+      const tableTitle = table.closest(".card")?.querySelector("h5, h6")?.innerText || "Table Export";
+
+      if (type === "excel" || type === "xlsx") {
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.table_to_sheet(table);
+        XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+        XLSX.writeFile(wb, `${tableTitle}.xlsx`);
+        showNotification("Exported", `${tableTitle} saved as Excel.`, "success");
+      }
+      else if (type === "pdf") {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ orientation: "landscape" });
+        const canvas = await html2canvas(table);
+        const imgData = canvas.toDataURL("image/png", 1.0);
+        pdf.text(tableTitle, 15, 15);
+        pdf.addImage(imgData, "PNG", 10, 25, 270, 140);
+        pdf.save(`${tableTitle}.pdf`);
+        showNotification("Exported", `${tableTitle} saved as PDF.`, "success");
+      }
+    }
+  </script>
+
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const tabButtons = document.querySelectorAll(".tab-btn");
+      const sections = document.querySelectorAll(".report-section");
+
+      tabButtons.forEach(button => {
+        button.addEventListener("click", () => {
+          const targetId = button.dataset.target;
+
+          sections.forEach(section => {
+            section.style.display = section.id === targetId ? "block" : "none";
+          });
+          tabButtons.forEach(btn => btn.classList.remove("tab-btn-active"));
+          button.classList.add("tab-btn-active");
+        });
+      });
+
+      const currentDateElement = document.getElementById("current-date");
+      if (currentDateElement) {
+        const now = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        currentDateElement.textContent = now.toLocaleDateString('en-US', options);
+      }
+
+      const hamburgerMenu = document.getElementById("hamburgerMenu");
+      const nav = document.querySelector("nav");
+      if (hamburgerMenu && nav) {
+        hamburgerMenu.addEventListener("click", () => {
+          nav.classList.toggle("active");
+        });
+
+        document.addEventListener("click", e => {
+          if (!nav.contains(e.target) && !hamburgerMenu.contains(e.target)) {
+            nav.classList.remove("active");
+          }
+        });
+      }
+    });
+
+    window.addEventListener("load", () => {
+      const preloader = document.getElementById("preloader");
+      if (preloader) {
+        preloader.style.opacity = "0";
+        preloader.style.visibility = "hidden";
+        setTimeout(() => preloader.remove(), 600);
+      }
+    });
+  </script>
+
+</body>
+
+</html>

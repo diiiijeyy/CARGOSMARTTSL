@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>TSL Freight Movers INC.</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="../assets/img/f-icon.png" rel="icon">
+  <link href="../assets/img/l-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Amatic+SC:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="../assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="../assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="../assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="./styles/settings-admin.css" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css">
+
+  <!-- Script -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+  <!-- Preloader -->
+  <div id="preloader"></div>
+
+  <!-- Navbar -->
+  <nav>
+    <div class="logo-name">
+      <div class="logo-image">
+        <img src="../assets/img/logo.png" alt="TSL Logo">
+      </div>
+      <span class="logo_name">TSL FREIGHT<br> MOVERS, INC.</span>
+    </div>
+
+    <div class="menu-items">
+      <ul class="nav-links">
+        <li>
+          <a href="./admin.html">
+            <i class="uil uil-estate"></i>
+            <span class="link-name">Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="./client-management.html">
+            <i class="uil uil-users-alt"></i>
+            <span class="link-name">Clients</span>
+          </a>
+        </li>
+        <li>
+          <a href="./booking-management.html">
+            <i class="uil uil-schedule"></i>
+            <span class="link-name">Bookings</span>
+          </a>
+        </li>
+        <li>
+          <a href="./shipment.html">
+            <i class="uil uil-ship"></i>
+            <span class="link-name">Shipments</span>
+          </a>
+        </li>
+        <li>
+          <a href="./admin-invoice.html">
+            <i class="uil uil-receipt"></i>
+            <span class="link-name">Invoice</span>
+          </a>
+        </li>
+        <li>
+          <a href="./reports.html">
+            <i class="uil uil-file-alt"></i>
+            <span class="link-name">Reports</span>
+          </a>
+        </li>
+        <li>
+          <a href="./auditlogs.html">
+            <i class="uil uil-history"></i>
+            <span class="link-name">Audit Log</span>
+          </a>
+        </li>
+        <li>
+          <a href="./settings-admin.html" class="active">
+            <i class="uil uil-cog"></i>
+            <span class="link-name">Settings</span>
+          </a>
+        </li>
+      </ul>
+
+      <ul class="logout-mode">
+        <li>
+          <a href="../login.html">
+            <i class="uil uil-signout"></i>
+            <span class="link-name">Logout</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <!--- End Navbar --->
+
+  <main class="dashboard">
+    <div class="top d-flex align-items-center justify-content-between px-3 py-2">
+      <!-- Left side -->
+      <div class="d-flex align-items-center">
+        <i class="fas fa-bars hamburger-menu me-3" id="hamburgerMenu"></i>
+        <div class="d-flex flex-column">
+          <h4 class="dashboard-title fw-semibold" id="greetingText">
+            Good day, <span>Super Admin</span>!
+          </h4>
+          <p class="dashboard-date mb-0" id="current-date" data-field="currentDate">—</p>
+        </div>
+      </div>
+
+      <!-- Right side -->
+      <div class="d-flex align-items-center">
+        <a href="./notification.html" class="position-relative">
+          <i class="fas fa-bell fs-5 text-white"></i>
+          <span id="notifCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            0
+          </span>
+        </a>
+      </div>
+    </div>
+
+    <!-- ================= ABOUT & WHY CHOOSE US ================= -->
+    <section class="about-why-section py-5">
+      <div class="container">
+        <!-- ABOUT US -->
+        <div class="row align-items-center justify-content-center mb-5 text-center text-md-start">
+          <div id="aboutSection"
+            class="col-md-11 mx-auto d-flex flex-column flex-md-row align-items-center justify-content-center">
+            <!-- Image -->
+            <div class="col-md-5 mb-4 mb-md-0 text-center me-md-4">
+              <img src="../assets/img/about_bg.png" alt="About Us" class="img-fluid rounded shadow-sm about-img">
+            </div>
+
+            <!-- Text Content -->
+            <div class="col-md-6 d-flex flex-column justify-content-center">
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <h2 class="fw-bold text-primary mb-0 text-md-start text-center">ABOUT US</h2>
+                <button class="btn btn-sm btn-outline-primary ms-2 px-3 py-1" style="font-size: 0.8rem;"
+                  onclick="editSection('aboutSectionContent')">
+                  <i class="fas fa-edit me-1"></i>Edit
+                </button>
+              </div>
+              <div id="aboutSectionContent">
+                <p class="text-dark mb-0">
+                  Providing fast and safe NVOCC, international and domestic freight forwarding,
+                  customs brokerage, trucking services, sea freight consolidation, and warehousing.
+                  It is our guarantee to deliver the expectations of our customers and build
+                  long-term mutually beneficial business relationships with our clients.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WHY CHOOSE US -->
+        <div class="row align-items-center justify-content-center flex-md-row-reverse text-center text-md-start">
+          <div class="col-md-5 mb-4 mb-md-0 text-center ms-md-4">
+            <img src="../assets/img/choose_bg.png" alt="Why Choose Us" class="img-fluid rounded shadow-sm about-img">
+          </div>
+
+          <div class="col-md-6 d-flex flex-column justify-content-center">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h2 class="fw-bold text-primary mb-0 text-md-start text-center">WHY CHOOSE US</h2>
+              <button class="btn btn-sm btn-outline-primary ms-2 px-3 py-1" style="font-size: 0.8rem;"
+                onclick="editSection('whyChooseContent')">
+                <i class="fas fa-edit me-1"></i>Edit
+              </button>
+            </div>
+
+            <div id="whyChooseContent">
+              <p class="text-dark mb-0">
+                We dedicate to continuously create a happy workplace founded on respect, professionalism,
+                open communication, innovative ways & effective systems.
+                <br><br>
+                Enthusiasm and motivation drive us to deliver superior service to our customers.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================ Vision, Mission & Corporate Values Section ================ -->
+    <section id="vision-mission" class="vision-mission py-5 text-center position-relative">
+      <div class="container">
+        <div class="section-header mb-5">
+          <h1 class="fw-bold text-uppercase display-6 display-md-4 display-lg-3">
+            VISION, MISSION & CORPORATE VALUES
+          </h1>
+        </div>
+
+        <div class="row g-4 justify-content-center align-items-stretch">
+          <!-- Vision -->
+          <div class="col-12 col-md-6 col-lg-4 d-flex">
+            <div class="card p-4 shadow-lg w-100 d-flex flex-column text-center">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h4 class="fw-bold text-uppercase mb-0">VISION</h4>
+                <button class="btn btn-sm btn-outline-primary px-2 py-1" style="font-size: 0.75rem;"
+                  onclick="editSection('visionContent')">
+                  <i class="fas fa-edit me-1"></i>Edit
+                </button>
+              </div>
+              <div class="icon mb-3">
+                <img src="../assets/img/icon/Vision-icon.png" alt="Vision Icon"
+                  style="width:55px;height:55px;object-fit:contain;">
+              </div>
+              <div id="visionContent">
+                <p>To become the trusted Freight forwarder in the Philippines bridging global service
+                  with the highest commitment to quality in logistics services.</p>
+                <p>TSL will be a trusted industry leader in the Philippines delivering a high standard of service
+                  to our customers.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mission -->
+          <div class="col-12 col-md-6 col-lg-4 d-flex">
+            <div class="card p-4 shadow-lg w-100 d-flex flex-column text-center">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h4 class="fw-bold text-uppercase mb-0">MISSION</h4>
+                <button class="btn btn-sm btn-outline-primary px-2 py-1" style="font-size: 0.75rem;"
+                  onclick="editSection('missionContent')">
+                  <i class="fas fa-edit me-1"></i>Edit
+                </button>
+              </div>
+              <div class="icon mb-3">
+                <img src="../assets/img/icon/Mission-icon.jpg" alt="Mission Icon"
+                  style="width:55px;height:55px;object-fit:contain;">
+              </div>
+              <div id="missionContent">
+                <p>To provide timely logistics support anywhere, in an efficient and customer-driven
+                  manner, resulting in total customer satisfaction.</p>
+                <p>TSL is committed to exceed EXPECTATIONS of our customers in transport solutions
+                  through customized and economical ways.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Corporate Values -->
+          <div class="col-12 col-md-6 col-lg-4 d-flex">
+            <div class="card p-4 shadow-lg w-100 d-flex flex-column text-center">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h4 class="fw-bold text-uppercase mb-0">CORPORATE VALUES</h4>
+                <button class="btn btn-sm btn-outline-primary px-2 py-1" style="font-size: 0.75rem;"
+                  onclick="editSection('valuesContent')">
+                  <i class="fas fa-edit me-1"></i>Edit
+                </button>
+              </div>
+              <div class="icon mb-3">
+                <img src="../assets/img/icon/Values-icon.png" alt="Values Icon"
+                  style="width:55px;height:55px;object-fit:contain;">
+              </div>
+              <div id="valuesContent">
+                <p>Integrity, Excellence, Honesty, Transparency, Helping Communities</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================ Contact Section (Editable Text Only, No AOS) ================ -->
+    <section id="contact" class="contact py-5">
+      <div class="container">
+        <div class="section-header mb-4 text-center">
+          <h1 class="fw-bold text-uppercase display-6">CONTACT</h1>
+        </div>
+
+        <!-- Google Map (Static) -->
+        <div class="mb-4">
+          <iframe style="border:0; width: 100%; height: 350px;"
+            src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d123606.1152021309!2d120.99985!3d14.502414000000002!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397cebce3e7585b%3A0x1a18127dd6f4199a!2sTsl%20Freight%20Movers%20Inc.!5e0!3m2!1sen!2sus!4v1740309555775!5m2!1sen!2sus"
+            frameborder="0" allowfullscreen></iframe>
+        </div>
+
+        <div class="row gy-4">
+          <!-- Address -->
+          <div class="col-md-6">
+            <div class="info-item d-flex align-items-start p-3 shadow-sm rounded bg-white h-100">
+              <i class="icon bi bi-map flex-shrink-0 fs-4 me-3 text-primary"></i>
+              <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h4 class="fw-bold mb-0">Our Address</h4>
+                  <button class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size: 0.75rem;"
+                    onclick="editSection('contactAddressContent')">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                </div>
+                <div id="contactAddressContent">
+                  <p class="mb-0">
+                    Unit 232 MIASCOR Cargo Center, Ninoy Aquino Avenue, <br>
+                    Sto. Niño, Parañaque City, Philippines
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="col-md-6">
+            <div class="info-item d-flex align-items-start p-3 shadow-sm rounded bg-white h-100">
+              <i class="icon bi bi-envelope flex-shrink-0 fs-4 me-3 text-primary"></i>
+              <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h4 class="fw-bold mb-0">Email Us</h4>
+                  <button class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size: 0.75rem;"
+                    onclick="editSection('contactEmailContent')">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                </div>
+                <div id="contactEmailContent">
+                  <p class="mb-0">
+                    sales@tsl.ph, operations@tsl.ph, <br>
+                    cs@tsl.ph, sales2@tsl.ph
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Call Us -->
+          <div class="col-md-6">
+            <div class="info-item d-flex align-items-start p-3 shadow-sm rounded bg-white h-100">
+              <i class="icon bi bi-telephone flex-shrink-0 fs-4 me-3 text-primary"></i>
+              <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h4 class="fw-bold mb-0">Call Us</h4>
+                  <button class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size: 0.75rem;"
+                    onclick="editSection('contactPhoneContent')">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                </div>
+                <div id="contactPhoneContent">
+                  <p class="mb-0">(02) 8373-8008 / (02) 8330-1371</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Opening Hours -->
+          <div class="col-md-6">
+            <div class="info-item d-flex align-items-start p-3 shadow-sm rounded bg-white h-100">
+              <i class="icon bi bi-share flex-shrink-0 fs-4 me-3 text-primary"></i>
+              <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h4 class="fw-bold mb-0">Opening Hours</h4>
+                  <button class="btn btn-sm btn-outline-primary py-0 px-2" style="font-size: 0.75rem;"
+                    onclick="editSection('contactHoursContent')">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                </div>
+                <div id="contactHoursContent">
+                  <p class="mb-0"><strong>Mon–Fri:</strong> 8AM – 5PM</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center mt-5">
+    <p>CargoSmart: Shipment Tracking System with Data Analytics</p>
+  </footer>
+
+  <!-- JS Scripts -->
+  <script>
+    // Date
+    document.addEventListener("DOMContentLoaded", () => {
+      const currentDateElement = document.getElementById("current-date");
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      currentDateElement.textContent = now.toLocaleDateString('en-US', options);
+    });
+
+    // Hamburger menu toggle
+    document.addEventListener("DOMContentLoaded", function () {
+      const hamburgerMenu = document.getElementById("hamburgerMenu");
+      const nav = document.querySelector("nav");
+      hamburgerMenu.addEventListener("click", () => nav.classList.toggle("active"));
+      document.addEventListener("click", (e) => {
+        if (!nav.contains(e.target) && !hamburgerMenu.contains(e.target)) {
+          nav.classList.remove("active");
+        }
+      });
+    });
+
+    // Preloader
+    window.addEventListener("load", function () {
+      const preloader = document.getElementById("preloader");
+      if (preloader) {
+        preloader.style.opacity = "0";
+        preloader.style.visibility = "hidden";
+        setTimeout(() => preloader.remove(), 600);
+      }
+    });
+  </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const greetingEl = document.getElementById("greetingText");
+      const currentDateEl = document.getElementById("current-date");
+
+      const now = new Date();
+      const hour = now.getHours();
+
+      currentDateEl.textContent = now.toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
+
+      let greeting = "Good day";
+      if (hour >= 5 && hour < 12) greeting = "Good morning";
+      else if (hour >= 12 && hour < 17) greeting = "Good afternoon";
+      else greeting = "Good evening";
+
+      greetingEl.textContent = `${greeting}, Super Admin!`;
+    });
+  </script>
+
+  <script>
+    let currentSection = null;
+
+    function editSection(sectionId) {
+      const section = document.getElementById(sectionId);
+      const existingModal = document.getElementById("editModal");
+      if (!existingModal) createEditModal();
+
+      const modal = new bootstrap.Modal(document.getElementById("editModal"));
+      const editor = document.getElementById("sectionEditor");
+
+      currentSection = sectionId;
+      editor.value = section ? section.innerHTML.trim() : '';
+      modal.show();
+    }
+
+    function createEditModal() {
+      const modalHTML = `
+    <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+          
+          <!-- Header -->
+          <div class="modal-header" style="background-color:#007bff;color:#fff;">
+            <h5 class="modal-title fw-semibold text-uppercase mb-0">Edit Section Content</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+
+          <!-- Body -->
+          <div class="modal-body" style="background-color:#EFF3FF;">
+            <textarea id="sectionEditor" class="form-control" rows="10" 
+              style="resize: vertical; border:1px solid #d0d8e0; border-radius:8px; font-size:0.95rem;">
+            </textarea>
+          </div>
+
+          <!-- Footer -->
+          <div class="modal-footer d-flex justify-content-end gap-2 border-0 bg-white">
+            <button class="btn-outline" data-bs-dismiss="modal">Cancel</button>
+            <button class="btn-filled" onclick="saveSection()">Save Changes</button>
+          </div>
+
+        </div>
+      </div>
+    </div>`;
+
+      document.body.insertAdjacentHTML("beforeend", modalHTML);
+    }
+
+    async function saveSection() {
+      if (!currentSection) return;
+      const editor = document.getElementById("sectionEditor");
+      const section = document.getElementById(currentSection);
+
+      if (section) {
+        section.innerHTML = editor.value;
+        await fetch("/api/landing-content/update", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            section_key: currentSection,
+            content: editor.value
+          })
+        });
+      }
+
+      bootstrap.Modal.getInstance(document.getElementById("editModal")).hide();
+    }
+
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const res = await fetch("/api/landing-content");
+      const data = await res.json();
+      data.forEach(item => {
+        const el = document.getElementById(item.section_key);
+        if (el) el.innerHTML = item.content;
+      });
+    });
+
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="./script/settings-admin.js"></script>
+</body>
+
+</html>

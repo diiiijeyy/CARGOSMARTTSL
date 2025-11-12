@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>TSL Freight Movers INC.</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="../../assets/img/f-icon.png" rel="icon">
+  <link href="../../assets/img/l-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link 
+    href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" 
+    rel="stylesheet"
+  >
+
+  <!-- Vendor CSS Files -->
+  <link href="../../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../../assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="../../client/styles/notifications.css" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+</head>
+
+<body>
+  <!-- Preloader -->
+  <div id="preloader"></div>
+
+  <!-- ======= Navbar ======= -->
+  <nav>
+    <div class="logo-name">
+      <div class="logo-image">
+        <img src="../../assets/img/logo.png" alt="TSL Logo">
+      </div>
+      <span class="logo_name">TSL FREIGHT<br>MOVERS, INC.</span>
+    </div>
+
+    <div class="menu-items">
+      <ul class="nav-links">
+        <li>
+          <a href="./clientdashboard.html">
+            <i class="uil uil-estate"></i>
+            <span class="link-name">Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="./bookings.html">
+            <i class="uil uil-schedule"></i>
+            <span class="link-name">Book</span>
+          </a>
+        </li>
+        <li>
+          <a href="./shipment.html">
+            <i class="uil uil-ship"></i>
+            <span class="link-name">Shipments</span>
+          </a>
+        </li>
+        <li>
+          <a href="./history.html">
+            <i class="uil uil-history"></i>
+            <span class="link-name">History</span>
+          </a>
+        </li>
+        <li>
+          <a href="./invoices.html">
+            <i class="uil uil-receipt"></i>
+            <span class="link-name">Invoices</span>
+          </a>
+        </li>
+      </ul>
+
+      <ul class="logout-mode">
+        <li>
+          <a href="../../login.html">
+            <i class="uil uil-signout"></i>
+            <span class="link-name">Logout</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <!-- End Navbar -->
+
+  <!-- Dashboard -->
+  <main class="dashboard">
+    <!-- Dashboard Top Bar -->
+    <div class="top d-flex align-items-center justify-content-between px-3 py-2">
+      <i class="fas fa-bars hamburger-menu me-2" id="hamburgerMenu"></i>
+      <div class="d-flex flex-column">
+        <h4 class="dashboard-title mb-0">Notifications</h4>
+        <p class="dashboard-date mb-0" id="current-date">—</p>
+      </div>
+      
+      <div class="profile-dropdown position-relative">
+        <div class="profile-wrapper position-relative d-inline-block">
+          <i class="fas fa-user-circle profile-icon" id="profileIcon"></i>
+          <span id="notifCount" class="notif-badge">0</span>
+        </div>
+        <div class="dropdown-menu" id="profileDropdown">
+          <a href="./profile.html"><i class="uil uil-user"></i> Profile</a>
+          <a href="./notifications.html"><i class="uil uil-bell"></i> Notifications</a>
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- Notifications Section -->
+<section class="mx-3 mb-4">
+  <div class="container-fluid mt-4">
+    <div class="px-3 mt-3">
+      <!-- Header -->
+      <div class="d-flex flex-column mb-4">
+            <h3 class="fw-semibold text-dark mb-1" style="font-size:1.3rem;">
+              Welcome back, <span id="username">Client</span>!
+            </h3>
+        <p class="text-muted mb-0" style="font-size:0.95rem;">
+          Stay updated with your latest notifications and important updates.
+        </p>
+      </div>
+
+      <!-- Filter Tabs + Actions -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="filter-container p-2 rounded shadow-sm bg-white">
+          <ul class="nav nav-pills small gap-2" id="notifTabs">
+            <li class="nav-item">
+              <a class="nav-link active" data-bs-toggle="pill" href="#all">
+                <i class="bi bi-bell me-1"></i> All
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-bs-toggle="pill" href="#unread">
+                <i class="bi bi-dot me-1"></i> Unread
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-bs-toggle="pill" href="#system">
+                <i class="bi bi-gear me-1"></i> System
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-bs-toggle="pill" href="#shipments">
+                <i class="bi bi-truck me-1"></i> Shipments
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-bs-toggle="pill" href="#invoices">
+                <i class="bi bi-receipt me-1"></i> Invoices
+              </a>
+            </li>
+
+          </ul>
+        </div>
+        <button class="btn btn-sm btn-outline-primary" id="markAllRead">
+          <i class="bi bi-check2-all me-1"></i> Mark All as Read
+        </button>
+      </div>
+
+      <!-- Notification Items -->
+      <div class="tab-content">
+        <!-- All Notifications -->
+        <div class="tab-pane fade show active" id="all">
+          <div class="notifications-container" data-filter="all">
+            <p class="text-muted small">Loading notifications...</p>
+          </div>
+        </div>
+
+        <!-- Unread Notifications -->
+        <div class="tab-pane fade" id="unread">
+          <div class="notifications-container" data-filter="unread">
+            <p class="text-muted small">Unread notifications will appear here.</p>
+          </div>
+        </div>
+
+        <!-- System Notifications -->
+        <div class="tab-pane fade" id="system">
+          <div class="notifications-container" data-filter="system">
+            <p class="text-muted small">System alerts will appear here.</p>
+          </div>
+        </div>
+
+        <!-- Shipment Notifications -->
+        <div class="tab-pane fade" id="shipments">
+          <div class="notifications-container" data-filter="shipment">
+            <p class="text-muted small">Shipment updates will appear here.</p>
+          </div>
+        </div>
+
+        <!-- Invoice Notifications -->
+        <div class="tab-pane fade" id="invoices">
+          <div class="notifications-container" data-filter="invoice">
+            <p class="text-muted small">Invoice updates will appear here.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+  <script src="../script/notification.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

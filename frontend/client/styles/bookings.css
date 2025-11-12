@@ -1,0 +1,1449 @@
+/*--------------------------------------------------------------
+# Fonts & Colors
+--------------------------------------------------------------*/
+:root {
+  --font-default: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-primary: 'Poppins', sans-serif;
+  --font-secondary: 'Inter', sans-serif;
+
+  --primary-color: #60adf4;
+  --panel-color: #f6f8fa;
+  --text-color: #000;
+  --text-primary: #60adf4;
+  --black-light-color: #707070;
+  --border-color: #e6e5e5;
+  --tran-05: all 0.5s ease;
+  --tran-03: all 0.3s ease;
+}
+
+body {
+  font-family: var(--font-default);
+  min-height: 100vh;
+  background-color: var(--panel-color);
+}
+
+/*--------------------------------------------------------------
+# Sidebar
+--------------------------------------------------------------*/
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 250px;
+  padding: 10px 14px;
+  background-color: #fff;
+  border-right: 1px solid var(--border-color);
+  transition: var(--tran-05);
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-secondary);
+  z-index: 1030 !important;
+}
+
+nav.close {
+  width: 73px;
+}
+
+nav .logo-name {
+  display: flex;
+  align-items: center;
+  font-family: var(--font-primary);
+}
+
+nav .logo-image img {
+  width: 40px;
+  border-radius: 50%;
+}
+
+nav .logo_name {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-left: 14px;
+  white-space: nowrap;
+}
+
+.menu-items {
+  margin-top: 40px;
+  height: calc(100% - 90px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.menu-items li {
+  list-style: none;
+}
+
+.menu-items li a {
+  display: flex;
+  align-items: center;
+  height: 50px;
+  text-decoration: none;
+}
+
+.menu-items li a i {
+  font-size: 24px;
+  min-width: 45px;
+  color: var(--black-light-color);
+}
+
+.menu-items li a .link-name {
+  font-size: 18px;
+  font-family: var(--font-primary);
+  color: var(--black-light-color);
+}
+
+.nav-links li a.active i,
+.nav-links li a.active .link-name {
+  color: var(--primary-color) !important;
+}
+
+.nav-links li a:hover i,
+.nav-links li a:hover .link-name {
+  color: var(--primary-color);
+}
+
+.menu-items .logout-mode {
+  padding-top: 10px;
+  border-top: 1px solid var(--border-color);
+}
+
+/*--------------------------------------------------------------
+# Dashboard Layout
+--------------------------------------------------------------*/
+.dashboard {
+  margin-left: 250px;
+  background-color: var(--panel-color);
+  min-height: 100vh;
+  transition: var(--tran-05);
+  width: calc(100% - 250px);
+  padding-top: 50px;
+}
+
+nav.close ~ .dashboard {
+  margin-left: 73px;
+  width: calc(100% - 73px);
+}
+
+/*--------------------------------------------------------------
+# Top Bar
+--------------------------------------------------------------*/
+.dashboard .top {
+  position: fixed;
+  top: 0;
+  left: 250px;
+  right: 0;
+  height: 60px;
+  background: #60adf4;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  z-index: 100;
+  transition: var(--tran-05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+nav.close ~ .dashboard .top {
+  left: 73px;
+  width: calc(100% - 73px);
+}
+
+.dashboard-title {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #fff;
+  margin-bottom: 2px;
+}
+
+.dashboard-date {
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+
+/*--------------------------------------------------------------
+# Tables
+--------------------------------------------------------------*/
+.table-responsive {
+  margin-top: 20px;
+  overflow-x: auto;
+  background-color: var(--panel-color);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--border-color);
+}
+
+.table thead th {
+  background-color: var(--primary-color) !important;
+  color: #fff !important;
+  font-weight: 600;
+  text-align: center;
+  padding: 12px 15px;
+  vertical-align: middle;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.table td {
+  padding: 12px 15px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-color);
+  vertical-align: middle;
+  border-top: 1px solid var(--border-color);
+}
+
+.table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.table tbody tr {
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.table tbody tr:hover {
+  background-color: inherit !important;
+  transform: none !important;
+  cursor: default !important;
+}
+
+.table-bordered th,
+.table-bordered td {
+  border: 1px solid var(--border-color);
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: #fafafa;
+}
+
+.table-dark {
+  background-color: #343a40;
+  color: white;
+}
+.table-dark thead th {
+  background-color: #212529 !important;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.badge {
+  padding: 0.4em 0.75em;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+@media (max-width: 767px) {
+  .table th, .table td {
+    font-size: 12px;
+  }
+  .dashboard h2 {
+    font-size: 24px;
+  }
+}
+
+@media (min-width: 768px) {
+  td .d-flex {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+  }
+  td .btn {
+    white-space: nowrap;
+  }
+}
+
+/*--------------------------------------------------------------
+# Form Elements
+--------------------------------------------------------------*/
+select.no-arrow {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: #2e7fc0;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
+  min-width: 100px;
+  transition: var(--tran-03);
+}
+select.no-arrow:hover {
+  background-color: #0b5ed7;
+}
+
+/*--------------------------------------------------------------
+# Buttons
+--------------------------------------------------------------*/
+.create-shipment-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+.create-shipment-btn {
+  background-color: #2e7fc0; 
+  color: #fff;
+  border: none;
+}
+.create-shipment-btn:hover {
+  background-color: #246aa3;
+  color: #fff;
+}
+
+/* General Buttons */
+.btn {
+  transition: all 0.3s ease;
+  border-radius: 8px;
+}
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/*--------------------------------------------------------------
+# Profile Dropdown
+--------------------------------------------------------------*/
+.profile-dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  min-width: 150px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 1000;
+}
+
+.dropdown-menu a {
+  display: block;
+  padding: 10px;
+  color: #333;
+  text-decoration: none;
+}
+
+.dropdown-menu a:hover {
+  background-color: #f0f0f0;
+}
+
+.top .profile-icon {
+  font-size: 32px;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 50%;
+  padding: 4px;
+  transition: var(--tran-03);
+}
+
+.top .profile-icon:hover {
+  background-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.profile-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+/*--------------------------------------------------------------
+# Hamburger Menu (Mobile)
+--------------------------------------------------------------*/
+.hamburger-menu {
+  display: none !important;
+  color: #fff;
+}
+
+@media (max-width: 1000px) {
+  nav {
+    left: -250px;
+    width: 250px;
+    backdrop-filter: blur(6px);
+    background: rgba(255, 255, 255, 0.95);
+    transition: left 0.3s ease;
+    color: #fff;
+  }
+  nav.active { left: 0; }
+  .dashboard {
+    margin-left: 0;
+    width: 100%;
+  }
+  .dashboard .top {
+    left: 0 !important;
+    width: 100% !important;
+  }
+  .hamburger-menu {
+    display: block !important;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+}
+
+/*--------------------------------------------------------------
+# (Search + Filter)
+--------------------------------------------------------------*/
+.client-toolbar {
+  gap: 12px;
+}
+
+.search-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 6px 10px;
+  min-width: 240px;
+  transition: var(--tran-03);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.search-bar:hover {
+  box-shadow: 0 4px 12px rgba(46, 127, 192, 0.2);
+  border-color: var(--primary-color);
+}
+
+.search-bar i {
+  color: var(--black-light-color);
+  margin-right: 8px;
+  font-size: 14px;
+}
+
+.search-bar input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 0.9rem;
+  background: transparent;
+}
+
+.search-bar:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 3px 10px rgba(46, 127, 192, 0.15);
+}
+
+.btn-outline-secondary {
+  border-radius: 10px;
+  padding: 6px 14px;
+  font-weight: 500;
+  background: #fff;
+  transition: var(--tran-03);
+}
+.btn-outline-secondary:hover {
+  background: var(--primary-color);
+  color: #fff;
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(46, 127, 192, 0.15);
+}
+
+/*--------------------------------------------------------------
+# select dropdown
+--------------------------------------------------------------*/
+select.no-arrow option {
+  background-color: #fff;  
+  color: #000;        
+  padding: 5px 10px;
+}
+select.no-arrow option:hover {
+  background-color: #2e7fc0;
+  color: #fff;             
+}
+
+/*--------------------------------------------------------------
+# Preloader
+--------------------------------------------------------------*/
+#preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  transition: all 0.6s ease-out;
+  width: 100%;
+  height: 100vh;
+}
+
+#preloader:before,
+#preloader:after {
+  content: "";
+  position: absolute;
+  border: 4px solid #2e7fc0;
+  border-radius: 50%;
+  animation: animate-preloader 2s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+
+#preloader:after {
+  animation-delay: -0.5s;
+}
+
+@keyframes animate-preloader {
+  0% {
+    width: 10px;
+    height: 10px;
+    top: calc(50% - 5px);
+    left: calc(50% - 5px);
+    opacity: 1;
+  }
+  100% {
+    width: 72px;
+    height: 72px;
+    top: calc(50% - 36px);
+    left: calc(50% - 36px);
+    opacity: 0;
+  }
+}
+
+.dropdown-menu .dropdown-item:hover,
+.dropdown-menu .dropdown-item.active {
+  color: var(--bs-primary) !important;
+  background-color: transparent;
+}
+
+/*--------------------------------------------------------------
+# Pagination
+--------------------------------------------------------------*/
+.pagination .page-link.custom-page {
+  background: transparent;
+  border: 1px solid #60adf4; 
+  color: #60adf4;
+  border-radius: 8px;
+  margin: 0 3px;
+  padding: 6px 12px;
+  transition: all 0.2s ease-in-out;
+}
+
+.pagination .page-link.custom-page:hover {
+  background: #60adf4;
+  color: #fff;
+}
+
+.pagination .page-item.active .page-link.custom-page {
+  background: #60adf4;
+  color: #fff;
+  border-color: #60adf4;
+}
+
+.pagination .page-item.disabled .page-link.custom-page {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+@media (max-width: 576px) {
+  #invoiceTable .badge {
+    font-size: 0.7rem;
+    max-width: 80px;
+  }
+}
+
+.card-footer {
+  background: #fff;
+  border-top: 1px solid var(--border-color);
+  padding: 0.75rem 1rem;
+}
+#renderPagination {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 48px;
+}
+
+/*--------------------------------------------------------------
+# Charts (Card Style)
+--------------------------------------------------------------*/
+.tablecontainer .card p, .card h5 {
+  color: var(--text-color);
+}
+
+.tablecontainer .card {
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  transition: none;
+  background-color: #fff;
+}
+
+.tablecontainer .card:hover {
+  transform: none;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+/*--------------------------------------------------------------
+# Stat Cards (Unified KPI Style with Status Colors)
+--------------------------------------------------------------*/
+.stat-card {
+  border-radius: 10px;
+  background-color: #fff;
+  -webkit-transition: all 0.2s ease-in-out;
+  -o-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+  -webkit-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+}
+
+.stat-card h6 {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #555;
+}
+
+.stat-card h3 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #000;
+}
+
+.stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 100%;
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+}
+
+.stat-card i {
+  font-size: 1.4rem;      
+  width: 44px;            
+  height: 44px;            
+  display: flex;           
+  align-items: center;    
+  justify-content: center;
+  border-radius: 50%;     
+}
+
+[data-status="all"]::before { background-color: #4e73df; }
+[data-status="all"] i { 
+  color: #4e73df !important; 
+  background: #e7e9fb;       
+}
+
+[data-status="Approved"]::before { background-color: #007bff; }
+[data-status="Approved"] i { 
+  color: #007bff !important; 
+  background: #e6f0ff;      
+}
+
+[data-status="Pending"]::before { background-color: #ffc107; }
+[data-status="Pending"] i { 
+  color: #ffc107 !important; 
+  background: #fff8e1;       
+}
+
+[data-status="Completed"]::before { background-color: #1cc88a; }
+[data-status="Completed"] i { 
+  color: #1cc88a !important; 
+  background: #e6f9f2;     
+}
+
+
+.status-pending {
+  color: #ffc107; 
+}
+
+.status-approved {
+  color: #0077b6; 
+}
+
+.status-completed {
+  color: #2fbf71; 
+}
+
+.status-declined {
+  color: #e63946; 
+}
+
+.modal-backdrop.show {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+.modal-dialog {
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.modal-content {
+  border-radius: 12px;
+  transition: all 0.3s ease-in-out;
+}
+
+.modal-content:hover {
+  transform: scale(1.02);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+}
+
+.modal .btn-close:focus,
+.modal .btn-close:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/*--------------------------------------------------------------
+  # Status Badges
+  --------------------------------------------------------------*/
+.badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1px solid transparent;
+  text-transform: capitalize;
+}
+
+.bg-warning {
+  color: #f6c23e !important;
+  background-color: #fff8e1 !important;
+  border: 1px solid #f6c23e;
+}
+
+.bg-success {
+  color: #60adf4; 
+  background-color: #e7f3fe !important;
+  border: 1px solid #60adf4
+}
+
+.bg-danger {
+  color: #dc3545;
+  background-color: #f8d7da !important;
+  border: 1px solid #dc3545;
+}
+
+.bg-shipping {
+  background-color: #17a2b8 !important; 
+  color: #fff !important;
+}
+
+.bg-secondary {
+  background-color: #6c757d !important;
+  color: #fff !important;
+}
+
+/*--------------------------------------------------------------
+# Booking Details Modal (Balanced Spacing - Top & Bottom)
+--------------------------------------------------------------*/
+#bookingDetailsModal {
+  overflow: hidden;
+  z-index: 99999;
+
+  display: flex !important;
+  align-items: center;      
+  justify-content: center;   
+  padding: 1rem;             
+}
+
+
+#bookingDetailsModal .modal-dialog {
+  width: 85% !important;              
+  max-width: 1200px !important;       
+  margin: 0 auto !important;        
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+#bookingDetailsModal .modal-content {
+  width: 100% !important;
+  max-width: 100% !important;
+  border-radius: 14px !important;
+  border: none;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Header */
+#bookingDetailsModal .modal-header {
+  flex: 0 0 auto;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, #2e7fc0, #3a8fd6);
+  color: #fff;
+  border-bottom: none;
+}
+#bookingDetailsModal .modal-header .modal-title {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+#bookingDetailsModal .modal-header .btn-close {
+  filter: invert(1);   /* white close button */
+  opacity: 0.9;
+}
+#bookingDetailsModal .modal-header .btn-close:hover {
+  opacity: 1;
+}
+
+/* Body */
+#bookingDetailsModal .modal-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 1.5rem;
+  max-height: 70vh;
+  padding-bottom: 4rem;
+}
+
+/* Footer */
+#bookingDetailsModal .modal-footer {
+  flex: 0 0 auto;
+  padding: 1rem 1.25rem;
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+}
+
+#bookingDetailsBody.row {
+  --bs-gutter-x: 1.25rem;
+  --bs-gutter-y: 1rem;
+}
+#bookingDetailsBody .form-control {
+  padding: 0.75rem 1rem;
+  min-height: 46px;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  background: #f8f9fa;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+#bookingDetailsBody .form-control:focus {
+  border-color: #2e7fc0;
+  box-shadow: 0 0 0 3px rgba(46, 127, 192, 0.25);
+}
+#bookingDetailsBody label.form-label {
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #212529;
+}
+
+/*--------------------------------------------------------------
+# Responsiveness
+--------------------------------------------------------------*/
+@media (max-width: 992px) {
+  #bookingDetailsModal {
+    padding: 2rem 1rem; 
+  }
+  #bookingDetailsModal .modal-dialog {
+    width: 95% !important;
+    max-width: 100% !important;
+  }
+}
+@media (max-width: 576px) {
+  #bookingDetailsModal {
+    padding: 0;
+  }
+  #bookingDetailsModal .modal-dialog {
+    width: 100% !important;
+    margin: 0 !important;
+    height: 100% !important;
+  }
+  #bookingDetailsModal .modal-content {
+    border-radius: 0 !important;
+    height: 100%;
+  }
+  #bookingDetailsModal .modal-body {
+    max-height: calc(100vh - 120px);
+    padding-bottom: 3rem;
+  }
+}
+
+#notificationModal {
+  z-index: 100000 !important;
+}
+
+#notificationModal .modal-backdrop {
+  z-index: 99999 !important;
+}
+/*--------------------------------------------------------------
+# Notifications Section
+--------------------------------------------------------------*/
+.dashboard-section-centered {
+  display: flex;
+  justify-content: center;
+  padding-top: 40px;
+}
+
+.card {
+  border: none;
+  border-radius: 16px;
+  background-color: #fff;
+}
+
+.notification-item {
+  display: flex;
+  align-items: start;
+  margin-bottom: 15px;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.notification-item i {
+  font-size: 1.25rem;
+  margin-right: 10px;
+}
+
+
+.notif-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background-color: #E41E26; 
+  color: #fff;
+  font-size: clamp(9px, 1.8vw, 11px); 
+  font-weight: 600;
+  padding: 2px 5px;
+  border-radius: 50%;
+  min-width: clamp(14px, 3vw, 18px);
+  height: clamp(14px, 3vw, 18px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  text-align: center;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+  display: none;
+  z-index: 10;
+}
+
+@media (max-width: 480px) {
+  .notif-badge {
+    top: -3px;
+    right: -3px;
+    font-size: 9px;
+    min-width: 14px;
+    height: 14px;
+  }
+}
+
+
+#bookNowMainBtn {
+  background-color: #60adf4;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 32px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  display: inline-block;
+  box-shadow: 0 4px 10px rgba(96, 173, 244, 0.3);
+}
+
+#bookNowMainBtn:hover {
+  background-color: #4a9be3;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(74, 155, 227, 0.4);
+}
+
+
+/*--------------------------------------------------------------
+# Confirm Action Modal (Booking Style)
+--------------------------------------------------------------*/
+.confirm-modal {
+  border: none;
+  border-radius: 16px;
+  background-color: #fff;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  animation: fadeInScale 0.3s ease-out forwards;
+}
+
+.confirm-modal-header {
+  border: none;
+  background: linear-gradient(to right, #60adf4, #3a94e9);
+  color: #fff;
+  text-align: left;         
+  justify-content: flex-start;
+  align-items: center;
+  padding: 1.25rem 1.5rem;  
+}
+
+.confirm-modal-header h5 {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin: 0;
+}
+.confirm-modal-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 250px;
+  background-color: #fff;
+  text-align: center;
+  position: relative;
+  padding: 0 1rem;
+}
+
+.confirm-modal-icon {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background-color: #e7f2fd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+  animation: iconAppear 0.6s ease-out forwards;
+}
+
+.confirm-modal-icon i {
+  font-size: 3rem;
+  color: #60adf4;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.4s ease-out;
+  animation: iconPop 0.6s ease-out 0.2s forwards;
+}
+
+.confirm-modal-body p {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  margin: 0;
+  padding: 0 1rem;
+}
+
+.confirm-modal-footer {
+  border-top: none;
+  background-color: #f8f9fa;
+  padding: 1.2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.confirm-modal-footer .btn-cancel {
+  background: #dee2e6;
+  color: #333;
+  border: none;
+  padding: 0.6rem 1.8rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.confirm-modal-footer .btn-cancel:hover {
+  background: #cfd4d8;
+  transform: translateY(-1px);
+}
+
+.confirm-modal-footer .btn-confirm {
+  background: #60adf4;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.8rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.confirm-modal-footer .btn-confirm:hover {
+  background: #3a94e9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(96, 173, 244, 0.3);
+}
+
+@keyframes fadeInScale {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes iconAppear {
+  0% { transform: scale(0.6); opacity: 0; }
+  80% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes iconPop {
+  0% { opacity: 0; transform: scale(0.5) translateY(10px); }
+  70% { opacity: 1; transform: scale(1.15) translateY(-3px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/*--------------------------------------------------------------
+# Warning Modal (Missing Date)
+--------------------------------------------------------------*/
+.warning-modal {
+  border: none;
+  border-radius: 16px;
+  background-color: #fff;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.warning-modal-header {
+  border: none;
+  background: linear-gradient(to right, #f6c23e, #ffdd57);
+  color: #fff;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  padding: 1.25rem 1rem;
+}
+
+.warning-modal-header h5 {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.warning-modal-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 250px;
+  background-color: #fff;
+  text-align: center;
+  position: relative;
+  padding: 0 1rem;
+}
+
+.warning-modal-icon {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background-color: #fff8cc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+  margin-left: auto;
+  margin-right: auto;
+  animation: iconAppear 0.6s ease-out forwards;
+}
+
+.warning-modal-icon i {
+  font-size: 3rem;
+  color: #ffdd57;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.4s ease-out;
+  animation: checkPop 0.6s ease-out 0.2s forwards;
+}
+
+.warning-modal-body p {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  margin: 0;
+}
+
+.warning-modal-footer {
+  border-top: none;
+  background-color: #f8f9fa;
+  padding: 1.2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.warning-modal .btn-warning {
+  background: #ffdd57 !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 10px !important;
+  padding: 0.65rem 1.8rem !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 4px 12px rgba(246, 194, 62, 0.3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.warning-modal-footer .btn-warning:hover {
+  background: #ffdd57 !important;
+  color: #fff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(246, 194, 62, 0.3);
+}
+
+.warning-modal .btn-warning i {
+  color: #fff !important;
+}
+
+@keyframes iconAppear {
+  0% { transform: scale(0.6); opacity: 0; }
+  80% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes checkPop {
+  0% { opacity: 0; transform: scale(0.5) translateY(10px); }
+  70% { opacity: 1; transform: scale(1.15) translateY(-3px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/*--------------------------------------------------------------
+# Approve Booking Modal
+--------------------------------------------------------------*/
+.approve-modal {
+  border: none;
+  border-radius: 16px;
+  background-color: #fff;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  animation: fadeInModal 0.3s ease-out;
+}
+
+.approve-modal-header {
+  border: none;
+  background: linear-gradient(to right, #0077b6, #60adf4);
+  color: #fff;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  padding: 1.25rem 1rem;
+}
+
+.approve-modal-header h5 {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.approve-modal-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 240px;
+  background-color: #fff;
+  padding: 0 1rem;
+  text-align: center;
+}
+
+.approve-modal-icon {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background-color: #eaf6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+  animation: iconAppear 0.6s ease-out forwards;
+}
+
+.approve-modal-icon i {
+  font-size: 3rem;
+  color: #0077b6;
+  opacity: 0;
+  transform: scale(0.5);
+  animation: checkPop 0.6s ease-out 0.2s forwards;
+}
+
+.approve-modal-body p {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  margin: 0;
+}
+
+.approve-modal-footer {
+  border-top: none;
+  background-color: #f8f9fa;
+  padding: 1.2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.approve-modal .btn-approve {
+  background: linear-gradient(to right, #0077b6, #60adf4) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 10px !important;
+  padding: 0.65rem 1.8rem !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  transition: all 0.25s ease-in-out;
+  box-shadow: 0 4px 12px rgba(0, 119, 182, 0.3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.approve-modal .btn-approve:hover {
+  background: #0077b6 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 119, 182, 0.3);
+}
+
+.approve-modal .btn-approve i {
+  color: #fff !important;
+}
+
+@keyframes fadeInModal {
+  0% { opacity: 0; transform: translateY(15px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes iconAppear {
+  0% { transform: scale(0.6); opacity: 0; }
+  80% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes checkPop {
+  0% { opacity: 0; transform: scale(0.5) translateY(10px); }
+  70% { opacity: 1; transform: scale(1.15) translateY(-3px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/*--------------------------------------------------------------
+# Action Buttons Edit, Cancel
+--------------------------------------------------------------*/
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.action-buttons button {
+  font-size: 0.88rem;
+  font-weight: 600;
+  outline: none;
+  padding: 7px 16px;
+  border-radius: 10px;
+  transition: all 0.25s ease;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+}
+
+.edit-booking-btn {
+  color: #60adf4;
+  background-color: #e7f3fe;
+  border: 1.5px solid #60adf4;
+  box-shadow: 0 2px 4px rgba(96, 173, 244, 0.2);
+}
+
+.edit-booking-btn:hover {
+  background-color: #60adf4;
+  color: #fff;
+  border-color: #60adf4;
+  box-shadow: 0 3px 6px rgba(96, 173, 244, 0.35);
+  transform: translateY(-1px);
+}
+
+.cancel-booking-btn {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1.5px solid #dc3545;
+  box-shadow: 0 2px 4px rgba(220, 53, 69, 0.15);
+}
+
+.cancel-booking-btn:hover {
+  background-color: #dc3545;
+  color: #fff;
+  border-color: #dc3545;
+  box-shadow: 0 3px 6px rgba(220, 53, 69, 0.3);
+  transform: translateY(-1px);
+}
+
+td:last-child {
+  text-align: center;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .action-buttons button {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+    border-radius: 8px;
+  }
+}
+
+#cancelBookingModal .modal-content {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+#cancelBookingModal h5 {
+  color: #222;
+  font-weight: 700;
+  text-align: left;
+}
+
+#cancelBookingModal p {
+  text-align: left;
+}
+
+#cancelBookingModal textarea {
+  resize: none;
+  border-radius: 8px;
+}
+
+#cancelBookingModal .btn-outline-secondary {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+#cancelBookingModal .btn-danger {
+  border-radius: 8px;
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1.5px solid #dc3545;
+  box-shadow: 0 2px 4px rgba(220, 53, 69, 0.15);
+}
+
+#cancelBookingModal .btn-danger:hover {
+  border-radius: 8px;
+  background-color: #dc3545;
+  color: #fff;
+  border-color: #dc3545;
+  box-shadow: 0 3px 6px rgba(220, 53, 69, 0.3);
+  transform: translateY(-1px);
+}
+
+#cancelBookingModal i {
+  transition: transform 0.25s ease;
+}

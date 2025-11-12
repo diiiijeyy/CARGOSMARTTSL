@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>TSL Freight Movers INC.</title>
+
+  <!-- Favicons -->
+  <link href="../assets/img/f-icon.png" rel="icon">
+  <link href="../assets/img/l-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="./styles/dashboard-booking.css" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+  <!-- Preloader -->
+  <div id="preloader"></div>
+
+  <!-- Navbar -->
+  <nav>
+    <div class="logo-name">
+      <div class="logo-image">
+        <img src="../assets/img/logo.png" alt="TSL Logo">
+      </div>
+      <span class="logo_name">TSL FREIGHT<br> MOVERS, INC.</span>
+    </div>
+
+    <div class="menu-items">
+      <ul class="nav-links">
+        <li>
+          <a href="om_dashboard.html">
+            <i class="uil uil-estate"></i>
+            <span class="link-name">Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="booking-management.html" class="active">
+            <i class="uil uil-schedule"></i>
+            <span class="link-name">Bookings</span>
+          </a>
+        </li>
+        <li>
+          <a href="shipment-management.html">
+            <i class="uil uil-ship"></i>
+            <span class="link-name">Shipments</span>
+          </a>
+        </li>
+        <li>
+          <a href="reports-management.html">
+            <i class="uil uil-file-alt"></i>
+            <span class="link-name">Reports</span>
+          </a>
+        </li>
+      </ul>
+
+      <ul class="logout-mode">
+        <li>
+          <a href="../login.html">
+            <i class="uil uil-signout"></i>
+            <span class="link-name">Logout</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <!-- End Navbar -->
+
+  <main class="dashboard">
+    <!-- Top Bar -->
+    <div class="top d-flex align-items-center justify-content-between px-3 py-2">
+      <i class="fas fa-bars hamburger-menu me-2" id="hamburgerMenu"></i>
+      <div class="d-flex flex-column">
+        <h4 class="dashboard-title mb-0">Bookings Management</h4>
+        <p class="dashboard-date mb-0" id="current-date">—</p>
+      </div>
+    </div>
+
+    <section class="mx-3 mb-4">
+      <div class="container-fluid mt-4">
+        <div class="px-3">
+          <div class="d-flex flex-column">
+            <h3 class="fw-semibold text-dark mb-1" style="font-size:1.3rem;">Welcome back!</h3>
+            <p class="text-muted mb-0" style="font-size:0.95rem;">Your booking updates for today:</p>
+          </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="row g-3 mb-4 mt-1">
+          <div class="col-sm-6 col-md-3">
+            <div class="summary-card card shadow-sm border-0 h-100 filter-card" data-status="all">
+              <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="text-muted mb-1">Total Bookings</h6>
+                  <h3 id="totalBookings" class="fw-bold mb-0">0</h3>
+                </div>
+                <i class="bi bi-calendar-check-fill fs-3"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-sm-6 col-md-3">
+            <div class="summary-card card shadow-sm border-0 h-100 filter-card" data-status="Approved">
+              <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="text-muted mb-1">Confirmed</h6>
+                  <h3 id="confirmedBookings" class="fw-bold mb-0">0</h3>
+                </div>
+                <i class="bi bi-check-circle-fill fs-3"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-sm-6 col-md-3">
+            <div class="summary-card card shadow-sm border-0 h-100 filter-card" data-status="Pending">
+              <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="text-muted mb-1">Pending</h6>
+                  <h3 id="pendingBookings" class="fw-bold mb-0">0</h3>
+                </div>
+                <i class="bi bi-hourglass-split fs-3 "></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-sm-6 col-md-3">
+            <div class="summary-card card shadow-sm border-0 h-100 filter-card" data-status="Completed">
+              <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="text-muted mb-1">Completed</h6>
+                  <h3 id="completedBookings" class="fw-bold  mb-0">0</h3>
+                </div>
+                <i class="bi bi-flag-fill fs-3 "></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shipment Requests Section -->
+        <div class="card shadow-sm border-0">
+          <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold">All Bookings</h5>
+            <button class="btn create-shipment-btn btn-sm">
+              <i class="fas fa-plus me-1"></i> Create Booking
+            </button>
+          </div>
+          <div class="card-body">
+                <span class="text-muted small d-block mb-3">
+                  This table provides a complete list of all client bookings. You can search and filter records, track booking status.
+                </span>
+
+
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+              <div class="search-bar d-flex align-items-center flex-grow-1" style="max-width:250px;">
+                <i class="fas fa-search me-2 text-muted"></i>
+                <input type="text" id="bookingSearch" class="form-control form-control-sm"
+                  placeholder="Search bookings...">
+              </div>
+              <button id="bookingFilterBtn" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-filter me-1"></i> Filter
+              </button>
+            </div>
+
+            <!-- Bookings Table -->
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                  <tr>
+                    <th>Tracking Number</th>
+                    <th>Client Name</th>
+                    <th>Service Type</th>
+                    <th>Delivery Mode</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                    <th>Action</th>
+                    <th>Expected Delivery</th>
+                  </tr>
+                </thead>
+                <tbody id="bookingsBody">
+                  <!-- Rows inserted by JS -->
+                </tbody>
+              </table>
+            </div>
+            <!-- Pagination Controls -->
+           <div>
+            <ul class="pagination justify-content-center mt-3" id="pagination">
+              <!-- Buttons will be generated dynamically -->
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- JS -->
+  <script>
+    // Display current date
+    document.addEventListener("DOMContentLoaded", function () {
+      const currentDateElement = document.getElementById("current-date");
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      currentDateElement.textContent = now.toLocaleDateString('en-US', options);
+    });
+
+    // Hamburger menu toggle
+    document.addEventListener("DOMContentLoaded", function () {
+      const hamburgerMenu = document.getElementById("hamburgerMenu");
+      const nav = document.querySelector("nav");
+
+      hamburgerMenu.addEventListener("click", function () {
+        nav.classList.toggle("active");
+      });
+
+      document.addEventListener("click", function (e) {
+        if (!nav.contains(e.target) && !hamburgerMenu.contains(e.target)) {
+          nav.classList.remove("active");
+        }
+      });
+    });
+
+    // Preloader
+    window.addEventListener("load", function () {
+      const preloader = document.getElementById("preloader");
+      if (preloader) {
+        preloader.style.opacity = "0";
+        preloader.style.visibility = "hidden";
+        setTimeout(() => preloader.remove(), 600);
+      }
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="./script/booking-management.js"></script>
+</body>
+</html>

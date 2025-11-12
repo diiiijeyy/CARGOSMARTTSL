@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>TSL Freight Movers INC.</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="../assets/img/f-icon.png" rel="icon">
+  <link href="../assets/img/l-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Amatic+SC:wght@400;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="../assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="../assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="../assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="./styles/operationalmanager.css" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+</head>
+
+<body>
+  <!-- Preloader -->
+  <div id="preloader"></div>
+
+  <!-- ======= Navbar ======= -->
+  <nav>
+    <div class="logo-name">
+      <div class="logo-image">
+        <img src="../assets/img/logo.png" alt="TSL Logo">
+      </div>
+      <span class="logo_name">TSL FREIGHT<br> MOVERS, INC.</span>
+    </div>
+
+    <div class="menu-items">
+      <ul class="nav-links">
+        <li>
+          <a href="operationalmanager.html" class="active">
+            <i class="uil uil-estate"></i>
+            <span class="link-name">Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="booking-management.html">
+            <i class="uil uil-schedule"></i>
+            <span class="link-name">Bookings</span>
+          </a>
+        </li>
+        <li>
+          <a href="shipment-management.html">
+            <i class="uil uil-ship"></i>
+            <span class="link-name">Shipments</span>
+          </a>
+        </li>
+        <li>
+          <a href="reports-management.html">
+            <i class="uil uil-file-alt"></i>
+            <span class="link-name">Reports</span>
+          </a>
+        </li>
+      </ul>
+
+      <ul class="logout-mode">
+        <li>
+          <a href="../login.html">
+            <i class="uil uil-signout"></i>
+            <span class="link-name">Logout</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <!-- End Navbar -->
+
+  <main class="dashboard">
+    <div class="top d-flex align-items-center justify-content-between px-3 py-2">
+      <i class="fas fa-bars hamburger-menu me-2" id="hamburgerMenu"></i>
+      <div class="d-flex flex-column">
+        <h4 class="dashboard-title mb-0">Dashboard</h4>
+        <p class="dashboard-date mb-0" id="current-date" data-field="currentDate">—</p>
+      </div>
+    </div>
+
+    <section class="mx-3 mb-4">
+      <div class="container-fluid mt-4">
+        <div class="px-3 mt-3">
+          <div class="d-flex flex-column">
+            <h3 class="fw-semibold text-dark mb-1" style="font-size:1.3rem;">
+              Welcome back!
+            </h3>
+            <p class="text-muted mb-0" style="font-size:0.95rem;">
+              Here's what's happening with your shipments and bookings today.
+            </p>
+          </div>
+        </div>
+
+        <!-- Shipment Overview Cards -->
+        <div class="row g-3 mb-4 mt-3">
+          <!-- Current Bookings -->
+          <div class="col-md-3 col-sm-6">
+            <div class="stat-card d-flex justify-content-between align-items-center p-3 shadow-sm">
+              <div>
+                <small class="text-muted">Current Bookings</small>
+                <h3 class="mb-1 fw-bold data" data-stat="currentBookings">0</h3>
+                <small class="text-primary text-muted">This Month</small>
+              </div>
+              <div class="text-end">
+                <i class="fas fa-calendar-check stat-icon"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pending Bookings -->
+          <div class="col-md-3 col-sm-6">
+            <div class="stat-card d-flex justify-content-between align-items-center p-3 shadow-sm">
+              <div>
+                <small class="text-muted">Pending Bookings</small>
+                <h3 class="mb-1 fw-bold data" data-stat="pendingBookings">0</h3>
+                <small class="text-warning text-muted">Awaiting Approval</small>
+              </div>
+              <div class="text-end">
+                <i class="fas fa-clock stat-icon"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active Shipments -->
+          <div class="col-md-3 col-sm-6">
+            <div class="stat-card d-flex justify-content-between align-items-center p-3 shadow-sm">
+              <div>
+                <small class="text-muted">Active Shipments</small>
+                <h3 class="mb-1 fw-bold data" data-stat="activeShipments">0</h3>
+                <small class="text-success text-muted">In progress</small>
+              </div>
+              <div class="text-end">
+                <i class="fas fa-truck-moving stat-icon"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Completed Deliveries -->
+          <div class="col-md-3 col-sm-6">
+            <div class="stat-card d-flex justify-content-between align-items-center p-3 shadow-sm">
+              <div>
+                <small class="text-muted">Completed Deliveries</small>
+                <h3 class="mb-1 fw-bold data" data-stat="completedDeliveries">0</h3>
+                <small class="text-success text-muted">Delivered</small>
+              </div>
+              <div class="text-end">
+                <i class="fas fa-check-circle stat-icon text-success"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row g-4 mt-1">
+          <div class="col-lg-6">
+            <div class="card shadow-sm p-3 h-100">
+              <h6 class="mb-2 d-flex align-items-center">
+                <i class="fas fa-chart-line me-2 text-primary"></i>
+                <span>Shipment Volume</span>
+              </h6>
+              <small class="text-muted">This Month vs Last Month</small>
+              <div class="chart-container mt-3">
+                <canvas id="shipmentVolumeChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="card shadow-sm p-3 h-100">
+              <h6 class="mb-2 d-flex align-items-center">
+                <i class="fas fa-list-check me-2" style="color:#2e7fc0;"></i>
+                <span>Total Bookings</span>
+              </h6>
+              <small class="text-muted">This Week</small>
+              <div class="chart-container mt-3">
+                <canvas id="weeklyBookingsChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Extra Charts Row -->
+        <div class="row g-4 mt-1">
+          <!-- Shipment Status -->
+          <div class="col-lg-4">
+            <div class="card shadow-sm p-3 h-100">
+              <h6 class="mb-2 d-flex align-items-center">
+                <i class="fas fa-chart-pie me-2" style="color:#2e7fc0;"></i>
+                Booking Status
+              </h6>
+              <div class="chart-container mt-3">
+                <canvas id="booking-status-chart"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="card shadow-sm p-3 h-100">
+              <h6 class="mb-2 d-flex align-items-center">
+                <i class="fas fa-clock me-2" style="color:#2e7fc0;"></i>
+                <span>On-time vs Late</span>
+              </h6>
+              <div class="d-flex align-items-center justify-content-between mb-1">
+                <small class="text-muted">Shipments by Month</small>
+                <div class="d-flex align-items-center gap-2">
+                  <select id="monthSelect" class="form-select form-select-sm" style="width:auto;">
+                    <option value="1">Jan</option>
+                    <option value="2">Feb</option>
+                    <option value="3">Mar</option>
+                    <option value="4">Apr</option>
+                    <option value="5">May</option>
+                    <option value="6">Jun</option>
+                    <option value="7">Jul</option>
+                    <option value="8">Aug</option>
+                    <option value="9">Sep</option>
+                    <option value="10" selected>Oct</option>
+                    <option value="11">Nov</option>
+                    <option value="12">Dec</option>
+                  </select>
+                  <select id="yearSelect" class="form-select form-select-sm" style="width:auto;">
+                    <option value="2024">2024</option>
+                    <option value="2025" selected>2025</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="chart-container mt-2">
+                <canvas id="onTimeVsDelayedChart" height="220"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-8 d-flex">
+            <div class="card shadow-sm flex-fill">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h6 class="mb-0 d-flex align-items-center">
+                    <i class="fas fa-shipping-fast me-2" style="color:#2e7fc0;"></i>
+                    Recent Shipments
+                  </h6>
+                  <button class="btn view-all-btn btn-sm">View All Shipments</button>
+                </div>
+                <div class="table-responsive flex-fill">
+                  <table class="table table-hover mb-0">
+                    <thead>
+                      <tr>
+                        <th>Shipment ID</th>
+                        <th>Client</th>
+                        <th>Origin</th>
+                        <th>Destination</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody data-table="recentShipments">
+                      <tr class="text-muted">
+                        <td colspan="6" class="text-center py-4">No shipments yet</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- JS -->
+  <script>
+    // Date
+    document.addEventListener("DOMContentLoaded", function () {
+      const currentDateElement = document.getElementById("current-date");
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      currentDateElement.textContent = now.toLocaleDateString('en-US', options);
+    });
+
+    // Hamburger menu toggle
+    document.addEventListener("DOMContentLoaded", function () {
+      const hamburgerMenu = document.getElementById("hamburgerMenu");
+      const nav = document.querySelector("nav");
+
+      hamburgerMenu.addEventListener("click", function () {
+        nav.classList.toggle("active");
+      });
+
+      document.addEventListener("click", function (e) {
+        if (!nav.contains(e.target) && !hamburgerMenu.contains(e.target)) {
+          nav.classList.remove("active");
+        }
+      });
+    });
+
+    // Preloader
+    window.addEventListener("load", function () {
+      const preloader = document.getElementById("preloader");
+      if (preloader) {
+        preloader.style.opacity = "0";
+        preloader.style.visibility = "hidden";
+        setTimeout(() => preloader.remove(), 600);
+      }
+    });
+  </script>
+
+  <!-- JS Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="./script/operationalmanager.js"></script>
+</body>
+</html>

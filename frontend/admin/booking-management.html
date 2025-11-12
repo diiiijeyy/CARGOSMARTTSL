@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>TSL Freight Movers INC.</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!--- Favicons --->
+  <link href="../assets/img/f-icon.png" rel="icon">
+  <link href="../assets/img/l-icon.png" rel="apple-touch-icon">
+
+  <!--- Google Fonts --->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600;1,700&family=Amatic+SC:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+    rel="stylesheet">
+
+  <!--- Vendor CSS Files --->
+  <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="../assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="../assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="../assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!--- Main CSS File --->
+  <link href="./styles/dashboard-booking.css" rel="stylesheet">
+
+  <!--- Script --->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+  <!--- Preloader --->
+  <div id="preloader"></div>
+  <!--- Navbar --->
+  <nav>
+    <div class="logo-name">
+      <div class="logo-image">
+        <img src="../assets/img/logo.png" alt="TSL Logo">
+      </div>
+      <span class="logo_name">TSL FREIGHT<br> MOVERS, INC.</span>
+    </div>
+
+    <div class="menu-items">
+      <ul class="nav-links">
+        <li>
+          <a href="./admin.html">
+            <i class="uil uil-estate"></i>
+            <span class="link-name">Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="./client-management.html">
+            <i class="uil uil-users-alt"></i>
+            <span class="link-name">Clients</span>
+          </a>
+        </li>
+        <li>
+          <a href="./booking-management.html" class="active">
+            <i class="uil uil-schedule"></i>
+            <span class="link-name">Bookings</span>
+          </a>
+        </li>
+        <li>
+          <a href="./shipment.html">
+            <i class="uil uil-ship"></i>
+            <span class="link-name">Shipments</span>
+          </a>
+        </li>
+        <li>
+          <a href="./admin-invoice.html">
+            <i class="uil uil-receipt"></i>
+            <span class="link-name">Invoice</span>
+          </a>
+        </li>
+        <li>
+          <a href="./reports.html">
+            <i class="uil uil-file-alt"></i>
+            <span class="link-name">Reports</span>
+          </a>
+        </li>
+        <li>
+          <a href="./auditlogs.html">
+            <i class="uil uil-history"></i>
+            <span class="link-name">Audit Log</span>
+          </a>
+        </li>
+        <li>
+          <a href="./settings-admin.html">
+            <i class="uil uil-cog"></i>
+            <span class="link-name">Settings</span>
+          </a>
+        </li>
+      </ul>
+
+      <ul class="logout-mode">
+        <li>
+          <a href="../login.html">
+            <i class="uil uil-signout"></i>
+            <span class="link-name">Logout</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <!--- End Navbar --->
+
+  <main class="dashboard">
+    <div class="top d-flex align-items-center justify-content-between px-3 py-2">
+      <div class="d-flex align-items-center">
+        <i class="fas fa-bars hamburger-menu me-3" id="hamburgerMenu"></i>
+        <div class="d-flex flex-column">
+          <h4 class=" dashboard-title fw-semibold" id="greetingText">Good day, <span>Super Admin</span>!</h4>
+          <p class="dashboard-date mb-0" id="current-date" data-field="currentDate">—</p>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center">
+        <a href="./notification.html" class="position-relative">
+          <i class="fas fa-bell fs-5 text-white"></i>
+          <span id="notifCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            0 </span>
+        </a>
+      </div>
+    </div>
+
+    <section class="mx-3 mb-4">
+      <div class="container-fluid mt-4">
+        <div class="px-3">
+          <div class="d-flex flex-column">
+            <h3 class="fw-semibold text-dark mb-1" style="font-size:1.3rem;">
+              Booking Management
+            </h3>
+            <p class="text-muted mb-0" style="font-size:0.95rem;">Here are your booking updates for today.</p>
+          </div>
+        </div>
+
+        <!--- KPI Cards --->
+        <div class="row g-3 mb-4 mt-1 justify-content-center">
+          <!-- Total Bookings -->
+          <div class="col-12 col-lg-4">
+            <div class="stat-card card shadow-sm border-0 h-100 filter-card" data-status="all">
+              <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="text-muted mb-1">Total Bookings</h6>
+                  <h3 id="totalBookings" class="fw-bold mb-0">0</h3>
+                </div>
+                <i class="bi bi-calendar-check-fill fs-3"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Confirmed -->
+          <div class="col-12 col-lg-4">
+            <div class="stat-card card shadow-sm border-0 h-100 filter-card" data-status="Approved">
+              <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="text-muted mb-1">Confirmed</h6>
+                  <h3 id="confirmedBookings" class="fw-bold mb-0">0</h3>
+                </div>
+                <i class="bi bi-check-circle-fill fs-3"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pending -->
+          <div class="col-12 col-lg-4">
+            <div class="stat-card card shadow-sm border-0 h-100 filter-card" data-status="Pending">
+              <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="text-muted mb-1">Pending</h6>
+                  <h3 id="pendingBookings" class="fw-bold mb-0">0</h3>
+                </div>
+                <i class="bi bi-hourglass-split fs-3"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!--- Shipment Requests Section --->
+        <div class="tablecontainer">
+          <div class="card shadow-sm border-1">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+              <h5 class="mb-0 fw-bold">All Bookings</h5>
+            </div>
+            <div class="card-body">
+              <span class="text-muted small d-block mb-3">
+                This table provides a complete list of all client bookings. You can search and filter records, track
+                booking status.
+              </span>
+              <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                <div class="search-bar d-flex align-items-center flex-grow-1" style="max-width:250px;">
+                  <i class="fas fa-search me-2 text-muted"></i>
+                  <input type="text" id="bookingSearch" class="form-control form-control-sm"
+                    placeholder="Search bookings...">
+                </div>
+                <button id="bookingFilterBtn" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal"
+                  data-bs-target="#statusFilterModal">
+                  <i class="fas fa-filter me-1"></i> Filter by Status
+                </button>
+
+                <button id="filterDateBtn" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal"
+                  data-bs-target="#dateFilterModal">
+                  <i class="fas fa-calendar-alt me-1"></i> Filter by Date
+                </button>
+              </div>
+
+              <!--- Bookings Table --->
+              <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                  <thead class="table-dark">
+                    <tr>
+                      <th>Tracking Number</th>
+                      <th>Client Name</th>
+                      <th>Service Type</th>
+                      <th>Delivery Mode</th>
+                      <th>Status</th>
+                      <th>Created At</th>
+                      <th>Action</th>
+                      <th>Expected Delivery</th>
+                    </tr>
+                  </thead>
+                  <tbody id="bookingsBody">
+                  </tbody>
+                </table>
+              </div>
+              <div>
+                <ul class="pagination justify-content-center mt-3" id="pagination">
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!--- Warning Modal --->
+  <div class="modal fade" id="missingDateModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:480px;">
+      <div class="modal-content warning-modal">
+        <div class="warning-modal-header">
+          <h5><i class="fas fa-exclamation-triangle me-2"></i>Missing Date</h5>
+        </div>
+        <div class="warning-modal-body">
+          <div class="warning-modal-icon">
+            <i class="fas fa-calendar-times"></i>
+          </div>
+          <p>Please select an <b>Expected Delivery Date</b> before saving.</p>
+        </div>
+        <div class="warning-modal-footer">
+          <button type="button" class="btn btn-warning" data-bs-dismiss="modal">
+            <i class="fas fa-check"></i> OK
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--- Approve booking Modal --->
+  <div class="modal fade" id="approveBookingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+      <div class="modal-content approve-modal">
+        <div class="approve-modal-header">
+          <h5><i class="fas fa-truck-loading me-2"></i>Approve Booking</h5>
+        </div>
+
+        <div class="approve-modal-body">
+          <div class="approve-modal-icon">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <p>Are you sure you want to <b>approve</b> this booking?</p>
+          <p class="text-muted small mt-2 mb-0">
+            Once approved, you will be required to set an <b>Expected Delivery Date</b>.
+          </p>
+        </div>
+
+        <div class="approve-modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-approve" id="confirmApproveBtn">
+            <i class="fas fa-check"></i> Approve
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--- Footer --->
+  <footer class="text-center mt-5">
+    <p>CargoSmart: Shipment Tracking System with Data Analytics</p>
+  </footer>
+
+  <!-- Custom Range Modal -->
+  <div class="modal fade" id="dateRangeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;width:92%;">
+      <div class="modal-content border-0 shadow-sm">
+        <div class="modal-header" style="background:#0077b6;color:#fff;">
+          <h6 class="modal-title mb-0">Select Date Range</h6>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <label class="form-label small text-muted mb-2">Date range</label>
+          <input id="dateRangeInput" class="form-control" placeholder="YYYY-MM-DD to YYYY-MM-DD" />
+          <small class="text-muted d-block mt-2">Tip: pick start then end date</small>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+          <button id="applyDateRangeBtn" type="button" class="btn btn-primary">Apply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!--- JS Scripts --->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const greetingEl = document.getElementById("greetingText");
+      const currentDateEl = document.getElementById("current-date");
+
+      const now = new Date();
+      const hour = now.getHours();
+
+      currentDateEl.textContent = now.toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
+
+      let greeting = "Good day";
+      if (hour >= 5 && hour < 12) greeting = "Good morning";
+      else if (hour >= 12 && hour < 17) greeting = "Good afternoon";
+      else greeting = "Good evening";
+
+      greetingEl.textContent = `${greeting}, Super Admin!`;
+    });
+  </script>
+
+  <script>
+    // Date
+    document.addEventListener("DOMContentLoaded", () => {
+      const currentDateElement = document.getElementById("current-date");
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      currentDateElement.textContent = now.toLocaleDateString('en-US', options);
+    });
+
+    // Hamburger menu toggle
+    document.addEventListener("DOMContentLoaded", function () {
+      const hamburgerMenu = document.getElementById("hamburgerMenu");
+      const nav = document.querySelector("nav");
+      hamburgerMenu.addEventListener("click", () => nav.classList.toggle("active"));
+      document.addEventListener("click", (e) => {
+        if (!nav.contains(e.target) && !hamburgerMenu.contains(e.target)) {
+          nav.classList.remove("active");
+        }
+      });
+    });
+
+    // Preloader
+    window.addEventListener("load", function () {
+      const preloader = document.getElementById("preloader");
+      if (preloader) {
+        preloader.style.opacity = "0";
+        preloader.style.visibility = "hidden";
+        setTimeout(() => preloader.remove(), 600);
+      }
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!--- Main JS File --->
+  <script src="./script/booking-management.js"></script>
+
+</body>
+
+</html>

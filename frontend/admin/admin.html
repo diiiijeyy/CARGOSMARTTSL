@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>TSL Freight Movers INC.</title>
+  <meta content="" name="description" />
+  <meta content="" name="keywords" />
+
+  <!--- Favicons --->
+  <link href="../assets/img/f-icon.png" rel="icon" />
+  <link href="../assets/img/l-icon.png" rel="apple-touch-icon" />
+
+  <!--- Google Fonts --->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Amatic+SC:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet" />
+
+  <!--- Vendor CSS Files --->
+  <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="../assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet" />
+  <link href="../assets/vendor/aos/aos.css" rel="stylesheet" />
+  <link href="../assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet" />
+  <link href="../assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet" />
+
+  <!--- Main CSS File --->
+  <link href="./styles/admin-dashboad.css" rel="stylesheet" />
+
+  <!--- Icons --->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css" />
+
+  <!--- Script --->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+  <!--- Preloader --->
+  <div id="preloader"></div>
+
+  <!--- Navbar --->
+  <nav>
+    <div class="logo-name">
+      <div class="logo-image">
+        <img src="../assets/img/logo.png" alt="TSL Logo" />
+      </div>
+      <span class="logo_name">TSL FREIGHT<br />MOVERS, INC.</span>
+    </div>
+
+    <div class="menu-items">
+      <ul class="nav-links">
+        <li>
+          <a href="./admin.html" class="active">
+            <i class="uil uil-estate"></i>
+            <span class="link-name">Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="./client-management.html">
+            <i class="uil uil-users-alt"></i>
+            <span class="link-name">Clients</span>
+          </a>
+        </li>
+        <li>
+          <a href="./booking-management.html">
+            <i class="uil uil-schedule"></i>
+            <span class="link-name">Bookings</span>
+          </a>
+        </li>
+        <li>
+          <a href="./shipment.html">
+            <i class="uil uil-ship"></i>
+            <span class="link-name">Shipments</span>
+          </a>
+        </li>
+        <li>
+          <a href="./admin-invoice.html">
+            <i class="uil uil-receipt"></i>
+            <span class="link-name">Invoice</span>
+          </a>
+        </li>
+        <li>
+          <a href="./reports.html">
+            <i class="uil uil-file-alt"></i>
+            <span class="link-name">Reports</span>
+          </a>
+        </li>
+        <li>
+          <a href="./auditlogs.html">
+            <i class="uil uil-history"></i>
+            <span class="link-name">Audit Log</span>
+          </a>
+        </li>
+        <li>
+          <a href="./settings-admin.html">
+            <i class="uil uil-cog"></i>
+            <span class="link-name">Settings</span>
+          </a>
+        </li>
+      </ul>
+
+      <ul class="logout-mode">
+        <li>
+          <a href="../login.html">
+            <i class="uil uil-signout"></i>
+            <span class="link-name">Logout</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <!--- End Navbar --->
+
+  <main class="dashboard">
+    <div class="top d-flex align-items-center justify-content-between px-3 py-2">
+      <!--- Left side --->
+      <div class="d-flex align-items-center">
+        <i class="fas fa-bars hamburger-menu me-3" id="hamburgerMenu"></i>
+        <div class="d-flex flex-column">
+          <h4 class=" dashboard-title fw-semibold" id="greetingText">Good day, <span>Super Admin</span>!</h4>
+          <p class="dashboard-date mb-0" id="current-date" data-field="currentDate">—</p>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center">
+        <a href="./notification.html" class="position-relative">
+          <i class="fas fa-bell fs-5 text-white"></i>
+          <span id="notifCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            0 </span>
+        </a>
+      </div>
+    </div>
+
+    <section class="mx-3 mb-4">
+      <div class="container-fluid mt-4">
+        <!--- Welcome --->
+        <div class="px-3">
+          <div class="d-flex flex-column">
+            <h3 class="fw-semibold text-dark mb-1" style="font-size:1.3rem;">
+              Dashboard Overview
+              <i class="bi bi-truck text-primary ms-2"></i>
+            </h3>
+            <p class="text-muted mb-0" style="font-size:0.95rem;">
+              Here’s the latest overview of your logistics operations and activities.
+            </p>
+          </div>
+        </div>
+
+        <!--- KPI Cards --->
+        <div class="row g-3 my-1">
+          <!--- Monthly Revenue --->
+          <div class="col-12 col-md stat-col">
+            <div class="stat-card d-flex justify-content-between align-items-center p-3 h-100">
+              <div>
+                <h6 class="text-muted">Monthly Sales</h6>
+                <h3 class="mb-1 fw-bold data" data-stat="monthlyRevenue">0</h3>
+                <small class="text-danger text-muted" data-stat="monthlyRevenueNote">Current month</small>
+              </div>
+              <div class="text-end">
+                <i class="bi bi-coin stat-icon icon-revenue fs-3"></i>
+              </div>
+            </div>
+          </div>
+
+          <!--- Current Bookings --->
+          <div class="col-12 col-md stat-col">
+            <div class="stat-card d-flex justify-content-between align-items-center p-3 h-100">
+              <div>
+                <h6 class="text-muted">Current Bookings</h6>
+                <h3 class="mb-1 fw-bold data" data-stat="currentBookings">0</h3>
+                <small class="text-primary text-muted" data-stat="currentBookingsNote">This Month</small>
+              </div>
+              <div class="text-end">
+                <i class="bi bi-calendar-check stat-icon icon-bookings fs-3"></i>
+              </div>
+            </div>
+          </div>
+
+          <!--- Active Shipments --->
+          <div class="col-12 col-md stat-col">
+            <div class="stat-card d-flex justify-content-between align-items-center p-3 h-100">
+              <div>
+                <h6 class="text-muted">Active Shipments</h6>
+                <h3 class="mb-1 fw-bold data" data-stat="activeShipments">0</h3>
+                <small class="text-warning text-muted" data-stat="activeShipmentsNote">In Progress</small>
+              </div>
+              <div class="text-end">
+                <i class="bi bi-truck stat-icon icon-shipments fs-3"></i>
+              </div>
+            </div>
+          </div>
+
+          <!--- Completed Deliveries --->
+          <div class="col-12 col-md stat-col">
+            <div class="stat-card d-flex justify-content-between align-items-center p-3 h-100">
+              <div>
+                <h6 class="text-muted">Completed Deliveries</h6>
+                <h3 class="mb-1 fw-bold data" data-stat="completedDeliveries">0</h3>
+                <small class="text-success text-muted" data-stat="completedDeliveriesNote">This Month</small>
+              </div>
+              <div class="text-end">
+                <i class="bi bi-check-circle stat-icon icon-deliveries fs-3"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!--- Charts Section --->
+        <div class="row g-3 mt-1">
+          <!--- Revenue Trend -->
+          <div class="col-lg-6">
+            <div class="card shadow-sm p-3 h-100">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center fw-semibold fs-6 text-dark">
+                  <i class="bi bi-graph-up me-2 chart-icon"></i>
+                  <span>Sales Trend</span>
+                </div>
+              </div>
+
+              <p class="text-muted">Tracks Sales performance over time.</p>
+              <div class="chart-container mt-2">
+                <canvas id="revenue-chart" data-chart="revenueTrends"></canvas>
+              </div>
+              <p class="small text-muted text-center mt-3">Total Sales <span id="revenuePeriodLabel">this month</span>:
+                <strong id="revenueTotalDisplay">0</strong>
+              </p>
+            </div>
+          </div>
+
+          <!-- Payment Status & Analytics -->
+          <div class="col-lg-6">
+            <div class="card shadow-sm p-3 h-100">
+              <div class="mb-2 d-flex align-items-center fw-semibold fs-6 text-dark">
+                <i class="bi bi-cash-stack text-success me-2"></i>
+                <span>Payments Status</span>
+              </div>
+              <p class="text-muted">Quick overview of payment punctuality and client payment behavior.</p>
+
+              <!-- Chart Section -->
+              <div class="chart-container mt-2" style="height:260px;">
+                <canvas id="payment-status-chart" data-chart="paymentStatus"></canvas>
+              </div>
+              <p class="small text-muted text-center mt-3" id="paymentCompletionDisplay">
+                Loading payment insights...
+              </p>
+
+              <!-- Decision Support Table -->
+              <div class="mt-4">
+                <h6 class="fw-semibold text-dark">Client Payment Analytics</h6>
+                <p class="small text-muted mb-2">Evaluates clients based on payment performance.</p>
+                <div class="table-responsive" style="max-height:260px; overflow-y:auto;">
+                  <table class="table table-sm table-bordered align-middle text-center">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Client</th>
+                        <th>Total</th>
+                        <th>On-Time</th>
+                        <th>Late</th>
+                        <th>On-Time %</th>
+                        <th>Late %</th> <!-- New column -->
+                        <th>Decision</th>
+                      </tr>
+                    </thead>
+                    <tbody id="payment-decision-table-body">
+                      <tr>
+                        <td colspan="7" class="text-muted">Loading analytics...</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Shipment Volume & Top Clients -->
+          <div class="row gx-3 mt-3">
+            <!-- Shipment Volume Trend -->
+            <div class="col-lg-8 col-12 mb-2">
+              <div class="card shadow-sm p-3 h-100">
+                <div class="mb-2 d-flex align-items-center fw-semibold fs-6 text-dark">
+                  <i class="bi bi-hourglass-split text-warning me-2"></i>
+                  <span>Shipment Volume Trend</span>
+                </div>
+                <p class="text-muted">Total shipments/bookings per month.</p>
+                <div class="chart-container mt-2">
+                  <canvas id="shipment-volume-chart" data-chart="shipmentVolume"></canvas>
+                </div>
+                <p class="small text-muted text-center mt-3">Total shipments <span id="shipmentPeriodLabel">this
+                    quarter</span>: <strong id="shipmentTotalDisplay">0</strong>
+              </div>
+            </div>
+
+            <!-- Top Clients by Revenue -->
+            <div class="col-lg-4 col-12 mb-2">
+              <div class="card shadow-sm p-4 h-100">
+                <div class="d-flex align-items-center mb-3">
+                  <i class="bi bi-people-fill fs-3 me-3 chart-icon text-primary"></i>
+                  <h5 class="mb-0 fw-semibold">Top Clients by Sales</h5>
+                </div>
+                <p class="text-muted mb-3">Overview of clients with the highest paid contributions.</p>
+                <div class="list-group" id="top-clients-container">
+                  <div class="text-muted text-center py-3">Loading clients...</div>
+                </div>
+                <p class="small text-muted text-center mt-3">Top client <span id="topClientPeriodLabel">this
+                    year</span>: <strong id="topClientTotalDisplay">Loading...</strong></p>
+              </div>
+            </div>
+          </div>
+
+          <!--- Recent Shipments Table --->
+          <div class="card shadow-sm mt-1">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                <h5 class="mb-0 fw-bold">Recent Shipments</h5>
+                <a href="./shipment.html" class="btn btn-outline-secondary btn-sm">View All</a>
+              </div>
+
+              <span class="text-muted small d-block mb-3">
+                This table shows recent shipments generated from approved client bookings that are currently in
+                progress.
+              </span>
+
+              <div class="search-bar d-flex align-items-center flex-grow-1 mb-3" style="max-width:250px;">
+                <i class="fas fa-search me-2 text-muted"></i>
+                <input type="text" id="clientSearch" class="form-control form-control-sm"
+                  placeholder="Search clients..." />
+              </div>
+
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead class="table-primary">
+                    <tr>
+                      <th>Shipment ID</th>
+                      <th>Client</th>
+                      <th>Origin</th>
+                      <th>Destination</th>
+                      <th>Date</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody data-table="recentShipments" id="recent-bookings-table">
+                    <tr class="text-muted">
+                      <td colspan="6" class="text-center py-4">No shipments yet</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!--- Pagination Controls --->
+              <div>
+                <ul class="pagination justify-content-center mt-3" id="pagination"></ul>
+              </div>
+            </div>
+          </div>
+
+        </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center mt-5">
+    <p>CargoSmart: Shipment Tracking System with Data Analytics</p>
+  </footer>
+
+  <!--- JS Scripts --->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const greetingEl = document.getElementById("greetingText");
+      const currentDateEl = document.getElementById("current-date");
+
+      const now = new Date();
+      const hour = now.getHours();
+
+      currentDateEl.textContent = now.toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
+
+      let greeting = "Good day";
+      if (hour >= 5 && hour < 12) greeting = "Good morning";
+      else if (hour >= 12 && hour < 17) greeting = "Good afternoon";
+      else greeting = "Good evening";
+
+      greetingEl.textContent = `${greeting}, Super Admin!`;
+    });
+  </script>
+
+
+  <script>
+    // Date
+    document.addEventListener("DOMContentLoaded", () => {
+      const currentDateElement = document.getElementById("current-date");
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      currentDateElement.textContent = now.toLocaleDateString('en-US', options);
+    });
+
+    // Hamburger menu toggle
+    document.addEventListener("DOMContentLoaded", function () {
+      const hamburgerMenu = document.getElementById("hamburgerMenu");
+      const nav = document.querySelector("nav");
+      hamburgerMenu.addEventListener("click", () => nav.classList.toggle("active"));
+      document.addEventListener("click", (e) => {
+        if (!nav.contains(e.target) && !hamburgerMenu.contains(e.target)) {
+          nav.classList.remove("active");
+        }
+      });
+    });
+
+    // Preloader
+    window.addEventListener("load", function () {
+      const preloader = document.getElementById("preloader");
+      if (preloader) {
+        preloader.style.opacity = "0";
+        preloader.style.visibility = "hidden";
+        setTimeout(() => preloader.remove(), 600);
+      }
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="./script/dashboard.js"></script>
+</body>
+
+</html>
