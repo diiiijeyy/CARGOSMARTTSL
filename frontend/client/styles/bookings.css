@@ -2,9 +2,10 @@
 # Fonts & Colors
 --------------------------------------------------------------*/
 :root {
-  --font-default: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-primary: 'Poppins', sans-serif;
-  --font-secondary: 'Inter', sans-serif;
+  --font-default: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  --font-primary: "Poppins", sans-serif;
+  --font-secondary: "Inter", sans-serif;
 
   --primary-color: #60adf4;
   --panel-color: #f6f8fa;
@@ -163,7 +164,6 @@ nav.close ~ .dashboard .top {
   color: #fff;
 }
 
-
 /*--------------------------------------------------------------
 # Tables
 --------------------------------------------------------------*/
@@ -244,7 +244,8 @@ nav.close ~ .dashboard .top {
 }
 
 @media (max-width: 767px) {
-  .table th, .table td {
+  .table th,
+  .table td {
     font-size: 12px;
   }
   .dashboard h2 {
@@ -293,7 +294,7 @@ select.no-arrow:hover {
   margin-bottom: 20px;
 }
 .create-shipment-btn {
-  background-color: #2e7fc0; 
+  background-color: #2e7fc0;
   color: #fff;
   border: none;
 }
@@ -326,7 +327,7 @@ select.no-arrow:hover {
   background-color: white;
   border: 1px solid #ccc;
   min-width: 150px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   overflow: hidden;
   z-index: 1000;
@@ -382,7 +383,9 @@ select.no-arrow:hover {
     transition: left 0.3s ease;
     color: #fff;
   }
-  nav.active { left: 0; }
+  nav.active {
+    left: 0;
+  }
   .dashboard {
     margin-left: 0;
     width: 100%;
@@ -415,7 +418,7 @@ select.no-arrow:hover {
   padding: 6px 10px;
   min-width: 240px;
   transition: var(--tran-03);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 .search-bar:hover {
   box-shadow: 0 4px 12px rgba(46, 127, 192, 0.2);
@@ -460,13 +463,13 @@ select.no-arrow:hover {
 # select dropdown
 --------------------------------------------------------------*/
 select.no-arrow option {
-  background-color: #fff;  
-  color: #000;        
+  background-color: #fff;
+  color: #000;
   padding: 5px 10px;
 }
 select.no-arrow option:hover {
   background-color: #2e7fc0;
-  color: #fff;             
+  color: #fff;
 }
 
 /*--------------------------------------------------------------
@@ -526,7 +529,7 @@ select.no-arrow option:hover {
 --------------------------------------------------------------*/
 .pagination .page-link.custom-page {
   background: transparent;
-  border: 1px solid #60adf4; 
+  border: 1px solid #60adf4;
   color: #60adf4;
   border-radius: 8px;
   margin: 0 3px;
@@ -573,21 +576,22 @@ select.no-arrow option:hover {
 /*--------------------------------------------------------------
 # Charts (Card Style)
 --------------------------------------------------------------*/
-.tablecontainer .card p, .card h5 {
+.tablecontainer .card p,
+.card h5 {
   color: var(--text-color);
 }
 
 .tablecontainer .card {
   border-radius: 14px;
   padding: 20px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   transition: none;
   background-color: #fff;
 }
 
 .tablecontainer .card:hover {
   transform: none;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
 }
 
 /*--------------------------------------------------------------
@@ -600,13 +604,13 @@ select.no-arrow option:hover {
   -o-transition: all 0.2s ease-in-out;
   transition: all 0.2s ease-in-out;
   -webkit-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   position: relative;
   overflow: hidden;
 }
 .stat-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
 }
 
 .stat-card h6 {
@@ -633,54 +637,61 @@ select.no-arrow option:hover {
 }
 
 .stat-card i {
-  font-size: 1.4rem;      
-  width: 44px;            
-  height: 44px;            
-  display: flex;           
-  align-items: center;    
+  font-size: 1.4rem;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
   justify-content: center;
-  border-radius: 50%;     
+  border-radius: 50%;
 }
 
-[data-status="all"]::before { background-color: #4e73df; }
-[data-status="all"] i { 
-  color: #4e73df !important; 
-  background: #e7e9fb;       
+[data-status="all"]::before {
+  background-color: #4e73df;
+}
+[data-status="all"] i {
+  color: #4e73df !important;
+  background: #e7e9fb;
 }
 
-[data-status="Approved"]::before { background-color: #007bff; }
-[data-status="Approved"] i { 
-  color: #007bff !important; 
-  background: #e6f0ff;      
+[data-status="Approved"]::before {
+  background-color: #007bff;
+}
+[data-status="Approved"] i {
+  color: #007bff !important;
+  background: #e6f0ff;
 }
 
-[data-status="Pending"]::before { background-color: #ffc107; }
-[data-status="Pending"] i { 
-  color: #ffc107 !important; 
-  background: #fff8e1;       
+[data-status="Pending"]::before {
+  background-color: #ffc107;
+}
+[data-status="Pending"] i {
+  color: #ffc107 !important;
+  background: #fff8e1;
 }
 
-[data-status="Completed"]::before { background-color: #1cc88a; }
-[data-status="Completed"] i { 
-  color: #1cc88a !important; 
-  background: #e6f9f2;     
+[data-status="Completed"]::before {
+  background-color: #1cc88a;
 }
-
+[data-status="Completed"] i {
+  color: #1cc88a !important;
+  background: #e6f9f2;
+}
 
 .status-pending {
-  color: #ffc107; 
+  color: #ffc107;
 }
 
 .status-approved {
-  color: #0077b6; 
+  color: #0077b6;
 }
 
 .status-completed {
-  color: #2fbf71; 
+  color: #2fbf71;
 }
 
 .status-declined {
-  color: #e63946; 
+  color: #e63946;
 }
 
 .modal-backdrop.show {
@@ -731,9 +742,9 @@ select.no-arrow option:hover {
 }
 
 .bg-success {
-  color: #60adf4; 
+  color: #60adf4;
   background-color: #e7f3fe !important;
-  border: 1px solid #60adf4
+  border: 1px solid #60adf4;
 }
 
 .bg-danger {
@@ -743,7 +754,7 @@ select.no-arrow option:hover {
 }
 
 .bg-shipping {
-  background-color: #17a2b8 !important; 
+  background-color: #17a2b8 !important;
   color: #fff !important;
 }
 
@@ -760,16 +771,15 @@ select.no-arrow option:hover {
   z-index: 99999;
 
   display: flex !important;
-  align-items: center;      
-  justify-content: center;   
-  padding: 1rem;             
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
 }
 
-
 #bookingDetailsModal .modal-dialog {
-  width: 85% !important;              
-  max-width: 1200px !important;       
-  margin: 0 auto !important;        
+  width: 85% !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
   transition: transform 0.25s ease, opacity 0.25s ease;
 }
 
@@ -798,7 +808,7 @@ select.no-arrow option:hover {
   font-size: 1.1rem;
 }
 #bookingDetailsModal .modal-header .btn-close {
-  filter: invert(1);   /* white close button */
+  filter: invert(1); /* white close button */
   opacity: 0.9;
 }
 #bookingDetailsModal .modal-header .btn-close:hover {
@@ -850,7 +860,7 @@ select.no-arrow option:hover {
 --------------------------------------------------------------*/
 @media (max-width: 992px) {
   #bookingDetailsModal {
-    padding: 2rem 1rem; 
+    padding: 2rem 1rem;
   }
   #bookingDetailsModal .modal-dialog {
     width: 95% !important;
@@ -905,7 +915,7 @@ select.no-arrow option:hover {
   padding: 15px;
   border-radius: 8px;
   background-color: #f8fafc;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .notification-item i {
@@ -913,14 +923,13 @@ select.no-arrow option:hover {
   margin-right: 10px;
 }
 
-
 .notif-badge {
   position: absolute;
   top: -4px;
   right: -4px;
-  background-color: #E41E26; 
+  background-color: #e41e26;
   color: #fff;
-  font-size: clamp(9px, 1.8vw, 11px); 
+  font-size: clamp(9px, 1.8vw, 11px);
   font-weight: 600;
   padding: 2px 5px;
   border-radius: 50%;
@@ -946,7 +955,6 @@ select.no-arrow option:hover {
   }
 }
 
-
 #bookNowMainBtn {
   background-color: #60adf4;
   border: none;
@@ -966,7 +974,6 @@ select.no-arrow option:hover {
   box-shadow: 0 6px 14px rgba(74, 155, 227, 0.4);
 }
 
-
 /*--------------------------------------------------------------
 # Confirm Action Modal (Booking Style)
 --------------------------------------------------------------*/
@@ -984,10 +991,10 @@ select.no-arrow option:hover {
   border: none;
   background: linear-gradient(to right, #60adf4, #3a94e9);
   color: #fff;
-  text-align: left;         
+  text-align: left;
   justify-content: flex-start;
   align-items: center;
-  padding: 1.25rem 1.5rem;  
+  padding: 1.25rem 1.5rem;
 }
 
 .confirm-modal-header h5 {
@@ -1083,20 +1090,44 @@ select.no-arrow option:hover {
 }
 
 @keyframes fadeInScale {
-  0% { transform: scale(0.8); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes iconAppear {
-  0% { transform: scale(0.6); opacity: 0; }
-  80% { transform: scale(1.05); opacity: 1; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  80% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes iconPop {
-  0% { opacity: 0; transform: scale(0.5) translateY(10px); }
-  70% { opacity: 1; transform: scale(1.15) translateY(-3px); }
-  100% { opacity: 1; transform: scale(1) translateY(0); }
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateY(10px);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.15) translateY(-3px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 /*--------------------------------------------------------------
@@ -1206,15 +1237,33 @@ select.no-arrow option:hover {
 }
 
 @keyframes iconAppear {
-  0% { transform: scale(0.6); opacity: 0; }
-  80% { transform: scale(1.05); opacity: 1; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  80% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes checkPop {
-  0% { opacity: 0; transform: scale(0.5) translateY(10px); }
-  70% { opacity: 1; transform: scale(1.15) translateY(-3px); }
-  100% { opacity: 1; transform: scale(1) translateY(0); }
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateY(10px);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.15) translateY(-3px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 /*--------------------------------------------------------------
@@ -1321,20 +1370,44 @@ select.no-arrow option:hover {
 }
 
 @keyframes fadeInModal {
-  0% { opacity: 0; transform: translateY(15px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes iconAppear {
-  0% { transform: scale(0.6); opacity: 0; }
-  80% { transform: scale(1.05); opacity: 1; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  80% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes checkPop {
-  0% { opacity: 0; transform: scale(0.5) translateY(10px); }
-  70% { opacity: 1; transform: scale(1.15) translateY(-3px); }
-  100% { opacity: 1; transform: scale(1) translateY(0); }
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateY(10px);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.15) translateY(-3px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 /*--------------------------------------------------------------
@@ -1404,7 +1477,7 @@ td:last-child {
 #cancelBookingModal .modal-content {
   background: #fff;
   border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 #cancelBookingModal h5 {
@@ -1446,4 +1519,157 @@ td:last-child {
 
 #cancelBookingModal i {
   transition: transform 0.25s ease;
+}
+
+/* =====================================================
+   STATUS BADGES (Cancel & Declined Enhancements)
+   ===================================================== */
+
+/* Cancel By Client */
+.bg-cancel-client {
+  background-color: #fff1f3 !important;
+  color: #e63946 !important;
+  border: 1px solid #e63946 !important;
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* Declined (improved styling to match system UI) */
+.bg-declined {
+  background-color: #fdecef !important;
+  color: #d90429 !important;
+  border: 1px solid #d90429 !important;
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* Delivered */
+.bg-delivered {
+  background-color: #e6f9f2 !important;
+  color: #1cc88a !important;
+  border: 1px solid #1cc88a !important;
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* Dropdown */
+.dropdown-menu .dropdown-item {
+  color: #000;
+  background-color: transparent !important;
+}
+.dropdown-menu .dropdown-item:hover {
+  color: #0d6efd !important;
+  background-color: transparent !important;
+}
+
+.filter-dropdown {
+  min-width: 120px;
+  max-width: 150px;
+  font-size: 0.85rem;
+  padding: 0.25rem 0;
+}
+
+.filter-dropdown .dropdown-item {
+  padding: 5px 12px;
+}
+
+.input-error {
+  border: 2px solid #e63946 !important;
+}
+
+.error-text {
+  color: #e63946;
+  font-size: 0.85rem;
+  margin-top: 4px;
+  display: none;
+}
+
+#statusTabs .nav-link {
+  cursor: pointer;
+  font-weight: 500;
+  color: #555;
+}
+
+#statusTabs .nav-link.active {
+  color: #0d6efd;
+  font-weight: 600;
+  border-bottom: 2px solid #0d6efd;
+}
+
+/*--------------------------------------------------------------
+# Success Modal
+--------------------------------------------------------------*/
+.success-modal {
+  border: none;
+  border-radius: 1rem;
+  box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.success-modal-header {
+  background: linear-gradient(to right, #2fbf71, #3fd47a);
+  color: #fff;
+  border-bottom: none;
+  padding: 1.5rem 1.5rem 0.5rem;
+  border-radius: 1rem 1rem 0 0;
+}
+
+.success-modal-icon {
+  font-size: 3.5rem;
+  color: #2fbf71;
+  text-shadow: 0 0 10px rgba(47, 191, 113, 0.4);
+  animation: success-pop 0.4s ease-out;
+}
+
+.success-modal .modal-body {
+  padding: 2rem 1.5rem;
+  color: #495057;
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+.success-modal .modal-footer {
+  border-top: none;
+  padding: 1rem 1.5rem 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.success-btn-confirm {
+  background: linear-gradient(to right, #2fbf71, #3fd47a);
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.8rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.success-btn-confirm:hover {
+  background: linear-gradient(to right, #26a65b, #2fbf71);
+  transform: translateY(-1px);
+}
+
+@keyframes success-pop {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.modal.fade .modal-dialog {
+  transform: scale(0.95);
+  transition: transform 0.25s ease-out;
+}
+.modal.show .modal-dialog {
+  transform: scale(1);
 }

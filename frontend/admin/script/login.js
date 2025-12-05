@@ -1,6 +1,6 @@
 /* =================== Configuration =================== */
 const API_BASE_URL = window.location.origin.includes("ngrok")
-  ? "https://caiden-recondite-psychometrically.ngrok-free.dev"
+  ? "https://cargosmarttsl-5.onrender.com"
   : "localhost:5001";
 
 // Get email from hidden field or modal data
@@ -81,10 +81,21 @@ document.addEventListener("DOMContentLoaded", () => {
         if (res.ok) {
           if (data.user)
             localStorage.setItem("user", JSON.stringify(data.user));
+
           if (alertMessage) alertMessage.classList.add("d-none");
           if (attemptCountEl) attemptCountEl.textContent = "0";
           sessionStorage.removeItem("welcomeShown");
 
+          // 🚫 BLOCK ARCHIVED DRIVER
+          if (data.user.role === "driver" && data.user.status === "archived") {
+            const toastEl = document.getElementById("archivedDriverToast");
+            if (toastEl) new bootstrap.Toast(toastEl).show();
+
+            submitBtn.disabled = false;
+            return;
+          }
+
+          // Continue with login redirects
           switch (data.user.role) {
             case "admin":
               window.location.href = "./admin/admin.html";
@@ -97,6 +108,9 @@ document.addEventListener("DOMContentLoaded", () => {
               break;
             case "accounting":
               window.location.href = "./accounting/accounting-dashboard.html";
+              break;
+            case "driver":
+              window.location.href = "./Driver/Driver_dashboard.html";
               break;
             default:
               window.location.href = "dashboard.html";
@@ -143,6 +157,20 @@ document.addEventListener("DOMContentLoaded", () => {
             waitBtn.onclick = () => lockoutModal.hide();
           }
         } else {
+          // 🔴 ARCHIVED DRIVER — BACKEND RETURNS 403
+          if (
+            res.status === 403 &&
+            data.error &&
+            data.error.toLowerCase().includes("driver account is archived")
+          ) {
+            const toastEl = document.getElementById("archivedDriverToast");
+            if (toastEl) new bootstrap.Toast(toastEl).show();
+
+            submitBtn.disabled = false;
+            return; // STOP LOGIN FLOW
+          }
+
+          // 🔴 DEFAULT WRONG LOGIN HANDLING
           if (alertMessage) {
             alertMessage.textContent =
               data.error || "Please check Email and Password.";
@@ -182,203 +210,218 @@ document.addEventListener("DOMContentLoaded", () => {
     toast.show();
   }
 
+  function resetSignupButton() {
+    const submitBtn = document.querySelector(
+      "#signupForm button[type='submit']"
+    );
+    if (!submitBtn) return;
+
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = "Create Account";
+  }
+
   /* =================== Sign Up =================== */
   const signupForm = document.getElementById("signupForm");
-  if (signupForm) {
-    signupForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
 
-      const company_name = document
-        .getElementById("signupCompanyName")
-        .value.trim();
-      const contact_person = document
-        .getElementById("signupContactPerson")
-        .value.trim();
-      const contact_number =
-        document.getElementById("signupContactNumber").dataset.full ||
-        document.getElementById("signupContactNumber").value.trim();
-      const email = document.getElementById("signupEmail").value.trim();
-      const password = document.getElementById("signupPassword").value.trim();
-      const confirmPassword = document
-        .getElementById("signupConfirmPassword")
-        .value.trim();
-      const address = document.getElementById("signupAddress").value.trim();
+  // When user clicks "Create Account"
+  signupForm.addEventListener("submit", (e) => {
+    e.preventDefault();
 
-      const passwordInput = document.getElementById("signupPassword");
-      const confirmPasswordInput = document.getElementById(
-        "signupConfirmPassword"
-      );
-      const passwordError = document.getElementById("passwordError");
-      const confirmPasswordError = document.getElementById(
-        "confirmPasswordError"
-      );
+    // First check required fields
+    let hasEmpty = false;
+    const requiredFields = [
+      "signupCompanyName",
+      "signupContactPerson",
+      "signupContactNumber",
+      "signupEmail",
+      "signupPassword",
+      "signupConfirmPassword",
+      "signupAddress",
+    ];
 
-      passwordInput.classList.remove("is-invalid");
-      confirmPasswordInput.classList.remove("is-invalid");
-      passwordError.textContent = "";
-      confirmPasswordError.textContent = "";
+    requiredFields.forEach((id) => {
+      const field = document.getElementById(id);
+      const group = field.closest(".input-group");
 
-      // 🔄 Remove previous inline errors
-      document.querySelectorAll(".inline-error").forEach((el) => el.remove());
-      document
-        .getElementById("signupCompanyName")
-        .classList.remove("is-invalid");
-      document
-        .getElementById("signupContactPerson")
-        .classList.remove("is-invalid");
-
-      let hasEmpty = false;
-      [
-        "signupCompanyName",
-        "signupContactPerson",
-        "signupContactNumber",
-        "signupEmail",
-        "signupPassword",
-        "signupConfirmPassword",
-        "signupAddress",
-      ].forEach((id) => {
-        const field = document.getElementById(id);
-        const group = field.closest(".input-group");
-        if (!field.value.trim()) {
-          hasEmpty = true;
-          if (group) group.classList.add("invalid-field");
-        } else {
-          if (group) group.classList.remove("invalid-field");
-        }
-      });
-
-      if (hasEmpty) return;
-
-      const termsCheckbox = document.getElementById("termsCheckbox");
-      if (!termsCheckbox.checked) {
-        termsCheckbox.classList.add("invalid-checkbox");
-        termsCheckbox.style.animation = "shake 0.3s";
-        setTimeout(() => (termsCheckbox.style.animation = ""), 400);
-        return;
+      if (!field.value.trim()) {
+        hasEmpty = true;
+        if (group) group.classList.add("invalid-field");
       } else {
-        termsCheckbox.classList.remove("invalid-checkbox");
-      }
-
-      /* =================== Name Validation =================== */
-      const nameNumberPattern = /\d/;
-      const companyNameField = document.getElementById("signupCompanyName");
-      const contactPersonField = document.getElementById("signupContactPerson");
-
-      let hasError = false;
-
-      // ✅ Always show validation message directly below (outside) input box
-      const showErrorOutsideGroup = (inputEl, message) => {
-        const fieldWrapper =
-          inputEl.closest(".input-group") ||
-          inputEl.closest(".form-group") ||
-          inputEl.closest(".mb-1") ||
-          inputEl.parentElement;
-
-        if (!fieldWrapper) return;
-
-        inputEl.classList.add("is-invalid");
-
-        // Remove any previous error for this input
-        const oldError = fieldWrapper.parentElement.querySelector(
-          `.inline-error[data-for='${inputEl.id}']`
-        );
-        if (oldError) oldError.remove();
-
-        // Create error <small>
-        const errorMsg = document.createElement("small");
-        errorMsg.className = "inline-error text-danger";
-        errorMsg.dataset.for = inputEl.id;
-        errorMsg.textContent = message;
-
-        // ✅ Insert completely outside the input-group (below it)
-        fieldWrapper.insertAdjacentElement("afterend", errorMsg);
-      };
-
-      /* =================== Password Validation =================== */
-      const passwordPattern =
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-
-      if (!passwordPattern.test(password)) {
-        passwordInput.classList.add("is-invalid");
-        passwordError.textContent =
-          "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character.";
-        return;
-      }
-
-      if (password !== confirmPassword) {
-        passwordInput.classList.add("is-invalid");
-        confirmPasswordInput.classList.add("is-invalid");
-        confirmPasswordError.textContent = "Passwords do not match.";
-        return;
-      }
-      
-        /* =================== Contact Number Validation (Philippines) =================== */
-        const contactNumberPattern = /^(?:\+639\d{9}|09\d{9})$/; // accepts +639XXXXXXXXX or 09XXXXXXXXX
-        const contactNumberField = document.getElementById("signupContactNumber");
-        const phoneError = document.getElementById("phoneError");
-
-        phoneError.textContent = ""; // clear any previous message
-        contactNumberField.classList.remove("is-invalid");
-
-        if (!contactNumberPattern.test(contact_number)) {
-          contactNumberField.classList.add("is-invalid");
-          phoneError.textContent = "Please provide a valid mobile number.";
-          return;
-        }
-
-
-      /* =================== Signup API Request =================== */
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/client/signup`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            company_name,
-            contact_person,
-            contact_number,
-            email,
-            password,
-            address,
-          }),
-        });
-
-        const data = await res.json();
-
-        if (res.ok) {
-          signupForm.reset();
-
-          // open verification modal
-          const modalEl = document.getElementById("verifyModal");
-          const hiddenEmail = document.getElementById("verifyEmail");
-          hiddenEmail.value = email;
-          modalEl.dataset.email = email;
-
-          let verifyModal = bootstrap.Modal.getInstance(modalEl);
-          if (!verifyModal) {
-            verifyModal = new bootstrap.Modal(modalEl);
-          }
-          verifyModal.show();
-
-          startResendTimer();
-        } else {
-          if (
-            data.error &&
-            data.error.toLowerCase().includes("already registered")
-          ) {
-            const toastEl = document.getElementById("emailExistsToast");
-            if (toastEl) {
-              const toast = new bootstrap.Toast(toastEl);
-              toast.show();
-            }
-          } else {
-            alert(data.error || "Signup failed. Please try again.");
-          }
-        }
-      } catch (err) {
-        console.error("Signup error:", err);
-        alert("An error occurred. Please try again.");
+        if (group) group.classList.remove("invalid-field");
       }
     });
+
+    // If missing fields → do NOT open the modal
+    if (hasEmpty) return;
+
+    // If all fields are filled → now show the modal
+    const modal = new bootstrap.Modal(
+      document.getElementById("agreementModal")
+    );
+    modal.show();
+  });
+
+  // When user accepts inside modal
+  document
+    .getElementById("modalCreateAccountBtn")
+    .addEventListener("click", () => {
+      const checkbox = document.getElementById("modalTermsCheckbox");
+
+      if (!checkbox.checked) {
+        checkbox.classList.add("is-invalid");
+        return;
+      }
+
+      checkbox.classList.remove("is-invalid");
+
+      // Close modal
+      const modalEl = document.getElementById("agreementModal");
+      const modal = bootstrap.Modal.getInstance(modalEl);
+      modal.hide();
+
+      // Now run the REAL VALIDATION + SIGNUP
+      runActualSignup();
+    });
+
+  // Remove red border when checkbox becomes checked
+  document
+    .getElementById("modalTermsCheckbox")
+    .addEventListener("change", function () {
+      if (this.checked) {
+        this.classList.remove("is-invalid");
+      }
+    });
+
+  async function runActualSignup() {
+    const submitBtn = signupForm.querySelector("button[type='submit']");
+
+    // prevent double click
+    if (submitBtn.disabled) return;
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Creating account...`;
+
+    /* =================== Collect Fields =================== */
+    const company_name = document
+      .getElementById("signupCompanyName")
+      .value.trim();
+    const contact_person = document
+      .getElementById("signupContactPerson")
+      .value.trim();
+    const contact_number =
+      document.getElementById("signupContactNumber").dataset.full ||
+      document.getElementById("signupContactNumber").value.trim();
+    const email = document.getElementById("signupEmail").value.trim();
+    const password = document.getElementById("signupPassword").value.trim();
+    const confirmPassword = document
+      .getElementById("signupConfirmPassword")
+      .value.trim();
+    const address = document.getElementById("signupAddress").value.trim();
+
+    /* =================== EMPTY FIELD CHECK =================== */
+    let hasEmpty = false;
+    [
+      "signupCompanyName",
+      "signupContactPerson",
+      "signupContactNumber",
+      "signupEmail",
+      "signupPassword",
+      "signupConfirmPassword",
+      "signupAddress",
+    ].forEach((id) => {
+      const field = document.getElementById(id);
+      const group = field.closest(".input-group");
+      if (!field.value.trim()) {
+        hasEmpty = true;
+        if (group) group.classList.add("invalid-field");
+      } else {
+        if (group) group.classList.remove("invalid-field");
+      }
+    });
+
+    if (hasEmpty) {
+      resetSignupButton();
+      return;
+    }
+
+    /* =================== NAME VALIDATION =================== */
+    if (/\d/.test(contact_person)) {
+      showValidationToast("Contact person must not contain numbers.");
+      resetSignupButton();
+      return;
+    }
+
+    /* =================== PASSWORD VALIDATION =================== */
+    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+
+    if (!passwordPattern.test(password)) {
+      showValidationToast("Password does not meet the required format.");
+      resetSignupButton();
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      showValidationToast("Passwords do not match.");
+      resetSignupButton();
+      return;
+    }
+
+    /* =================== CONTACT NUMBER VALIDATION =================== */
+    const phonePattern = /^(?:\+639\d{9}|09\d{9})$/;
+    if (!phonePattern.test(contact_number)) {
+      showValidationToast("Invalid phone number format.");
+      resetSignupButton();
+      return;
+    }
+
+    /* =================== SEND SIGNUP API =================== */
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/client/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          company_name,
+          contact_person,
+          contact_number,
+          email,
+          password,
+          address,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        resetSignupButton();
+        signupForm.reset();
+
+        // verification modal
+        const modalEl = document.getElementById("verifyModal");
+        document.getElementById("verifyEmail").value = email;
+        modalEl.dataset.email = email;
+
+        let verifyModal =
+          bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+        verifyModal.show();
+
+        startResendTimer(document.getElementById("resendCodeBtn"));
+      } else {
+        resetSignupButton();
+        if (data.error?.toLowerCase().includes("already registered")) {
+          new bootstrap.Toast(
+            document.getElementById("emailExistsToast")
+          ).show();
+        } else {
+          new bootstrap.Toast(
+            document.getElementById("emailNotFoundToast")
+          ).show();
+        }
+      }
+    } catch (err) {
+      console.error("Signup error:", err);
+      resetSignupButton();
+      alert("A network error occurred. Please try again.");
+    }
   }
 
   /* =================== Validation Helpers =================== */
@@ -616,7 +659,7 @@ document.addEventListener("DOMContentLoaded", () => {
   logoutBtn?.addEventListener("click", async () => {
     try {
       await fetch(
-        `https://caiden-recondite-psychometrically.ngrok-free.dev/api/logout`,
+        `https://cargosmarttsl-5.onrender.com/api/logout`,
         { method: "POST", credentials: "include" }
       );
       localStorage.removeItem("token");
@@ -679,6 +722,9 @@ const newPasswordForm = document.getElementById("newPasswordForm");
 /* =================== Send Reset Code =================== */
 if (sendResetCodeBtn) {
   sendResetCodeBtn.addEventListener("click", async () => {
+    // Prevent double click
+    if (sendResetCodeBtn.disabled) return;
+
     const emailInput = document.getElementById("resetRequestEmail");
     const emailGroup = emailInput.closest(".input-group");
     const emailError = document.getElementById("resetEmailError");
@@ -697,25 +743,30 @@ if (sendResetCodeBtn) {
       return;
     }
 
+    /* ---------- BUTTON → LOADING ---------- */
+    sendResetCodeBtn.disabled = true;
+    sendResetCodeBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Sending...`;
+
     try {
       const res = await fetch(`${API_BASE_URL}/api/send-reset-code`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
+
       const data = await res.json();
 
       if (res.ok) {
         const resetCodeModalEl = document.getElementById("resetCodeModal");
         const existingModal = bootstrap.Modal.getInstance(resetCodeModalEl);
 
-        // Close any other open modals
+        // Close any open modals before opening new one
         document.querySelectorAll(".modal.show").forEach((modal) => {
           const modalInstance = bootstrap.Modal.getInstance(modal);
           if (modalInstance && modal !== resetCodeModalEl) modalInstance.hide();
         });
 
-        // Only show if not already visible
+        // Show reset code modal
         if (!resetCodeModalEl.classList.contains("show")) {
           document.getElementById("resetCodeEmail").value = email;
           (existingModal || new bootstrap.Modal(resetCodeModalEl)).show();
@@ -724,16 +775,21 @@ if (sendResetCodeBtn) {
         emailGroup?.classList.add("is-valid");
         setTimeout(() => emailGroup?.classList.remove("is-valid"), 2000);
       } else {
+        const notFoundToast = document.getElementById("emailNotFoundToast");
+        if (notFoundToast) new bootstrap.Toast(notFoundToast).show();
+
         emailGroup?.classList.add("invalid-field");
-        if (emailError)
-          emailError.textContent =
-            data.error || "Unable to send reset code. Please try again.";
+        if (emailError) emailError.textContent = "Email not found.";
       }
     } catch (err) {
       console.error("Send Reset Code Error:", err);
       emailGroup?.classList.add("invalid-field");
       if (emailError)
         emailError.textContent = "Network error. Please try again.";
+    } finally {
+      /* ---------- RESTORE BUTTON ---------- */
+      sendResetCodeBtn.disabled = false;
+      sendResetCodeBtn.innerHTML = "Send Reset Code";
     }
   });
 }

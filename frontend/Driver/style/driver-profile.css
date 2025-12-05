@@ -1,0 +1,9 @@
+body {
+  background: #f6f8fa;
+  font-family: "Inter", sans-serif;
+}
+
+.profile-card {
+  background: white;
+  border-left: 5px solid #60adf4;
+}

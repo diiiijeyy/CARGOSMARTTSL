@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Driver Dashboard</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Leaflet Map CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="./style/driver-dashboard.css">
+
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary px-3">
+    <a class="navbar-brand fw-bold" href="./Driver_dashboard.html">TSL Driver</a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#driverNavbar"
+      aria-controls="driverNavbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="driverNavbar">
+      <ul class="navbar-nav ms-auto">
+
+        <li class="nav-item">
+          <a class="nav-link" id="navDashboard" href="./Driver_dashboard.html">
+            <i class="fa-solid fa-map-location-dot me-1"></i> Dashboard
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" id="navProfile" href="./driver-profile.html">
+            <i class="fa-solid fa-user me-1"></i> Profile
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link text-warning fw-semibold" href="../login.html">
+            <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
+          </a>
+        </li>
+
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+
+    <!-- ============================= -->
+    <!-- Driver Information Box        -->
+    <!-- ============================= -->
+    <div class="card p-3 mb-3">
+      <h5 class="fw-bold mb-2" id="driverName">Driver</h5>
+
+      <p class="mb-1"><strong>Email:</strong> <span id="driverEmail">---</span></p>
+      <p class="mb-0"><strong>Phone:</strong> <span id="driverPhone">---</span></p>
+    </div>
+
+    <!-- ============================= -->
+    <!-- LIVE MAP SECTION              -->
+    <!-- ============================= -->
+    <div id="driverMap"></div>
+
+    <!-- SHIPMENT SECTION TITLE -->
+    <h4 class="fw-bold mt-4">Assigned Shipments</h4>
+
+    <!-- TABS -->
+    <ul class="nav nav-tabs mb-3" id="driverTabs">
+      <li class="nav-item">
+        <button class="nav-link active" id="tabActive" onclick="showTab('active')">
+          Active Shipments
+        </button>
+      </li>
+
+      <li class="nav-item">
+        <button class="nav-link" id="tabCompleted" onclick="showTab('completed')">
+          Completed Shipments
+        </button>
+      </li>
+    </ul>
+
+    <!-- ACTIVE SHIPMENTS -->
+    <div id="shipmentList">
+      <p class="text-muted">Loading shipments...</p>
+    </div>
+
+    <!-- COMPLETED SHIPMENTS -->
+    <div id="completedList" class="d-none"></div>
+
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="position-fixed top-0 end-0 p-3" style="z-index:9999;">
+    <div id="driverToast" class="toast text-white" role="alert">
+      <div class="toast-body" id="driverToastMessage">Message here</div>
+    </div>
+  </div>
+
+  <button id="recenterBtn"
+  style="
+    position:fixed;
+    bottom:90px;
+    right:20px;
+    z-index:9999;
+    background:#0077b6;
+    color:white;
+    border:none;
+    width:50px;
+    height:50px;
+    border-radius:50%;
+    font-size:20px;
+    box-shadow:0 3px 6px rgba(0,0,0,0.3);
+  ">
+  <i class="fa-solid fa-location-crosshairs"></i>
+</button>
+
+  <!-- BASE URL -->
+  <script>
+    const API_BASE_URL =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+    ? "http://localhost:5001"
+    : "https://cargosmarttsl-5.onrender.com";
+
+  </script>
+
+  <!-- Bootstrap JS -->
+  <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script src="https://unpkg.com/leaflet-polylinedecorator@1.7.0/dist/leaflet.polylineDecorator.min.js"></script>
+
+  <!-- Custom Script -->
+  <script src="./script/driver-dashboard.js"></script>
+
+  <!-- Active Navbar Highlighter -->
+  <script>
+    const path = window.location.pathname;
+
+    if (path.includes("Driver_dashboard")) {
+      document.getElementById("navDashboard")?.classList.add("active");
+    }
+    if (path.includes("driver-profile")) {
+      document.getElementById("navProfile")?.classList.add("active");
+    }
+  </script>
+
+</body>
+
+</html>

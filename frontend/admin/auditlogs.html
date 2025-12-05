@@ -64,6 +64,11 @@
           </a>
         </li>
         <li>
+          <a href="./driver.html">
+            <i class="uil uil-truck"></i>
+            <span class="link-name">Drivers</span>
+          </a>
+        <li>
           <a href="./booking-management.html">
             <i class="uil uil-schedule"></i>
             <span class="link-name">Bookings</span>
@@ -169,24 +174,12 @@
                       <label class="form-label fw-medium">Action Type</label>
                       <select class="form-select form-select-sm" id="actionFilter">
                         <option value="all">All Actions</option>
-                        <option value="login">Login</option>
-                        <option value="logout">Logout</option>
-                        <option value="failed">Failed Login</option>
-                        <option value="lock">Account Lock</option>
-                        <option value="update">Update</option>
-                        <option value="delete">Delete</option>
+                        <option value="booking_created">Booking Created</option>
+                        <option value="dashboard_view">Dashboard Viewed</option>
+                        <option value="profile_view">Profile Viewed</option>
                       </select>
                     </div>
-                    <!-- User Role Filter -->
-                    <div>
-                      <label class="form-label fw-medium">User Role</label>
-                      <select class="form-select form-select-sm" id="roleFilter">
-                        <option value="all">All Roles</option>
-                        <option value="superadmin">Super Admin</option>
-                        <option value="admin">Admin</option>
-                        <option value="client">Client</option>
-                      </select>
-                    </div>
+
                   </div>
                 </div>
 
@@ -220,17 +213,11 @@
 
           <!-- Pagination -->
           <div class="pagination-wrapper d-flex justify-content-between align-items-center mt-3">
-            <span class="small text-muted" id="paginationInfo">Showing 0 results</span>
-            <div class="d-flex gap-2">
-              <button class="btn btn-light btn-sm" id="prevBtn" disabled>
-                <i class="fas fa-chevron-left"></i> Previous
-              </button>
-              <div id="paginationNumbers" class="d-flex gap-2"></div>
-              <button class="btn btn-light btn-sm" id="nextBtn">
-                Next <i class="fas fa-chevron-right"></i>
-              </button>
-            </div>
+            <span class="small text-muted" id="paginationInfo"></span>
+            <ul id="pagination" class="pagination mb-0"></ul>
           </div>
+
+
         </div>
       </section>
   </main>

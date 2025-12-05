@@ -2,9 +2,10 @@
 # Fonts & Colors
 --------------------------------------------------------------*/
 :root {
-  --font-default: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-primary: 'Poppins', sans-serif;
-  --font-secondary: 'Inter', sans-serif;
+  --font-default: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  --font-primary: "Poppins", sans-serif;
+  --font-secondary: "Inter", sans-serif;
   --primary-color: #60adf4;
   --panel-color: #f6f8fa;
   --text-color: #000;
@@ -186,7 +187,9 @@ nav.close ~ .dashboard .top {
 /*--------------------------------------------------------------
 # Search + Filter
 --------------------------------------------------------------*/
-.client-toolbar { gap: 12px; }
+.client-toolbar {
+  gap: 12px;
+}
 
 .search-bar {
   position: relative;
@@ -198,7 +201,7 @@ nav.close ~ .dashboard .top {
   padding: 6px 10px;
   min-width: 240px;
   transition: var(--tran-03);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 .search-bar:hover {
   box-shadow: 0 4px 12px rgba(46, 127, 192, 0.2);
@@ -251,8 +254,9 @@ nav.close ~ .dashboard .top {
   font-size: 0.85rem;
   padding: 0.25rem 0;
 }
-.filter-dropdown .dropdown-item { padding: 5px 12px; }
-
+.filter-dropdown .dropdown-item {
+  padding: 5px 12px;
+}
 
 .shipment-card {
   background: #fff;
@@ -264,33 +268,47 @@ nav.close ~ .dashboard .top {
 #filterPopover {
   background: #fff;
   border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   animation: fadeIn 0.15s ease-in-out;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateX(-5px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 #filterPopover {
   background: #fff;
   border-radius: 10px;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
   animation: fadeIn 0.2s ease-in-out;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-#invoiceFilterBtn, #exportBtn {
+#invoiceFilterBtn,
+#exportBtn {
   transition: all 0.2s ease-in-out;
 }
 
-#invoiceFilterBtn:hover, #exportBtn:hover {
+#invoiceFilterBtn:hover,
+#exportBtn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /*--------------------------------------------------------------
@@ -368,7 +386,6 @@ nav.close ~ .dashboard .top {
   color: #2e7fc0;
 }
 
-
 .status-badge {
   display: inline-block;
   padding: 4px 10px;
@@ -384,31 +401,6 @@ nav.close ~ .dashboard .top {
   font-size: 0.85rem;
   font-weight: 600;
 }
-
-.bg-pending {
-  color: #f6c23e;
-  background-color: #fff8e1;
-  border: 1px solid #f6c23e;
-}
-
-.bg-approved {
-  color: #60adf4; 
-  background-color: #e7f3fe;
-  border: 1px solid #60adf4;
-}
-
-.bg-declined {
-  color: #dc3545;
-  background-color: #f8d7da;
-  border: 1px solid #dc3545;
-}
-
-.bg-completed {
-  color: #198754;
-  background-color: #eaf7ee;
-  border: 1px solid #198754;
-}
-
 
 .pagination-wrapper {
   padding-top: 0.8rem;
@@ -478,7 +470,7 @@ nav.close ~ .dashboard .top {
   background-color: white;
   border: 1px solid #ccc;
   min-width: 150px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   overflow: hidden;
   z-index: 1000;
@@ -629,9 +621,6 @@ nav.close ~ .dashboard .top {
   color: #fff !important;
 }
 
-
-
-
 /*--------------------------------------------------------------
 # Notifications Section
 --------------------------------------------------------------*/
@@ -654,14 +643,13 @@ nav.close ~ .dashboard .top {
   padding: 15px;
   border-radius: 8px;
   background-color: #f8fafc;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .notification-item i {
   font-size: 1.25rem;
   margin-right: 10px;
 }
-
 
 /* ================= Badge Position Fix ================= */
 .profile-wrapper {
@@ -673,9 +661,9 @@ nav.close ~ .dashboard .top {
   position: absolute;
   top: -4px;
   right: -4px;
-  background-color: #E41E26; 
+  background-color: #e41e26;
   color: #fff;
-  font-size: clamp(9px, 1.8vw, 11px); 
+  font-size: clamp(9px, 1.8vw, 11px);
   font-weight: 600;
   padding: 2px 5px;
   border-radius: 50%;
@@ -715,41 +703,29 @@ nav.close ~ .dashboard .top {
   transition: all 0.2s ease-in-out;
 }
 
-/* 🟡 Pending */
 .bg-pending {
   color: #f6c23e;
-  background-color: #fff8e1 !important;
-  border-color: #f6c23e;
+  background-color: #fff8e1;
+  border: 1px solid #f6c23e;
 }
 
-/* 🔵 Approved */
 .bg-approved {
-  color: #0077b6;
-  background-color: #e7f3fe !important;
-  border-color: #0077b6;
+  color: #60adf4;
+  background-color: #e7f3fe;
+  border: 1px solid #60adf4;
 }
 
-/* 🟢 Completed */
-.bg-completed {
-  color: #1cc88a;
-  background-color: #e6f9f1 !important;
-  border-color: #1cc88a;
-}
-
-/* 🔴 Declined / Decline */
-.bg-declined,
-.bg-decline {
+.bg-declined {
   color: #dc3545;
-  background-color: #f8d7da !important;
-  border-color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #dc3545;
 }
 
-/* 🟣 In Transit */
-.bg-intransit,
-.bg-in-transit {
-  color: #9c27b0;
-  background-color: #f3e5f5 !important;
-  border-color: #9c27b0;
+/* 🔴 Cancelled by Client (same red style as declined) */
+.bg-cancelled {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #dc3545;
 }
 
 /* 🟠 Shipping */
@@ -759,11 +735,25 @@ nav.close ~ .dashboard .top {
   border-color: #fd7e14;
 }
 
-/* ⚪ Default / Unknown */
-.bg-secondary {
+/* 🟣 In Transit */
+.bg-intransit {
+  color: #9c27b0;
+  background-color: #f3e5f5 !important;
+  border-color: #9c27b0;
+}
+
+/* 🟢 Delivered */
+.bg-delivered {
+  color: #198754;
+  background-color: #e8f6ec !important;
+  border-color: #198754;
+}
+
+/* ⚫ Cancel by Client */
+.bg-cancelled {
   color: #6c757d;
-  background-color: #f1f1f1 !important;
-  border-color: #bdbdbd;
+  background-color: #eeeeee !important;
+  border-color: #6c757d;
 }
 
 .detail-label {

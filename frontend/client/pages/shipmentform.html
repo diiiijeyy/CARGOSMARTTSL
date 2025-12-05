@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
@@ -14,7 +15,9 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Amatic+SC:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Amatic+SC:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="../../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -29,7 +32,7 @@
   <!--- Icons --->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css">
-  
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
@@ -37,7 +40,7 @@
   <!-- Preloader -->
   <div id="preloader"></div>
 
-   <!--- ======= Navbar ======= --->
+  <!--- ======= Navbar ======= --->
   <nav>
     <div class="logo-name">
       <div class="logo-image">
@@ -122,141 +125,162 @@
         </div>
         <div class="form-body p-4">
           <form id="bookingForm" enctype="multipart/form-data">
-            <div class="form-row">
-              
-              <!-- ================= Left Column ================= -->
-              <div class="form-column left-column">
-                <!-- Mode of Shipment -->
-                <div class="mb-3">
-                  <label class="form-label">Mode of Shipment <span class="text-danger">*</span></label>
-                  <select class="form-select" id="deliveryType" name="deliveryType" required>
-                    <option value="">Select...</option>
-                    <option value="Land">Land</option>
-                    <option value="Sea">Sea</option>
-                    <option value="Air">Air</option>
-                  </select>
+
+            <div class="single-column-form">
+
+              <!-- Mode of Shipment -->
+              <div class="mb-3">
+                <label class="form-label">Mode of Shipment <span class="text-danger">*</span></label>
+                <select class="form-select" id="deliveryType" name="deliveryType" required>
+                  <option value="">Select...</option>
+                  <option value="Land">Land</option>
+                  <option value="Sea">Sea</option>
+                  <option value="Air">Air</option>
+                </select>
+              </div>
+
+              <!-- Shipper -->
+              <div class="mb-3">
+                <label class="form-label">Shipper <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" name="shipper" required>
+              </div>
+
+              <!-- Consignee -->
+              <div class="mb-3">
+                <label class="form-label">Consignee <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" name="consignee" required>
+              </div>
+
+              <!-- Service Type -->
+              <div class="mb-3">
+                <label class="form-label">Service Type <span class="text-danger">*</span></label>
+                <select class="form-select" id="serviceType" name="serviceType" required>
+                  <option value="">Select Service</option>
+                </select>
+              </div>
+
+              <!-- Delivery Mode -->
+              <div class="mb-3" id="deliveryModeSection">
+                <label class="form-label">Delivery Mode <span class="text-danger">*</span></label>
+                <select class="form-select" name="deliveryMode" id="deliveryMode">
+                  <option value="">Select...</option>
+                  <option value="FCL">Full Container Load Shipping (FCL)</option>
+                  <option value="LCL">Less than Container Load (LCL)</option>
+                </select>
+              </div>
+
+              <!-- Container Size (FCL/LCL only) -->
+              <div class="mb-3" id="containerSizeWrapper" style="display:none;">
+                <label class="form-label">Container Size <span class="text-danger">*</span></label>
+
+                <div class="d-flex flex-wrap gap-3 mt-2">
+                  <label><input type="radio" name="containerSize" value="20ft"> 20 ft</label>
+                  <label><input type="radio" name="containerSize" value="40ft"> 40 ft</label>
+                  <label><input type="radio" name="containerSize" value="40HC"> 40 HC</label>
                 </div>
 
-                <!-- Shipper -->
-                <div class="mb-3">
-                  <label class="form-label">Shipper <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" name="shipper" required>
-                </div>
-
-                <!-- Consignee -->
-                <div class="mb-3">
-                  <label class="form-label">Consignee <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" name="consignee" required>
-                </div>
-
-                <!-- Service Type (dynamic) -->
-                <div class="mb-3">
-                  <label class="form-label">Service Type <span class="text-danger">*</span></label>
-                  <select class="form-select" id="serviceType" name="serviceType" required>
-                    <option value="">Select Service</option>
-                  </select>
-                </div>
-
-                <!-- Delivery Mode -->
-                <div class="mb-3" id="deliveryModeSection">
-                  <label class="form-label">Delivery Mode <span class="text-danger">*</span></label>
-                  <select class="form-select" name="deliveryMode" id="deliveryMode">
-                    <option value="">Select...</option>
-                    <option value="FCL">Full Container Load Shipping (FCL)</option>
-                    <option value="LCL">Less than Container Load (LCL)</option>
-                  </select>
-                </div>
-
-                <!-- Shipment Type -->
-                <div class="mb-3">
-                  <label class="form-label">Shipment Type <span class="text-danger">*</span></label>
-                  <div>
-                    <input type="radio" class="form-check-input" name="shipmentType" value="Import" required> Import
-                    <input type="radio" class="form-check-input ms-3" name="shipmentType" value="Export"> Export
-                  </div>
-                </div>
-
-                <!-- Number of Packages -->
-                <div class="mb-3">
-                  <label class="form-label">Number of Packages <span class="text-danger">*</span></label>
-                  <input type="number" class="form-control" name="numPackages" min="1" step="1" required>
-                </div>
-
-                <!-- Gross Weight -->
-                <div class="mb-3">
-                  <label class="form-label">Gross Weight <span class="text-danger">*</span></label>
-                  <div class="input-group">
-                    <input type="number" step="0.01" min="0.01" class="form-control" name="grossWeight" id="grossWeight" required>
-                    <select class="form-select" name="grossWeightUnit" id="grossWeightUnit">
-                      <option value="">Select Unit</option>
-                      <option value="kg">kg</option>
-                      <option value="ton">ton</option>
-                    </select>
-                  </div>
+                <div id="containerSizeError" class="error-text"
+                  style="display:none;color:red;font-size:13px;margin-top:5px;">
+                  Please select a container size.
                 </div>
               </div>
 
-              <!-- ================= Right Column ================= -->
-              <div class="form-column right-column">
-                <!-- Net Weight -->
-                <div class="mb-3">
-                  <label class="form-label">Net Weight <span class="text-danger">*</span></label>
-                  <div class="input-group">
-                    <input type="number" step="0.01" min="0.01" class="form-control" name="netWeight" id="netWeight" required>
-                    <select class="form-select" name="netWeightUnit" id="netWeightUnit">
-                      <option value="">Select Unit</option>
-                      <option value="kg">kg</option>
-                      <option value="ton">ton</option>
-                    </select>
-                  </div>
-                </div>
-
-                <!-- Packing List -->
-                <div class="mb-3">
-                  <label class="form-label">Packing List (PDF)</label>
-                  <input type="file" class="form-control" name="packingList" id="packingList" accept="application/pdf">
-                </div>
-
-                <!-- Commercial Invoice -->
-                <div class="mb-3">
-                  <label class="form-label">Commercial Invoice (PDF)</label>
-                  <input type="file" class="form-control" name="commercialInvoice" id="commercialInvoice" accept="application/pdf">
-                </div>
-
-                <!-- Port of Origin -->
-                <div class="mb-3 autocomplete-wrapper">
-                  <label class="form-label">Port of Origin <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" name="portOrigin" id="portOriginInput" autocomplete="off" required>
-                  <div id="portOriginList" class="autocomplete-list" style="display:none;"></div>
-                </div>
-
-                <!-- Port of Delivery -->
-                <div class="mb-3 autocomplete-wrapper">
-                  <label class="form-label">Port of Delivery <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" name="portDelivery" id="portDeliveryInput" autocomplete="off" required>
-                  <div id="portDeliveryList" class="autocomplete-list" style="display:none;"></div>
-                </div>
-
-                <!-- Specific Location -->
-                <div class="mb-3 autocomplete-wrapper" id="specificLocationSection" style="display:none;">
-                  <label class="form-label">Specific Location <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" name="specificLocation" id="specificLocationInput" autocomplete="off">
-                  <div id="specificLocationList" class="autocomplete-list" style="display:none;"></div>
-                </div>
-
-                <!-- Remarks -->
-                <div class="mb-3">
-                  <label class="form-label">Remarks</label>
-                  <textarea class="form-control remarks-area" name="remarks" rows="5"></textarea>
+              <!-- Shipment Type -->
+              <div class="mb-3">
+                <label class="form-label">Shipment Type <span class="text-danger">*</span></label>
+                <div>
+                  <input type="radio" class="form-check-input" name="shipmentType" value="Import" required> Import
+                  <input type="radio" class="form-check-input ms-3" name="shipmentType" value="Export"> Export
                 </div>
               </div>
-            </div>
 
-            <!-- Submit Button -->
-            <div class="text-center mt-4">
-              <button type="submit" class="btn-submit">Book Shipment</button>
+              <!-- Number of Packages -->
+              <div class="mb-3">
+                <label class="form-label">Number of Packages <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" name="numPackages" id="numPackages" required
+                  oninvalid="this.setCustomValidity('');" oninput="this.setCustomValidity('');">
+
+              </div>
+
+              <!-- Gross Weight -->
+              <div class="mb-3">
+                <label class="form-label">Gross Weight <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <input type="number" step="0.01" min="0.01" class="form-control" name="grossWeight" id="grossWeight"
+                    required>
+                  <select class="form-select" name="grossWeightUnit" id="grossWeightUnit">
+                    <option value="">Select Unit</option>
+                    <option value="kg">kg</option>
+                    <option value="ton">ton</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Net Weight -->
+              <div class="mb-3">
+                <label class="form-label">Net Weight <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <input type="number" step="0.01" min="0.01" class="form-control" name="netWeight" id="netWeight"
+                    required>
+                  <select class="form-select" name="netWeightUnit" id="netWeightUnit">
+                    <option value="">Select Unit</option>
+                    <option value="kg">kg</option>
+                    <option value="ton">ton</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Packing List -->
+              <div class="mb-3">
+                <label class="form-label">Packing List (PDF)</label>
+                <input type="file" class="form-control" name="packingList" id="packingList" accept="application/pdf">
+              </div>
+
+              <!-- Commercial Invoice -->
+              <div class="mb-3">
+                <label class="form-label">Commercial Invoice (PDF)</label>
+                <input type="file" class="form-control" name="commercialInvoice" id="commercialInvoice"
+                  accept="application/pdf">
+              </div>
+
+              <!-- Port of Origin -->
+              <div class="mb-3 autocomplete-wrapper">
+                <label class="form-label">Port of Origin <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" name="portOrigin" id="portOriginInput" autocomplete="off"
+                  required>
+                <div id="portOriginList" class="autocomplete-list" style="display:none;"></div>
+              </div>
+
+              <!-- Port of Delivery -->
+              <div class="mb-3 autocomplete-wrapper">
+                <label class="form-label">Port of Delivery <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" name="portDelivery" id="portDeliveryInput" autocomplete="off"
+                  required>
+                <div id="portDeliveryList" class="autocomplete-list" style="display:none;"></div>
+              </div>
+
+              <!-- Specific Location (dynamic) -->
+              <div class="mb-3 autocomplete-wrapper" id="specificLocationSection" style="display:none;">
+                <label class="form-label">Specific Location <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" name="specificLocation" id="specificLocationInput"
+                  autocomplete="off">
+                <div id="specificLocationList" class="autocomplete-list" style="display:none;"></div>
+              </div>
+
+              <!-- Remarks -->
+              <div class="mb-3">
+                <label class="form-label">Remarks</label>
+                <textarea class="form-control remarks-area" name="remarks" rows="5"></textarea>
+              </div>
+
+              <!-- Submit -->
+              <div class="text-center mt-4">
+                <button type="submit" class="btn-submit">Book Shipment</button>
+              </div>
+
             </div>
           </form>
+
         </div>
       </div>
     </section>
@@ -323,4 +347,5 @@
   <!-- Booking JS -->
   <script src="../script/booking.js"></script>
 </body>
+
 </html>

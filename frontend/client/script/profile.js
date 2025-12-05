@@ -1,6 +1,6 @@
 //CONFIGURATION
 
-const API_BASE_URL = "https://caiden-recondite-psychometrically.ngrok-free.dev";
+const API_BASE_URL = "https://cargosmarttsl-5.onrender.com";
 
 // ========================
 // POPULATE READ-ONLY PROFILE CARD & IMAGE
@@ -28,7 +28,7 @@ function populateProfileCard(data) {
   const imgDiv = document.querySelector(".profile-image");
   if (imgDiv) {
     imgDiv.innerHTML = data.photo
-      ? `<img src="https://caiden-recondite-psychometrically.ngrok-free.dev/uploads/${data.photo}" 
+      ? `<img src="https://cargosmarttsl-5.onrender.com/uploads/${data.photo}" 
           alt="Profile Photo" 
           class="img-fluid rounded-circle" 
           style="width:150px;height:150px;object-fit:cover;border-radius:50%;">`
@@ -36,13 +36,31 @@ function populateProfileCard(data) {
   }
 }
 
+/* =================== Profile Dropdown =================== */
+document.addEventListener("click", (e) => {
+  const icon = document.getElementById("profileIcon");
+  const dropdown = document.getElementById("profileDropdown");
+  if (!icon || !dropdown) return;
+
+  if (icon.contains(e.target)) {
+    dropdown.style.display =
+      dropdown.style.display === "block" ? "none" : "block";
+  } else if (!dropdown.contains(e.target)) {
+    dropdown.style.display = "none";
+  }
+});
+
+window.addEventListener("pageshow", () => {
+  loadProfile();
+});
+
 // ========================
 // LOAD PROFILE DATA
 // ========================
 async function loadProfile() {
   try {
     const res = await fetch(
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/profile",
+      "https://cargosmarttsl-5.onrender.com/api/profile",
       {
         method: "GET",
         credentials: "include",
@@ -96,7 +114,7 @@ async function loadProfile() {
         profileIcon.replaceWith(img);
         profileIcon = img;
       }
-      profileIcon.src = `https://caiden-recondite-psychometrically.ngrok-free.dev/uploads/${data.photo}`;
+      profileIcon.src = `https://cargosmarttsl-5.onrender.com/uploads/${data.photo}`;
       profileIcon.alt = "Profile";
     }
   } catch (err) {
@@ -115,7 +133,7 @@ async function loadProfile() {
 async function loadNotificationCount() {
   try {
     const res = await fetch(
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/client/notifications",
+      "https://cargosmarttsl-5.onrender.com/api/client/notifications",
       {
         credentials: "include",
       }
@@ -166,7 +184,7 @@ async function saveProfile(e) {
 
   try {
     const res = await fetch(
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/profile",
+      "https://cargosmarttsl-5.onrender.com/api/profile",
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -211,7 +229,7 @@ async function saveProfile(e) {
 async function removePhoto() {
   try {
     const res = await fetch(
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/profile/photo",
+      "https://cargosmarttsl-5.onrender.com/api/profile/photo",
       {
         method: "DELETE",
         credentials: "include",
@@ -273,7 +291,7 @@ async function uploadPhoto() {
 
   try {
     const res = await fetch(
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/profile/photo",
+      "https://cargosmarttsl-5.onrender.com/api/profile/photo",
       {
         method: "POST",
         credentials: "include",
@@ -353,7 +371,7 @@ async function changePassword(e) {
 
   try {
     const res = await fetch(
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/profile/password",
+      "https://cargosmarttsl-5.onrender.com/api/profile/password",
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },

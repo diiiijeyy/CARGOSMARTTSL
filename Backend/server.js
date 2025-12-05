@@ -65,10 +65,16 @@ app.use((req, res, next) => {
 
 app.use(
   cors({
-    origin: "https://caiden-recondite-psychometrically.ngrok-free.dev", // ✅ ngrok frontend
-    credentials: true, // ✅ allow cookies/sessions
+    origin: [
+      "https://cargosmarttsl-5.onrender.com", // backend on render
+      "https://your-frontend-domain.vercel.app", // frontend domain (add once deployed)
+      "http://localhost:5500",
+      "http://127.0.0.1:5500"
+    ],
+    credentials: true,
   })
 );
+
 
 // =====================================
 // 🧩 Essential Middlewares
@@ -134,15 +140,12 @@ const loginUser = async (input, password) => {
 
 // PostgreSQL connection
 const pool = new Pool({
-  user: process.env.DB_USER || "postgres",
-  host: process.env.DB_HOST || "localhost",
-  database: process.env.DB_NAME || "CARGOSMART",
-  password: process.env.DB_PASSWORD || "",
-  port: process.env.DB_PORT || 5432,
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
 });
 
 pool.query("SELECT NOW()", (err) => {
-  if (err) console.error("Database connection error:", err);
+  if (err) console.error("❌ Database connection error:", err);
   else console.log("✅ Database connected successfully");
 });
 
@@ -1179,16 +1182,19 @@ app.post("/api/login", async (req, res) => {
 
       console.log("🔥 SESSION SAVED:", req.session);
 
-      // CORS for ngrok + local
-      const origin = req.headers.origin;
-      if (
-        origin === "https://caiden-recondite-psychometrically.ngrok-free.dev" ||
-        origin === "http://localhost:5500" ||
-        origin === "http://127.0.0.1:5500"
-      ) {
-        res.setHeader("Access-Control-Allow-Origin", origin);
-      }
-      res.setHeader("Access-Control-Allow-Credentials", "true");
+     const allowedOrigins = [
+  "https://cargosmarttsl-5.onrender.com",
+  "https://your-frontend-domain.vercel.app",
+  "http://localhost:5500",
+  "http://127.0.0.1:5500"
+];
+
+if (allowedOrigins.includes(origin)) {
+  res.setHeader("Access-Control-Allow-Origin", origin);
+}
+
+res.setHeader("Access-Control-Allow-Credentials", "true");
+
 
       // SUCCESS RESPONSE
       return res.status(200).json({
@@ -8673,7 +8679,7 @@ app.patch("/api/driver/password", requireDriverAuth, async (req, res) => {
 
 function sendLocationToServer(lat, lng) {
   fetch(
-    "https://https://caiden-recondite-psychometrically.ngrok-free.dev//api/gps/update-phone-location",
+    "https://cargosmarttsl-5.onrender.com/api/gps/update-phone-location",
     {
       method: "POST",
       credentials: "include",

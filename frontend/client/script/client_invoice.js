@@ -9,13 +9,11 @@ document.addEventListener("DOMContentLoaded", () => {
   setupFloatingNotification();
 });
 
-
 document.addEventListener("DOMContentLoaded", () => {
   loadProfile();
   loadNotificationCount();
   setInterval(loadNotificationCount, 30000); // refresh every 30s
 });
-
 
 // ================ Refresh Button ================
 document.addEventListener("DOMContentLoaded", () => {
@@ -33,17 +31,25 @@ function updateCurrentDate() {
   const currentDateElement = document.getElementById("current-date");
   if (!currentDateElement) return;
   const now = new Date();
-  const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
+  const options = {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  };
   currentDateElement.textContent = now.toLocaleDateString("en-US", options);
 }
 
 // ================ Load Client Username ================
 async function loadUsername() {
   try {
-    const res = await fetch("https://caiden-recondite-psychometrically.ngrok-free.dev/api/client/profile", {
-      credentials: "include",
-      headers: { "Content-Type": "application/json" }
-    });
+    const res = await fetch(
+      "https://cargosmarttsl-5.onrender.com/api/client/profile",
+      {
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      }
+    );
 
     if (!res.ok) {
       console.warn(`Profile fetch failed with status: ${res.status}`);
@@ -98,10 +104,11 @@ function setupSearchAndFilter() {
       const rect = filterBtn.getBoundingClientRect();
       dropdown.style.top = rect.bottom + window.scrollY + "px";
       dropdown.style.left = rect.left + window.scrollX + "px";
-      dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
+      dropdown.style.display =
+        dropdown.style.display === "none" ? "block" : "none";
     });
 
-    dropdown.querySelectorAll(".dropdown-item").forEach(item => {
+    dropdown.querySelectorAll(".dropdown-item").forEach((item) => {
       item.addEventListener("click", (e) => {
         e.preventDefault();
         currentFilter = item.dataset.value;
@@ -124,9 +131,12 @@ async function loadInvoices(statusFilter = "all", search = "") {
   const tbody = document.getElementById("invoiceTableBody");
 
   try {
-    const res = await fetch("https://caiden-recondite-psychometrically.ngrok-free.dev/api/client/invoices", {
-      credentials: "include"
-    });
+    const res = await fetch(
+      "https://cargosmarttsl-5.onrender.com/api/client/invoices",
+      {
+        credentials: "include",
+      }
+    );
 
     if (!res.ok) throw new Error("Failed to fetch invoices");
 
@@ -134,10 +144,11 @@ async function loadInvoices(statusFilter = "all", search = "") {
 
     // Apply filter
     if (statusFilter !== "all") {
-      invoices = invoices.filter(inv => {
+      invoices = invoices.filter((inv) => {
         const status = inv.invoice_status?.toLowerCase();
         if (statusFilter === "paid") return status === "paid";
-        if (statusFilter === "unpaid") return status === "unpaid" || status === "pending";
+        if (statusFilter === "unpaid")
+          return status === "unpaid" || status === "pending";
         if (statusFilter === "overdue") return status === "overdue";
         return true;
       });
@@ -145,14 +156,15 @@ async function loadInvoices(statusFilter = "all", search = "") {
 
     // Apply search
     if (search) {
-      invoices = invoices.filter(inv =>
-        (inv.tracking_number?.toLowerCase().includes(search)) ||
-        (inv.invoice_number?.toLowerCase().includes(search))
+      invoices = invoices.filter(
+        (inv) =>
+          inv.tracking_number?.toLowerCase().includes(search) ||
+          inv.invoice_number?.toLowerCase().includes(search)
       );
     }
 
     // Store globally for pagination
-    allInvoices = invoices.filter(inv => inv.invoice_id !== null);
+    allInvoices = invoices.filter((inv) => inv.invoice_id !== null);
     invoiceCurrentPage = 1;
 
     updateSummaryCards(allInvoices);
@@ -182,7 +194,9 @@ function renderInvoices() {
   const end = start + invoiceRowsPerPage;
   const pageData = allInvoices.slice(start, end);
 
-  tbody.innerHTML = pageData.map(inv => `
+  tbody.innerHTML = pageData
+    .map(
+      (inv) => `
     <tr>
       <td>#${inv.invoice_number || "—"}</td>
       <td>${inv.tracking_number || "—"}</td>
@@ -195,15 +209,21 @@ function renderInvoices() {
         </span>
       </td>
       <td class="text-center">
-        <button class="btn btn-sm btn-outline-secondary download-btn" data-invoice-number='${inv.invoice_number}'>
+        <button class="btn btn-sm btn-outline-secondary download-btn" data-invoice-number='${
+          inv.invoice_number
+        }'>
           <i class="fas fa-download"></i>
         </button>
       </td>
     </tr>
-  `).join("");
+  `
+    )
+    .join("");
 
-  document.querySelectorAll(".download-btn").forEach(btn => {
-    btn.addEventListener("click", () => downloadInvoicePDF(btn.dataset.invoiceNumber));
+  document.querySelectorAll(".download-btn").forEach((btn) => {
+    btn.addEventListener("click", () =>
+      downloadInvoicePDF(btn.dataset.invoiceNumber)
+    );
   });
 
   const totalPages = Math.ceil(allInvoices.length / invoiceRowsPerPage);
@@ -275,12 +295,17 @@ function renderInvoicePagination(totalPages) {
 // ================ Update Summary Cards ================
 function updateSummaryCards(invoices) {
   const total = invoices.length;
-  const paid = invoices.filter(i => i.invoice_status?.toLowerCase() === "paid").length;
-  const pending = invoices.filter(i =>
-    i.invoice_status?.toLowerCase() === "unpaid" ||
-    i.invoice_status?.toLowerCase() === "pending"
+  const paid = invoices.filter(
+    (i) => i.invoice_status?.toLowerCase() === "paid"
   ).length;
-  const overdue = invoices.filter(i => i.invoice_status?.toLowerCase() === "overdue").length;
+  const pending = invoices.filter(
+    (i) =>
+      i.invoice_status?.toLowerCase() === "unpaid" ||
+      i.invoice_status?.toLowerCase() === "pending"
+  ).length;
+  const overdue = invoices.filter(
+    (i) => i.invoice_status?.toLowerCase() === "overdue"
+  ).length;
 
   document.getElementById("total-invoices").textContent = total;
   document.getElementById("paid-invoices").textContent = paid;
@@ -294,7 +319,11 @@ function formatDate(dateStr) {
   try {
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) return "—";
-    return date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
   } catch {
     return "—";
   }
@@ -303,19 +332,40 @@ function formatDate(dateStr) {
 // ================ Status Badge ================
 function getStatusBadge(status) {
   switch (status?.toLowerCase()) {
-    case "paid": return "status-badge status-paid";
+    case "paid":
+      return "status-badge status-paid";
     case "pending":
-    case "unpaid": return "status-badge status-unpaid";
-    case "overdue": return "status-badge status-overdue";
-    default: return "status-badge status-default";
+    case "unpaid":
+      return "status-badge status-unpaid";
+    case "overdue":
+      return "status-badge status-overdue";
+    default:
+      return "status-badge status-default";
   }
 }
 
+function autoBreakText(text, maxLength = 45) {
+  const words = text.split(" ");
+  let current = "";
+  let result = "";
+
+  words.forEach((word) => {
+    if ((current + word).length > maxLength) {
+      result += current.trim() + "\n"; // insert line break
+      current = word + " ";
+    } else {
+      current += word + " ";
+    }
+  });
+
+  result += current.trim();
+  return result;
+}
 
 // ================ Download Invoice PDF ================
 function downloadInvoicePDF(invoiceNumber) {
   try {
-    const pdfUrl = `https://caiden-recondite-psychometrically.ngrok-free.dev/api/client/invoice/${invoiceNumber}/pdf`;
+    const pdfUrl = `https://cargosmarttsl-5.onrender.com/api/client/invoice/${invoiceNumber}/pdf`;
     const fileName = `Invoice_${invoiceNumber}.pdf`;
 
     const link = document.createElement("a");
@@ -352,7 +402,8 @@ document.addEventListener("click", (e) => {
   if (!icon || !dropdown) return;
 
   if (icon.contains(e.target)) {
-    dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    dropdown.style.display =
+      dropdown.style.display === "block" ? "none" : "block";
   } else if (!dropdown.contains(e.target)) {
     dropdown.style.display = "none";
   }
@@ -363,14 +414,16 @@ window.addEventListener("pageshow", () => {
   loadProfile();
 });
 
-
 // ===================== Load Profile ===================== //
 async function loadProfile() {
   try {
-    const res = await fetch("https://caiden-recondite-psychometrically.ngrok-free.dev/api/profile", {
-      method: "GET",
-      credentials: "include"
-    });
+    const res = await fetch(
+      "https://cargosmarttsl-5.onrender.com/api/profile",
+      {
+        method: "GET",
+        credentials: "include",
+      }
+    );
     if (!res.ok) throw new Error("Failed to fetch profile");
 
     const data = await res.json();
@@ -393,7 +446,7 @@ async function loadProfile() {
         profileIcon.replaceWith(img);
         profileIcon = img;
       }
-      profileIcon.src = `https://caiden-recondite-psychometrically.ngrok-free.dev/uploads/${data.photo}`;
+      profileIcon.src = `https://cargosmarttsl-5.onrender.com/uploads/${data.photo}`;
       profileIcon.alt = "Profile";
     }
   } catch (err) {
@@ -406,23 +459,26 @@ async function loadProfile() {
 // ===============================
 async function loadNotificationCount() {
   try {
-    const res = await fetch("https://caiden-recondite-psychometrically.ngrok-free.dev/api/client/notifications", {
-      credentials: "include"
-    });
+    const res = await fetch(
+      "https://cargosmarttsl-5.onrender.com/api/client/notifications",
+      {
+        credentials: "include",
+      }
+    );
 
-    if (!res.ok) throw new Error(`Failed to fetch notifications (${res.status})`);
+    if (!res.ok)
+      throw new Error(`Failed to fetch notifications (${res.status})`);
 
     const notifications = await res.json();
     if (!Array.isArray(notifications)) return;
 
-    const unreadCount = notifications.filter(n => !n.is_read).length;
+    const unreadCount = notifications.filter((n) => !n.is_read).length;
 
     const notifCountEl = document.getElementById("notifCount");
     if (notifCountEl) {
       notifCountEl.textContent = unreadCount > 0 ? unreadCount : "";
       notifCountEl.style.display = unreadCount > 0 ? "inline-block" : "none";
     }
-
   } catch (err) {
     console.error("❌ Error fetching notification count:", err);
   }
@@ -448,7 +504,12 @@ function setupNotificationPanel() {
   }
 
   document.addEventListener("click", (e) => {
-    if (panel && notifLink && !panel.contains(e.target) && !notifLink.contains(e.target)) {
+    if (
+      panel &&
+      notifLink &&
+      !panel.contains(e.target) &&
+      !notifLink.contains(e.target)
+    ) {
       panel.style.display = "none";
     }
   });
@@ -457,7 +518,9 @@ function setupNotificationPanel() {
 // ================ Floating Notification Container ================
 function setupFloatingNotification() {
   const notifBtn = document.getElementById("notificationsLink");
-  const notifContainer = document.getElementById("floatingNotificationContainer");
+  const notifContainer = document.getElementById(
+    "floatingNotificationContainer"
+  );
   if (!notifBtn || !notifContainer) return;
 
   notifBtn.addEventListener("click", (e) => {
@@ -487,22 +550,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function exportInvoicesToCSV() {
   if (!allInvoices || allInvoices.length === 0) {
-    alert("No invoices available to export.");
+    showNotification("Export Error", "No invoices available to export.");
     return;
   }
 
-  const headers = ["Invoice ID", "Booking Ref", "Date Issued", "Due Date", "Amount", "Status"];
-  const rows = allInvoices.map(inv => [
+  const headers = [
+    "Invoice ID",
+    "Booking Ref",
+    "Date Issued",
+    "Due Date",
+    "Amount",
+    "Status",
+  ];
+  const rows = allInvoices.map((inv) => [
     inv.invoice_number || "—",
     inv.tracking_number || "—",
     formatDate(inv.date_issued),
     formatDate(inv.due_date),
     inv.amount_due || 0,
-    inv.invoice_status || "—"
+    inv.invoice_status || "—",
   ]);
 
   const csvContent = [headers, ...rows]
-    .map(row => row.map(v => `"${v}"`).join(","))
+    .map((row) => row.map((v) => `"${v}"`).join(","))
     .join("\n");
 
   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -516,4 +586,16 @@ function exportInvoicesToCSV() {
   document.body.removeChild(link);
 
   URL.revokeObjectURL(url);
+}
+
+function showNotification(title, message) {
+  ensureNotificationModal();
+
+  document.getElementById("notificationTitle").textContent = title;
+  document.getElementById("notificationMessage").textContent = message;
+
+  const notifModal = new bootstrap.Modal(
+    document.getElementById("notificationModal")
+  );
+  notifModal.show();
 }

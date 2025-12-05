@@ -203,16 +203,16 @@
                   <h6 class="mb-0">Monthly Booking Trends</h6>
                   <small class="text-muted">Total bookings per month</small>
                 </div>
-                <div class="dropdown export-dropdown">
-                  <button class="btn btn-sm dropdown-toggle" type="button" id="exportDropdown"
-                    data-bs-toggle="dropdown" aria-expanded="false">
+                <!---<div class="dropdown export-dropdown">
+                  <button class="btn btn-sm dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown"
+                    aria-expanded="false">
                     <i class="fas fa-download me-1"></i> Export
                   </button>
                   <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportDropdown">
                     <li><a class="dropdown-item" href="#" id="exportPDF">PDF</a></li>
                     <li><a class="dropdown-item" href="#" id="exportExcel">CSV / Excel</a></li>
                   </ul>
-                </div>
+                </div>--->
               </div>
 
               <canvas id="bookingTrendsChart" height="270" data-chart="bookingTrends"></canvas>
@@ -220,8 +220,7 @@
           </div>
 
           <div class="col-lg-4">
-            <div class="card shadow-sm p-3 h-100"
-              style="border:1px solid #dee2e6;border-radius:12px;background:#fff;">
+            <div class="card shadow-sm p-3 h-100" style="border:1px solid #dee2e6;border-radius:12px;background:#fff;">
               <div class="d-flex justify-content-between align-items-center mb-2">
                 <h6>Recent Updates</h6>
                 <span class="badge stat-badge" data-updates="newCount">0 new</span>
@@ -234,8 +233,7 @@
         <!-- Recent Bookings & Quick Actions -->
         <div class="row mt-4">
           <div class="col-lg-8">
-            <div class="card shadow-sm h-100"
-              style="border:1px solid #dee2e6;border-radius:12px;background:#fff;">
+            <div class="card shadow-sm h-100" style="border:1px solid #dee2e6;border-radius:12px;background:#fff;">
               <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                   <h6 class="mb-0">Recent Bookings</h6>
@@ -250,13 +248,11 @@
                         <th>Type</th>
                         <th>Status</th>
                         <th>Date</th>
-                        <th>Reason</th>
-                        <th>Action</th>
                       </tr>
                     </thead>
                     <tbody data-table="recentBookings">
                       <tr class="text-muted">
-                        <td colspan="7" class="text-center py-4">No bookings yet</td>
+                        <td colspan="5" class="text-center py-4">No bookings yet</td>
                       </tr>
                     </tbody>
                   </table>
@@ -266,8 +262,7 @@
           </div>
 
           <div class="col-lg-4 mt-lg-0 mt-3">
-            <div class="card shadow-sm h-100 p-3"
-              style="border:1px solid #dee2e6;border-radius:12px;background:#fff;">
+            <div class="card shadow-sm h-100 p-3" style="border:1px solid #dee2e6;border-radius:12px;background:#fff;">
               <h6 class="mb-3">Quick Actions</h6>
               <div class="row g-3">
                 <div class="col-12">
@@ -324,7 +319,7 @@
         </div>
       </div>
 
-        <div class="row mt-4 mb-1"></div>
+      <div class="row mt-4 mb-1"></div>
       </div>
     </section>
   </main>
@@ -352,80 +347,72 @@
     </div>
   </div>
 
-  <!-- Cancel Booking Modal -->
-  <div class="modal fade" id="cancelBookingModal" tabindex="-1" aria-labelledby="cancelBookingLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content border-0 shadow-lg rounded-4">
-        <div class="modal-body p-4">
-          <p class="text-uppercase text-danger fw-semibold mb-1" style="font-size: 0.9rem;"> Cancel Booking</p>
-          <h5 class="fw-bold mb-3" style="font-size: 1.45rem;"> You’re about to cancel your booking.</h5>
-          <div class="text-center mb-3">
-            <i class="fas fa-calendar-times" style="font-size: 4rem; color: #dc3545;"></i></div>
-          <p class="text-muted mb-2">Please provide a reason for canceling this booking:</p>
-          <textarea class="form-control mb-4" id="cancelReason" rows="3" placeholder="Enter your reason..."></textarea>
-          <div class="d-flex justify-content-end gap-3 mt-3">
-            <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
-              Stay booked
-            </button>
-            <button type="button" class="btn btn-danger px-4" id="confirmCancelBtn">
-              Cancel Booking
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const exportPDF = document.getElementById("exportPDF");
+      const exportExcel = document.getElementById("exportExcel");
 
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const exportPDF = document.getElementById("exportPDF");
-    const exportExcel = document.getElementById("exportExcel");
+      if (exportPDF) {
+        exportPDF.addEventListener("click", (e) => {
+          e.preventDefault();
+          exportBookingTrendsToPDF();
+        });
+      }
 
-    if (exportPDF) {
-      exportPDF.addEventListener("click", (e) => {
-        e.preventDefault();
-        exportBookingTrendsToPDF();
+      if (exportExcel) {
+        exportExcel.addEventListener("click", (e) => {
+          e.preventDefault();
+          exportDashboardToExcel();
+        });
+      }
+    });
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const hamburgerMenu = document.getElementById("hamburgerMenu");
+      const nav = document.querySelector("nav");
+
+      hamburgerMenu.addEventListener("click", function () {
+        nav.classList.toggle("hidden");
       });
-    }
 
-    if (exportExcel) {
-      exportExcel.addEventListener("click", (e) => {
-        e.preventDefault();
-        exportDashboardToExcel();
+      document.addEventListener("click", function (e) {
+        if (!nav.contains(e.target) && !hamburgerMenu.contains(e.target)) {
+          nav.classList.remove("active");
+        }
       });
-    }
-  });
-</script>
+    });
+  </script>
 
 
   <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const usernameEl = document.getElementById("username");
-    const greetingEl = document.getElementById("greetingText");
-    const currentDateEl = document.getElementById("current-date");
+    document.addEventListener("DOMContentLoaded", () => {
+      const usernameEl = document.getElementById("username");
+      const greetingEl = document.getElementById("greetingText");
+      const currentDateEl = document.getElementById("current-date");
 
-    const now = new Date();
-    const hour = now.getHours();
+      const now = new Date();
+      const hour = now.getHours();
 
-    currentDateEl.textContent = now.toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric"
+      currentDateEl.textContent = now.toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
+
+      let greeting = "Good day";
+      if (hour >= 5 && hour < 12) greeting = "Good morning";
+      else if (hour >= 12 && hour < 17) greeting = "Good afternoon";
+      else greeting = "Good evening";
+
+      const username = localStorage.getItem("clientName") || "Client";
+      usernameEl.textContent = username;
+
+      greetingEl.innerHTML = `${greeting}, <span id="username">${username}</span>!`;
     });
-
-    let greeting = "Good day";
-    if (hour >= 5 && hour < 12) greeting = "Good morning";
-    else if (hour >= 12 && hour < 17) greeting = "Good afternoon";
-    else greeting = "Good evening";
-    
-    const username = localStorage.getItem("clientName") || "Client";
-    usernameEl.textContent = username;
-
-    greetingEl.innerHTML = `${greeting}, <span id="username">${username}</span>!`;
-  });
-</script>
+  </script>
 
 
   <!--- Vendor JS --->
@@ -439,4 +426,5 @@
   <script src="../script/clientdashboard.js"></script>
 
 </body>
+
 </html>

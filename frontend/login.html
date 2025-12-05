@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -12,7 +13,9 @@
   <!--- Google Fonts --->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Amatic+SC:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Amatic+SC:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
 
   <!--- Vendor CSS Files --->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -55,7 +58,8 @@
               <label for="username" class="form-label fw-semibold">Email address</label>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-user"></i></span>
-                <input type="text" class="form-control" id="username" name="username" placeholder="Enter your email" required />
+                <input type="text" class="form-control" id="username" name="username" placeholder="Enter email address"
+                  required />
               </div>
             </div>
 
@@ -64,7 +68,8 @@
               <label for="password" class="form-label fw-semibold">Password</label>
               <div class="input-group">
                 <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required />
+                <input type="password" class="form-control" id="password" name="password" placeholder="Enter password"
+                  required />
               </div>
             </div>
 
@@ -93,131 +98,204 @@
     </div>
   </div>
 
-<!-- ================= Sign up ================= -->
-<div class="card shadow p-4 d-none" id="signup-container">
-  <div class="text-center mb-4 d-flex align-items-center justify-content-center flex-wrap">
-    <img src="assets/logo.png" alt="TSL Logo" class="img-fluid me-2" style="max-width: 80px;">
-    <h3 class="m-0 text-nowrap">TSL FREIGHT MOVERS INC.</h3>
-  </div>
+  <!-- ================= Sign up ================= -->
+  <div class="card shadow p-4 d-none" id="signup-container">
+    <div class="text-center mb-4 d-flex align-items-center justify-content-center flex-wrap">
+      <img src="assets/logo.png" alt="TSL Logo" class="img-fluid me-2" style="max-width: 80px;">
+      <h3 class="m-0 text-nowrap">TSL FREIGHT MOVERS INC.</h3>
+    </div>
 
-  <form id="signupForm" novalidate>
-    <div class="row g-3 text-start">
+    <form id="signupForm" novalidate>
+      <div class="row g-3 text-start">
 
-      <!-- Company Name -->
-      <div class="col-md-6">
-        <label for="signupCompanyName" class="form-label fw-semibold">Company Name</label>
-        <div class="input-group">
-          <span class="input-group-text"><i class="fas fa-building"></i></span>
-          <input type="text" id="signupCompanyName" class="form-control" placeholder="Enter company name" required>
+        <!-- Company Name -->
+        <div class="col-md-6">
+          <label for="signupCompanyName" class="form-label fw-semibold">Company Name</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-building"></i></span>
+            <input type="text" id="signupCompanyName" class="form-control" placeholder="Enter company name" required>
+          </div>
         </div>
-      </div>
 
-      <!-- Contact Person -->
-      <div class="col-md-6">
-        <label for="signupContactPerson" class="form-label fw-semibold">Contact Person</label>
-        <div class="input-group">
-          <span class="input-group-text"><i class="fas fa-user"></i></span>
-          <input type="text" id="signupContactPerson" class="form-control" placeholder="Enter contact person" required>
+        <!-- Contact Person -->
+        <div class="col-md-6">
+          <label for="signupContactPerson" class="form-label fw-semibold">Contact Person</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-user"></i></span>
+            <input type="text" id="signupContactPerson" class="form-control" placeholder="Enter contact person"
+              required>
+          </div>
         </div>
-      </div>
 
         <!-- Contact Number -->
         <div class="col-md-6">
           <label for="signupContactNumber" class="form-label fw-semibold">Contact Number</label>
           <div class="input-group" style="flex-wrap: nowrap;">
-            <input
-              type="tel"
-              id="signupContactNumber"
-              class="form-control"
-              placeholder="e.g., 09123456789"
-              required
-              style="min-width: 0;"
-            >
+            <input type="tel" id="signupContactNumber" class="form-control" placeholder="Enter contact number" required
+              style="min-width: 0;">
           </div>
           <small id="phoneError" class="text-danger d-block mt-1 fw-semibold" style="font-size: 0.875em;"></small>
         </div>
 
-      <!-- Email -->
-      <div class="col-md-6">
-        <label for="signupEmail" class="form-label fw-semibold">Email Address</label>
-        <div class="input-group">
-          <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-          <input type="email" id="signupEmail" class="form-control" placeholder="example@gmail.com" required>
+        <!-- Email -->
+        <div class="col-md-6">
+          <label for="signupEmail" class="form-label fw-semibold">Email Address</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+            <input type="email" id="signupEmail" class="form-control" placeholder="example@gmail.com" required>
+          </div>
         </div>
+
+        <!-- Address -->
+        <div class="col-12">
+          <label for="signupAddress" class="form-label fw-semibold">Address</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-home"></i></span>
+            <input type="text" id="signupAddress" class="form-control" placeholder="Enter full address" required>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="col-md-6">
+          <label for="signupPassword" class="form-label fw-semibold">Password</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+            <input type="password" id="signupPassword" class="form-control" placeholder="Create password" required>
+          </div>
+          <small id="passwordError" class="text-danger d-block ms-1 mt-1" style="font-size: 0.875em;"></small>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="col-md-6">
+          <label for="signupConfirmPassword" class="form-label fw-semibold">Confirm Password</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+            <input type="password" id="signupConfirmPassword" class="form-control" placeholder="Confirm password"
+              required>
+          </div>
+          <small id="confirmPasswordError" class="text-danger d-block ms-1 mt-1" style="font-size: 0.875em;"></small>
+        </div>
+
       </div>
 
-      <!-- Address -->
-      <div class="col-12">
-        <label for="signupAddress" class="form-label fw-semibold">Address</label>
-        <div class="input-group">
-          <span class="input-group-text"><i class="fas fa-home"></i></span>
-          <input type="text" id="signupAddress" class="form-control" placeholder="Enter full address" required>
-        </div>
+      <button type="submit" class="btn btn-primary w-100 mt-3">Create Account</button>
+
+      <div class="text-center mt-3">
+        <p class="mb-0">Already have an account? <a href="login.html" id="goToLogin"
+            class="text-primary fw-semibold">Login</a></p>
       </div>
-
-      <!-- Password -->
-      <div class="col-md-6">
-        <label for="signupPassword" class="form-label fw-semibold">Password</label>
-        <div class="input-group">
-          <span class="input-group-text"><i class="fas fa-lock"></i></span>
-          <input type="password" id="signupPassword" class="form-control" placeholder="Enter password" required>
-        </div>
-        <small id="passwordError" class="text-danger d-block ms-1 mt-1" style="font-size: 0.875em;"></small>
-      </div>
-
-      <!-- Confirm Password -->
-      <div class="col-md-6">
-        <label for="signupConfirmPassword" class="form-label fw-semibold">Confirm Password</label>
-        <div class="input-group">
-          <span class="input-group-text"><i class="fas fa-lock"></i></span>
-          <input type="password" id="signupConfirmPassword" class="form-control" placeholder="Re-enter password" required>
-        </div>
-        <small id="confirmPasswordError" class="text-danger d-block ms-1 mt-1" style="font-size: 0.875em;"></small>
-      </div>
-
-      <!-- Terms and Conditions -->
-      <div class="col-12 d-flex align-items-center flex-wrap">
-        <div class="form-check me-2">
-          <input class="form-check-input" type="checkbox" id="termsCheckbox" required>
-        </div>
-        <label class="form-check-label" for="termsCheckbox">
-          Yes, I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms and Conditions</a>
-        </label>
-      </div>
-    </div>
-
-    <button type="submit" class="btn btn-primary w-100 mt-3">Create Account</button>
-
-    <div class="text-center mt-3">
-      <p class="mb-0">Already have an account? <a href="login.html" id="goToLogin" class="text-primary fw-semibold">Login</a></p>
-    </div>
-  </form>
-</div>
-
-  <!--- ================= Terms & Conditions ================= --->
-  <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    </form>
+  </div>
+  <!-- ================= COMBINED AGREEMENT MODAL ================= -->
+  <div class="modal fade" id="agreementModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content">
+
         <div class="modal-header">
-          <h5 class="modal-title" id="termsModalLabel">Terms and Conditions</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <h5 class="modal-title">Terms, Conditions & Privacy Policy</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
 
-        <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
-          <p><strong>1. Account Responsibility:</strong> You are responsible for your login credentials and activity under your account.</p>
-          <p><strong>2. Accurate Information:</strong> You must provide correct information and update it when needed.</p>
-          <p><strong>3. System Use:</strong> The system is for shipment tracking and analytics only.</p>
-          <p><strong>4. Data Privacy:</strong> Your data is secure and used only for system purposes unless legally required.</p>
-          <p><strong>5. Availability:</strong> We strive for 24/7 access but do not guarantee uninterrupted service.</p>
-          <p><strong>6. Prohibited Use:</strong> You must not use the system for any unlawful or abusive activities.</p>
-          <p><strong>7. Changes:</strong> We may update the terms and features. Continued use means you accept the changes.</p>
-          <p><strong>8. Termination:</strong> We reserve the right to suspend accounts for violations or abuse.</p>
-          <p><strong>9. Support:</strong> Contact our team through your dashboard for help or inquiries.</p>
+        <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+
+          <!-- ================= TERMS AND CONDITIONS ================= -->
+          <h5 class="fw-bold mb-3">Terms and Conditions</h5>
+
+          <p><strong>1. Account Responsibility:</strong> Users are fully responsible for maintaining the confidentiality
+            of their login credentials and for any actions performed under their account. Unauthorized access or
+            suspicious activity must be reported immediately.</p>
+
+          <p><strong>2. Accuracy of Information:</strong> All information provided during registration or system use
+            must be accurate, complete, and current. Providing false, outdated, or misleading data may result in account
+            restrictions or suspension.</p>
+
+          <p><strong>3. Authorized System Use:</strong> The system is exclusively intended for logistics operations such
+            as shipment tracking, client management, analytics, and internal workflows under TSL Freight Movers Inc. Any
+            attempt to tamper with system processes, bypass restrictions, or disrupt operations is strictly prohibited.
+          </p>
+
+          <p><strong>4. Data Privacy and Confidentiality:</strong> All submitted data is handled with strict
+            confidentiality and used only for operational, verification, and compliance purposes unless disclosure is
+            legally required.</p>
+
+          <p><strong>5. System Availability:</strong> Although TSL Freight Movers Inc. aims to maintain continuous
+            system accessibility, maintenance, updates, or unexpected technical issues may cause temporary service
+            interruptions. Continuous uptime cannot be guaranteed.</p>
+
+          <p><strong>6. Prohibited Activities:</strong> Users must not engage in fraudulent, abusive, unauthorized, or
+            illegal activities within the platform. This includes impersonation, unauthorized data access, spreading
+            harmful content, or attempting to compromise system integrity.</p>
+
+          <p><strong>7. Modifications and Updates:</strong> TSL Freight Movers Inc. reserves the right to update system
+            features, revise policies, or introduce new rules as needed. Continued use of the platform constitutes
+            acceptance of all modifications.</p>
+
+          <p><strong>8. Suspension and Termination:</strong> The company may suspend, restrict, or permanently terminate
+            user access if violations, abuse, or security threats are detected. Severe violations may lead to permanent
+            account deactivation.</p>
+
+          <p><strong>9. Support and Communication:</strong> Users may contact support through the platform for
+            assistance, system inquiries, or account-related concerns. Official updates will also be communicated
+            through system notifications.</p>
+
+          <p><strong>10. Acceptance of Terms:</strong> By creating an account and using the system, users acknowledge
+            that they have read, understood, and agreed to these Terms and Conditions.</p>
+
+          <hr class="my-4">
+
+          <!-- ================= PRIVACY POLICY ================= -->
+          <h5 class="fw-bold mb-3">Privacy Policy</h5>
+
+          <p><strong>1. Information Collection:</strong> We collect personal and organizational data including names,
+            email addresses, contact numbers, and company details as part of account creation and system operations.</p>
+
+          <p><strong>2. Purpose of Data Use:</strong> Your information is used to manage accounts, enable shipment
+            tracking, send notifications, support analytics, enhance user experience, and maintain system reliability.
+          </p>
+
+          <p><strong>3. Data Protection Measures:</strong> Strict security protocols, encrypted storage, and access
+            controls protect your data. Only authorized personnel may access necessary information as part of their
+            duties.</p>
+
+          <p><strong>4. Data Sharing and Disclosure:</strong> Your data will not be sold or shared with third parties
+            unless legally mandated or required for system functionality. Any external disclosures strictly follow
+            regulatory and operational requirements.</p>
+
+          <p><strong>5. Cookies and Tracking Tools:</strong> The system uses cookies and tracking technologies for
+            authentication, usage analysis, preference storage, and optimized performance.</p>
+
+          <p><strong>6. User Rights:</strong> Users may request access to, correction of, or deletion of their data
+            subject to operational and legal guidelines. Assistance is available through the platform’s support
+            channels.</p>
+
+          <p><strong>7. Policy Updates:</strong> This Privacy Policy may be revised as system features evolve or legal
+            requirements change. Continued platform usage signifies acceptance of updated policies.</p>
+
+          <p><strong>8. Data Retention:</strong> Information is stored only for the duration necessary to support
+            operations, compliance, or legitimate business purposes. Once no longer needed, data is securely deleted or
+            anonymized.</p>
+
+          <p><strong>9. Consent:</strong> By creating an account or using the platform, you consent to the collection,
+            processing, and handling of your data in accordance with this Privacy Policy.</p>
+
+          <hr class="my-4">
+
+          <!-- ================= AGREEMENT CHECKBOX ================= -->
+          <div class="form-check mt-3">
+            <input class="form-check-input" type="checkbox" id="modalTermsCheckbox">
+            <label class="form-check-label fw-semibold" for="modalTermsCheckbox">
+              I agree to the Terms and Conditions and Privacy Policy.
+            </label>
+          </div>
+
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button id="modalCreateAccountBtn" class="btn btn-primary w-100">
+            Create Account
+          </button>
         </div>
+
       </div>
     </div>
   </div>
@@ -236,7 +314,7 @@
 
       <div class="mb-3 input-group">
         <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-        <input class="form-control" type="email" id="resetRequestEmail" placeholder="Enter Your email" required>
+        <input class="form-control" type="email" id="resetRequestEmail" placeholder="Enter email address" required>
       </div>
 
       <button type="submit" id="sendResetCodeBtn" class="btn btn-primary w-100 mb-2">
@@ -323,47 +401,60 @@
     </div>
   </div>
 
+  <!-- Email Not Found Toast -->
+  <div id="emailNotFoundToast" class="toast align-items-center text-bg-danger border-0 position-fixed top-0 end-0 m-3"
+    role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body fw-semibold">
+        Email is not registered.
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+
   <!--- ================= Resend Code Toast ================= --->
   <div class="position-fixed top-0 end-0 p-3" style="z-index: 1100;">
-    <div id="resendCodeToast" class="toast text-bg-success border-0 shadow-sm" role="alert" aria-live="assertive" aria-atomic="true">
+    <div id="resendCodeToast" class="toast text-bg-success border-0 shadow-sm" role="alert" aria-live="assertive"
+      aria-atomic="true">
       <div class="d-flex align-items-center">
         <div class="toast-body">
           A new verification code has been sent to your email.
         </div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+          aria-label="Close"></button>
       </div>
     </div>
   </div>
 
-<!-- ================= Account Locked Modal ================= -->
-<div class="modal fade" id="lockoutModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content lockout-modal border-0 shadow-lg">
-      <div class="modal-header lockout-modal-header text-white">
-        <h5 class="modal-title fw-bold">Account Locked</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-
-      <div class="modal-body text-center lockout-modal-body">
-        <div class="lockout-modal-icon">
-          <i class="fas fa-lock"></i>
+  <!-- ================= Account Locked Modal ================= -->
+  <div class="modal fade" id="lockoutModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content lockout-modal border-0 shadow-lg">
+        <div class="modal-header lockout-modal-header text-white">
+          <h5 class="modal-title fw-bold">Account Locked</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <p id="lockoutMessage" class="mb-0">
-          Too many failed attempts. Please wait <span id="countdown">57</span> seconds or reset your password.
-        </p>
-      </div>
 
-      <div class="modal-footer lockout-modal-footer border-0">
-        <button id="waitBtn" class="btn btn-wait fw-semibold py-2 px-4">
-          <i class="fas fa-hourglass-half me-2"></i>Wait
-        </button>
-        <button id="resetBtn" class="btn btn-reset fw-semibold py-2 px-4">
-          <i class="fas fa-key me-2"></i>Reset Password
-        </button>
+        <div class="modal-body text-center lockout-modal-body">
+          <div class="lockout-modal-icon">
+            <i class="fas fa-lock"></i>
+          </div>
+          <p id="lockoutMessage" class="mb-0">
+            Too many failed attempts. Please wait <span id="countdown">57</span> seconds or reset your password.
+          </p>
+        </div>
+
+        <div class="modal-footer lockout-modal-footer border-0">
+          <button id="waitBtn" class="btn btn-wait fw-semibold py-2 px-4">
+            <i class="fas fa-hourglass-half me-2"></i>Wait
+          </button>
+          <button id="resetBtn" class="btn btn-reset fw-semibold py-2 px-4">
+            <i class="fas fa-key me-2"></i>Reset Password
+          </button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
 
   <!--- ================= New Password Modal ================= --->
@@ -377,14 +468,15 @@
           <div class="mb-3">
             <label class="fw-semibold">New Password</label>
             <div class="input-group">
-              <input type="password" class="form-control" id="newPassword" placeholder="Enter new password" required>
+              <input type="password" class="form-control" id="newPassword" placeholder="Create new password" required>
             </div>
           </div>
 
           <div class="mb-3">
             <label class="fw-semibold">Confirm New Password</label>
             <div class="input-group">
-              <input type="password" class="form-control" id="confirmNewPassword" placeholder="Confirm new password" required>
+              <input type="password" class="form-control" id="confirmNewPassword" placeholder="Confirm new password"
+                required>
             </div>
           </div>
 
@@ -399,6 +491,17 @@
       </div>
     </div>
   </div>
+
+  <div id="archivedDriverToast" class="toast align-items-center text-bg-danger border-0 position-fixed top-0 end-0 m-3"
+    role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body fw-semibold">
+        Your driver account is archived. Please contact the admin.
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+
 
   <!--- ================= Preloader ================= --->
   <div id="preloader"></div>
@@ -418,36 +521,37 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"></script>
 
   <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const input = document.querySelector("#signupContactNumber");
-    const errorMsg = document.getElementById("phoneError");
+    document.addEventListener("DOMContentLoaded", function () {
+      const input = document.querySelector("#signupContactNumber");
+      const errorMsg = document.getElementById("phoneError");
 
-    const iti = window.intlTelInput(input, {
-      initialCountry: "ph",   
-     nationalMode: false,
-     formatOnDisplay: true,
-     autoPlaceholder: "polite",
-      utilsScript:
-       "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
-   });
+      const iti = window.intlTelInput(input, {
+        initialCountry: "ph",
+        nationalMode: false,
+        formatOnDisplay: true,
+        autoPlaceholder: "polite",
+        utilsScript:
+          "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+      });
 
-   iti.setCountry("ph");
+      iti.setCountry("ph");
 
-   const signupForm = document.getElementById("signupForm");
-    signupForm.addEventListener("submit", function () {
-     errorMsg.textContent = "";
+      const signupForm = document.getElementById("signupForm");
+      signupForm.addEventListener("submit", function () {
+        errorMsg.textContent = "";
 
-     let val = input.value.trim();
-     if (val.startsWith("0")) val = "+63" + val.slice(1);
+        let val = input.value.trim();
+        if (val.startsWith("0")) val = "+63" + val.slice(1);
 
-      const fullNumber = iti.getNumber() || val;
-      input.value = fullNumber;
-      console.log("Accepted Number:", fullNumber);
+        const fullNumber = iti.getNumber() || val;
+        input.value = fullNumber;
+        console.log("Accepted Number:", fullNumber);
+      });
+
+      input.addEventListener("input", () => (errorMsg.textContent = ""));
     });
-
-    input.addEventListener("input", () => (errorMsg.textContent = ""));
-  });
   </script>
 
 </body>
+
 </html>

@@ -1519,3 +1519,212 @@ nav.close ~ .dashboard footer {
     margin-left: 0;
   }
 }
+
+.action-btn-group {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-btn {
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.action-approve {
+  color: #60adf4;
+  background-color: #e7f3fe;
+  border: 1px solid #60adf4;
+}
+.action-approve:hover {
+  background-color: #60adf4;
+  color: #fff;
+}
+
+.action-decline {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #dc3545;
+}
+.action-decline:hover {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+/*--------------------------------------------------------------
+# BL Number Modal (Follows Approve Modal Style)
+--------------------------------------------------------------*/
+.bl-modal {
+  border: none;
+  border-radius: 16px;
+  background-color: #fff;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  animation: fadeInModal 0.3s ease-out;
+}
+
+/* Header */
+.bl-modal-header {
+  border: none;
+  background: linear-gradient(to right, #0077b6, #60adf4);
+  color: #fff;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  padding: 1.25rem 1rem;
+}
+
+.bl-modal-header h5 {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* Body */
+.bl-modal-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 240px;
+  background-color: #fff;
+  padding: 0 1rem;
+  text-align: center;
+}
+
+.bl-modal-icon {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background-color: #eaf6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+  animation: iconAppear 0.6s ease-out forwards;
+}
+
+.bl-modal-icon i {
+  font-size: 3rem;
+  color: #0077b6;
+  opacity: 0;
+  transform: scale(0.5);
+  animation: checkPop 0.6s ease-out 0.2s forwards;
+}
+
+.bl-modal-body p {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+/* Input */
+.bl-modal-input {
+  width: 100%;
+  max-width: 260px;
+}
+
+.bl-modal-input input {
+  padding: 0.65rem 1rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  background-color: #f7f9fc;
+  text-align: center;
+  font-weight: 600;
+}
+
+.bl-modal-input input:focus {
+  border-color: #60adf4;
+  box-shadow: 0 0 0 3px rgba(96, 173, 244, 0.25);
+  outline: none;
+}
+
+/* Footer */
+.bl-modal-footer {
+  border-top: none;
+  background-color: #f8f9fa;
+  padding: 1.2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.bl-modal-footer .btn-light {
+  border-radius: 8px;
+  padding: 0.6rem 1.8rem;
+  font-weight: 600;
+}
+
+.bl-modal-footer .btn-primary {
+  background: #60adf4;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.8rem;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: 0.25s ease-in-out;
+}
+
+.bl-modal-footer .btn-primary:hover {
+  background: #0069d9;
+  transform: translateY(-1px);
+}
+
+.input-error {
+  border: 2px solid #e63946 !important;
+}
+
+.error-text {
+  color: #e63946;
+  font-size: 0.85rem;
+  margin-top: 5px;
+  display: none;
+}
+
+.modal-footer,
+.approve-modal-footer,
+.confirm-modal-footer,
+.bl-modal-footer,
+.success-modal-footer {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+}
+
+/* ============================
+   View Booking Details Button
+   (Green Version)
+===============================*/
+.action-view {
+  color: #28a745;
+  background-color: #e8f5e9; /* light green background */
+  border: 1px solid #28a745;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.action-view:hover {
+  background-color: #28a745;
+  color: #fff;
+}
+
+.action-view:active {
+  background-color: #1e7e34;
+  color: #fff;
+}

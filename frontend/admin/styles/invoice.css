@@ -916,3 +916,13 @@ nav.close ~ .dashboard footer {
 .table td .btn-danger:active {
   background-color: #a52834;
 }
+
+/*--------------------------------------------------------------
+# Global Modal Footer Alignment (Right Side)
+--------------------------------------------------------------*/
+.modal-footer {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center;
+  gap: 10px; /* spacing between buttons */
+}

@@ -3,6 +3,8 @@ let allInvoicesMaster = [];
 let invoiceCurrentPage = 1;
 const invoiceRowsPerPage = 10;
 
+let isGeneratingInvoice = false;
+
 /* =============================
     Notifications
   ============================= */
@@ -73,7 +75,7 @@ function showNotification(arg1, arg2, arg3) {
 async function fetchNotifications() {
   try {
     const res = await fetch(
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/admin/notifications",
+      "https://cargosmarttsl-5.onrender.com/api/admin/notifications",
       { credentials: "include" }
     );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -132,34 +134,25 @@ document.addEventListener("DOMContentLoaded", () => {
     .addEventListener("submit", async (e) => {
       e.preventDefault();
 
+      if (isGeneratingInvoice) {
+        return; // prevent double submissions
+      }
+      isGeneratingInvoice = true;
+
       const shipmentId = document.getElementById("shipmentId").value;
       const amountDue = parseFloat(amountDueInput.value);
       const taxRate = parseFloat(taxRateInput.value) || 0;
 
-      if (!amountDue || amountDue <= 0) {
-        showNotification(
-          "Invalid Input",
-          "Please enter a valid amount due.",
-          "warning"
-        );
-        return;
-      }
-
-      if (taxRate < 0 || taxRate > 100) {
-        showNotification(
-          "Invalid Tax",
-          "Tax rate must be between 0 and 100%.",
-          "warning"
-        );
-        return;
-      }
-
-      const modalEl = document.getElementById("generateModal");
-      const modal = bootstrap.Modal.getInstance(modalEl);
+      const submitBtn = document.querySelector(
+        "#generateForm button[type='submit']"
+      );
+      submitBtn.disabled = true;
+      const originalText = submitBtn.innerHTML;
+      submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Generating...`;
 
       try {
         const res = await fetch(
-          `https://caiden-recondite-psychometrically.ngrok-free.dev/api/invoices/generate/${shipmentId}`,
+          `https://cargosmarttsl-5.onrender.com/api/invoices/generate/${shipmentId}`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -169,32 +162,37 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
         if (res.ok) {
+          // CLOSE GENERATE MODAL
+          const modalEl = document.getElementById("generateModal");
+          const modal = bootstrap.Modal.getInstance(modalEl);
           if (modal) modal.hide();
 
-          setTimeout(() => {
-            document
-              .querySelectorAll(".modal-backdrop")
-              .forEach((b) => b.remove());
-            document.body.classList.remove("modal-open");
-            document.body.style.overflow = "";
+          // Remove leftover backdrop
+          document
+            .querySelectorAll(".modal-backdrop")
+            .forEach((b) => b.remove());
+          document.body.classList.remove("modal-open");
+          document.body.style.overflow = "";
 
-            showSuccessModal(
-              "Invoice Generated",
-              "Invoice successfully created with tax included."
-            );
+          // SHOW SUCCESS MODAL
+          showSuccessModal(
+            "Invoice Generated",
+            "Invoice successfully created with tax included."
+          );
 
-            document.getElementById("generateForm").reset();
-            totalAmountInput.value = "";
+          // Clear form
+          document.getElementById("generateForm").reset();
+          totalAmountInput.value = "";
 
-            const successModalEl = document.getElementById("successModal");
-            successModalEl.addEventListener(
-              "hidden.bs.modal",
-              () => {
-                loadInvoices();
-              },
-              { once: true }
-            );
-          }, 250);
+          // Reload invoices after closing success modal
+          const successModalEl = document.getElementById("successModal");
+          successModalEl.addEventListener(
+            "hidden.bs.modal",
+            () => {
+              loadInvoices();
+            },
+            { once: true }
+          );
         } else {
           const err = await res.json();
           showNotification(
@@ -210,6 +208,11 @@ document.addEventListener("DOMContentLoaded", () => {
           "Error while generating invoice",
           "error"
         );
+      } finally {
+        // Always unlock
+        isGeneratingInvoice = false;
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
       }
     });
 
@@ -351,19 +354,48 @@ function showSuccessModal(
   }, 2500);
 }
 
-/* =============================
-    Load Invoices
-  ============================= */
 async function loadInvoices(statusFilter = "all", search = "") {
   try {
     const url =
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/invoices";
+      "https://cargosmarttsl-5.onrender.com/api/invoices";
     const res = await fetch(url, { credentials: "include" });
     if (!res.ok) throw new Error("Failed to fetch invoices");
     const invoices = await res.json();
 
-    allInvoicesMaster = invoices;
-    allInvoices = invoices;
+    // ✅ Only include invoices with tracking number OR BL number
+    const validInvoices = invoices.filter(
+      (inv) =>
+        inv.tracking_number?.trim() ||
+        inv.bl_number?.trim() ||
+        inv.bill_of_lading?.trim()
+    );
+
+    // ✅ SORT: LATEST FIRST (pure timeline)
+    validInvoices.sort((a, b) => {
+      const aDate = a.updated_at
+        ? new Date(a.updated_at)
+        : a.created_at
+        ? new Date(a.created_at)
+        : a.due_date
+        ? new Date(a.due_date)
+        : 0;
+
+      const bDate = b.updated_at
+        ? new Date(b.updated_at)
+        : b.created_at
+        ? new Date(b.created_at)
+        : b.due_date
+        ? new Date(b.due_date)
+        : 0;
+
+      return bDate - aDate; // DESC → latest first
+    });
+
+    allInvoicesMaster = validInvoices;
+    allInvoices = [...validInvoices];
+
+    // reset to first page whenever we reload from server
+    invoiceCurrentPage = 1;
 
     applyCurrentInvoiceFilter();
   } catch (err) {
@@ -418,8 +450,9 @@ function renderInvoices() {
               ? `
             <div class="d-flex justify-content-center">
               <button class="btn btn-sm btn-primary d-flex align-items-center gap-1"
-                      onclick="openGenerate(${inv.shipment_id})"
-                      title="Generate New Invoice">
+        onclick="handleGenerateClick(this, ${inv.shipment_id})"
+        title="Generate New Invoice">
+
                 <i class="fas fa-file-invoice"></i>
                 <span>Generate</span>
               </button>
@@ -427,7 +460,7 @@ function renderInvoices() {
           `
               : `
             <div class="d-flex justify-content-center align-items-center gap-2 flex-nowrap">
-              <a href="https://caiden-recondite-psychometrically.ngrok-free.dev${
+              <a href="https://cargosmarttsl-5.onrender.com${
                 inv.pdf_url || `/invoices/${inv.invoice_number}.pdf`
               }" 
                 target="_blank" class="btn btn-sm btn-primary" title="View PDF Invoice">
@@ -460,6 +493,20 @@ function renderInvoices() {
 
   const totalPages = Math.ceil(allInvoices.length / invoiceRowsPerPage);
   renderInvoicePagination(totalPages);
+}
+
+function handleGenerateClick(button, shipmentId) {
+  button.disabled = true; // prevent double clicks
+  button.innerHTML = "<i class='fas fa-spinner fa-spin'></i> Loading...";
+
+  openGenerate(shipmentId);
+
+  // re-enable when modal is fully loaded
+  setTimeout(() => {
+    button.disabled = false;
+    button.innerHTML =
+      "<i class='fas fa-file-invoice'></i><span>Generate</span>";
+  }, 800); // enough to show modal but fast for UX
 }
 
 /* =============================
@@ -544,7 +591,7 @@ async function openGenerate(shipmentId) {
 
   try {
     const res = await fetch(
-      `https://caiden-recondite-psychometrically.ngrok-free.dev/api/admin/shipments/${shipmentId}`,
+      `https://cargosmarttsl-5.onrender.com/api/admin/shipments/${shipmentId}`,
       { credentials: "include" }
     );
     if (!res.ok) throw new Error("Failed to fetch shipment");
@@ -608,7 +655,7 @@ async function markAsPaid(invoiceId) {
     async () => {
       try {
         const res = await fetch(
-          `https://caiden-recondite-psychometrically.ngrok-free.dev/api/invoices/${invoiceId}/pay`,
+          `https://cargosmarttsl-5.onrender.com/api/invoices/${invoiceId}/pay`,
           {
             method: "PUT",
             credentials: "include",
@@ -662,7 +709,7 @@ async function undoInvoice(invoiceId) {
     async () => {
       try {
         const res = await fetch(
-          `https://caiden-recondite-psychometrically.ngrok-free.dev/api/invoices/${invoiceId}/undo`,
+          `https://cargosmarttsl-5.onrender.com/api/invoices/${invoiceId}/undo`,
           {
             method: "DELETE",
             credentials: "include",
@@ -766,30 +813,48 @@ document.addEventListener("DOMContentLoaded", () => {
         );
         modal.show();
 
-        document.getElementById("dateRangeInput").value = "";
+        const fromEl = document.getElementById("customFromDate");
+        const toEl = document.getElementById("customToDate");
 
+        // reset
+        fromEl.value = "";
+        toEl.value = "";
+
+        // limit max to today
+        const today = new Date().toISOString().split("T")[0];
+        fromEl.max = today;
+        toEl.max = today;
+
+        // prevent typing
+        fromEl.addEventListener("keypress", (e) => e.preventDefault());
+        toEl.addEventListener("keypress", (e) => e.preventDefault());
+
+        // auto-open picker
+        fromEl.addEventListener("click", () => fromEl.showPicker?.());
+        toEl.addEventListener("click", () => toEl.showPicker?.());
+
+        // Replace Apply button
         const applyBtn = document.getElementById("applyDateRangeBtn");
         const newApply = applyBtn.cloneNode(true);
         applyBtn.parentNode.replaceChild(newApply, applyBtn);
 
         newApply.addEventListener("click", () => {
-          const value = document.getElementById("dateRangeInput").value.trim();
-          if (!value.includes("to")) {
-            alert("Please use format YYYY-MM-DD to YYYY-MM-DD");
+          const from = fromEl.value;
+          const to = toEl.value;
+
+          if (!from || !to) {
+            alert("Please select both From and To dates.");
             return;
           }
-          const [from, to] = value.split("to").map((v) => v.trim());
-          if (!from || !to) {
-            alert("Please provide both start and end dates.");
+          if (new Date(from) > new Date(to)) {
+            alert("Start date cannot be after End date.");
             return;
           }
 
           currentDateFilter = { range: "custom", from, to };
-          bootstrap.Modal.getInstance(
-            document.getElementById("dateRangeModal")
-          ).hide();
-
           filterBtn.innerHTML = `<i class="fas fa-calendar-alt me-1"></i> ${from} → ${to}`;
+
+          modal.hide();
           applyCurrentInvoiceFilter();
         });
       }
@@ -803,63 +868,74 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-/* ======================================================
-   APPLY DATE FILTER + SEARCH + STATUS
-====================================================== */
 function applyCurrentInvoiceFilter() {
-  let filtered = [...allInvoicesMaster]; // always start from full data
+  let filtered = [...allInvoicesMaster];
 
-  // Apply status filter
   const filterBtn = document.getElementById("invoiceFilterBtn");
-  if (
-    filterBtn &&
-    filterBtn.textContent &&
-    !filterBtn.textContent.toLowerCase().includes("all")
-  ) {
-    const selected = filterBtn.textContent.toLowerCase().trim();
+  const selectedFilter = filterBtn?.textContent?.toLowerCase()?.trim() || "all";
 
-    // Normalize comparison
-    filtered = filtered.filter((i) => {
-      const status = (i.invoice_status || "").toLowerCase().trim();
+  const search = document
+    .getElementById("invoiceSearch")
+    ?.value?.toLowerCase()
+    ?.trim();
 
-      if (selected.includes("paid") && !selected.includes("unpaid")) {
-        // ✅ Paid only
-        return status === "paid";
-      } else if (selected.includes("unpaid")) {
-        // ✅ Unpaid only
-        return status === "unpaid";
-      } else if (selected.includes("not generated")) {
-        // ✅ Not generated only
-        return !i.invoice_id;
-      }
-      return true;
-    });
-  }
+  /* ================================
+        STATUS FILTER
+  ================================= */
+  filtered = filtered.filter((i) => {
+    const status = (i.invoice_status || "").toLowerCase().trim();
 
-  // Apply date range filter
+    if (selectedFilter === "paid") return status === "paid";
+
+    if (selectedFilter === "unpaid") return status === "unpaid";
+
+    if (selectedFilter === "not generated") return !i.invoice_id;
+
+    return true; // ALL
+  });
+
+  /* ================================
+      DATE FILTER (FIXED)
+================================= */
   if (currentDateFilter.from && currentDateFilter.to) {
     const start = new Date(currentDateFilter.from);
     const end = new Date(currentDateFilter.to);
     end.setHours(23, 59, 59);
+
     filtered = filtered.filter((i) => {
-      if (!i.due_date) return false;
-      const d = new Date(i.due_date);
-      return d >= start && d <= end;
+      let dateValue = null;
+
+      // Invoice exists → use invoice created_at
+      if (i.invoice_id && i.created_at) {
+        dateValue = new Date(i.created_at);
+
+        // No invoice yet → use shipment created_at
+      } else if (i.shipment_created_at) {
+        dateValue = new Date(i.shipment_created_at);
+
+        // Fallback
+      } else if (i.created_at) {
+        dateValue = new Date(i.created_at);
+      }
+
+      if (!dateValue) return false;
+
+      return dateValue >= start && dateValue <= end;
     });
   }
 
-  // Apply search filter
-  const search = document
-    .getElementById("invoiceSearch")
-    .value.toLowerCase()
-    .trim();
+  /* ================================
+        SEARCH FILTER (UPDATED)
+  ================================= */
   if (search) {
-    filtered = filtered.filter(
-      (i) =>
+    filtered = filtered.filter((i) => {
+      return (
         i.client_name?.toLowerCase().includes(search) ||
         i.invoice_number?.toLowerCase().includes(search) ||
-        i.tracking_number?.toLowerCase().includes(search)
-    );
+        i.tracking_number?.toLowerCase().includes(search) ||
+        i.bl_number?.toLowerCase().includes(search)
+      );
+    });
   }
 
   allInvoices = filtered;

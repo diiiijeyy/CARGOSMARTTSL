@@ -164,19 +164,22 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // -------------------- Save Signature -------------------- //
   if (saveBtn && ctx) {
     saveBtn.addEventListener("click", async () => {
       const signatureData = canvas.toDataURL("image/png");
       preview.src = signatureData;
       localStorage.setItem("adminSignature", signatureData);
+
       showNotification({
         variant: "success",
         title: "Saved",
         message: "Signature saved successfully.",
       });
 
-      // 🔔 OPTIONAL: Notify backend
+      // NEW ✔ Success Modal
+      showSuccessModal();
+
+      // OPTIONAL backend notification
       try {
         await fetch("http://localhost:5001/api/admin/notifications", {
           method: "POST",
@@ -233,3 +236,22 @@ async function fetchNotifications() {
 }
 
 setInterval(fetchNotifications, 30000);
+
+function showSuccessModal() {
+  const modal = new bootstrap.Modal(document.getElementById("successModal"));
+  modal.show();
+
+  setTimeout(() => {
+    const inst = bootstrap.Modal.getInstance(
+      document.getElementById("successModal")
+    );
+    if (inst) inst.hide();
+  }, 2000);
+}
+
+// 🔥 GLOBAL AUTO-HOOK FOR ALL SAVE BUTTONS
+document.addEventListener("click", (e) => {
+  if (e.target.closest(".save-changes")) {
+    showSuccessModal();
+  }
+});

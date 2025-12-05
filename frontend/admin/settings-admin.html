@@ -65,6 +65,11 @@
           </a>
         </li>
         <li>
+          <a href="./driver.html">
+            <i class="uil uil-truck"></i>
+            <span class="link-name">Drivers</span>
+          </a>
+        <li>
           <a href="./booking-management.html">
             <i class="uil uil-schedule"></i>
             <span class="link-name">Bookings</span>
@@ -380,6 +385,22 @@
 
   </main>
 
+  <!-- Success Modal -->
+  <div class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:400px;">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title fw-bold">Saved Successfully</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-center p-4">
+          <p class="mb-0">Your changes were saved successfully.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
   <!-- Footer -->
   <footer class="text-center mt-5">
     <p>CargoSmart: Shipment Tracking System with Data Analytics</p>
@@ -479,7 +500,7 @@
           <!-- Footer -->
           <div class="modal-footer d-flex justify-content-end gap-2 border-0 bg-white">
             <button class="btn-outline" data-bs-dismiss="modal">Cancel</button>
-            <button class="btn-filled" onclick="saveSection()">Save Changes</button>
+            <button class="btn-filled save-changes" onclick="saveSection()">Save Changes</button>      
           </div>
 
         </div>

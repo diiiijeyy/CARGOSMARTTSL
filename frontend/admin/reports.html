@@ -68,6 +68,11 @@
           </a>
         </li>
         <li>
+          <a href="./driver.html">
+            <i class="uil uil-truck"></i>
+            <span class="link-name">Drivers</span>
+          </a>
+        <li>
           <a href="./booking-management.html">
             <i class="uil uil-schedule"></i>
             <span class="link-name">Bookings</span>
@@ -388,23 +393,31 @@
             </div>
           </div>
 
-          <!--- Accounting Section --->
           <div id="accounting" class="report-section col-12" style="display:none;">
             <div class="row g-4">
 
-              <!--- Sales Trend Report --->
-              <div class="col-md-6">
+              <!-- Sales Trend Report -->
+              <div class="col-12 col-xl-4">
                 <div class="card shadow-sm h-100">
                   <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between mb-2">
-                      <h5 class="fw-semibold mb-0">
+                      <h6 class="fw-semibold mb-0">
                         <i class="bi bi-graph-up text-primary me-2"></i>
                         Sales Trend Report
-                      </h5>
+                      </h6>
                       <div class="d-flex align-items-center gap-2">
-                        <button id="filterSalesTrendBtn" class="filterBtn">
-                          <i class="fas fa-filter me-1"></i>
-                        </button>
+                        <div class="filter-wrapper position-relative">
+                          <button id="filterSalesTrendBtn" class="filterBtn">
+                            <i class="fas fa-filter me-1"></i>
+                          </button>
+                          <div id="filterSalesTrendDropdown" class="dropdown-menu custom-filter-menu">
+                            <a class="dropdown-item" data-filter="this_month">This Month</a>
+                            <a class="dropdown-item" data-filter="last_month">Last Month</a>
+                            <a class="dropdown-item" data-filter="this_year">This Year</a>
+                            <a class="dropdown-item" data-filter="custom">Custom Range</a>
+                          </div>
+                        </div>
+
                         <div class="btn-group">
                           <button type="button" class="export-btn btn-sm dropdown-toggle" data-bs-toggle="dropdown"
                             aria-expanded="false">
@@ -412,66 +425,30 @@
                           </button>
                           <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item export-option" href="#" data-format="pdf"
-                                data-target="monthlyRevenueChart">
+                                data-target="salesTrend">
                                 <i class="fas fa-file-pdf text-danger me-2"></i> PDF
                               </a></li>
                             <li><a class="dropdown-item export-option" href="#" data-format="csv"
-                                data-target="monthlyRevenueChart">
+                                data-target="salesTrend">
                                 <i class="fas fa-file-csv text-success me-2"></i> CSV
                               </a></li>
                           </ul>
                         </div>
                       </div>
                     </div>
+
                     <p class="text-muted small mb-0 ms-4">Shows monthly income from paid invoices.</p>
-                    <div class="chart-container" style="height: 350px;">
+
+                    <div class="chart-container" style="height:350px;">
                       <canvas id="monthlyRevenueChart"></canvas>
                     </div>
-                  </div>
-                </div>
-              </div>
 
-              <!--- Revenue by Client Report --->
-              <div class="col-md-6">
-                <div class="card shadow-sm h-100">
-                  <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                      <h5 class="fw-semibold mb-0">
-                        <i class="bi bi-person-badge text-primary me-2"></i>
-                        Sales by Client Report
-                      </h5>
-                      <div class="d-flex align-items-center gap-2">
-                        <button id="filterRevenueByClientBtn" class="filterBtn">
-                          <i class="fas fa-filter me-1"></i>
-                        </button>
-                        <div class="btn-group">
-                          <button type="button" class="export-btn btn-sm dropdown-toggle" data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                            <i class="fas fa-file-export"></i>
-                          </button>
-                          <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item export-option" href="#" data-format="pdf"
-                                data-target="revenueByClientChart">
-                                <i class="fas fa-file-pdf text-danger me-2"></i> PDF
-                              </a></li>
-                            <li><a class="dropdown-item export-option" href="#" data-format="csv"
-                                data-target="revenueByClientChart">
-                                <i class="fas fa-file-csv text-success me-2"></i> CSV
-                              </a></li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                    <p class="text-muted small mb-0 ms-4">Shows income earned from each client.</p>
-                    <div class="chart-container" style="height: 350px;">
-                      <canvas id="revenueByClientChart"></canvas>
-                    </div>
                   </div>
                 </div>
               </div>
 
               <!-- Invoice Status Report -->
-              <div class="col-lg-6 col-md-6">
+              <div class="col-12 col-xl-4">
                 <div class="card shadow-sm p-3 h-100 d-flex flex-column justify-content-between">
                   <div class="d-flex align-items-center justify-content-between mb-3">
                     <h6 class="mb-0 d-flex align-items-center">
@@ -504,18 +481,22 @@
                       </div>
                     </div>
                   </div>
+
                   <p class="text-muted small mb-0 ms-4">Shows paid and unpaid invoice totals.</p>
+
                   <div class="d-flex justify-content-center">
                     <div class="chart-container" style="height:260px; width:80%;">
                       <canvas id="invoiceStatus"></canvas>
                     </div>
                   </div>
+
                   <p class="small text-muted text-center mt-3">Paid vs Unpaid invoices</p>
+                  <p id="invoiceStatusTotal" class="small text-primary text-center fw-semibold mt-1"></p>
                 </div>
               </div>
 
               <!-- Aging Report -->
-              <div class="col-lg-6 col-md-6">
+              <div class="col-12 col-xl-4">
                 <div class="card shadow-sm p-3 h-100 d-flex flex-column justify-content-between">
                   <div class="d-flex align-items-center justify-content-between mb-3">
                     <h6 class="mb-0 d-flex align-items-center">
@@ -527,9 +508,9 @@
                       Aging Report (Unpaid Invoices by Age)
                     </h6>
                     <div class="d-flex align-items-center gap-2">
-                      <button id="filterAgingReportBtn" class="filterBtn">
+                      <!--<button id="filterAgingReportBtn" class="filterBtn">
                         <i class="fas fa-filter me-1"></i>
-                      </button>
+                      </button>-->
                       <div class="btn-group">
                         <button type="button" class="export-btn btn-sm dropdown-toggle" data-bs-toggle="dropdown"
                           aria-expanded="false">
@@ -548,20 +529,21 @@
                       </div>
                     </div>
                   </div>
+
                   <p class="text-muted small mb-0 ms-4">Groups unpaid invoices by overdue days.</p>
+
                   <div class="d-flex justify-content-center">
                     <div class="chart-container" style="height:260px; width:90%;">
                       <canvas id="agingReport"></canvas>
                     </div>
                   </div>
-                  <p class="small text-muted text-center mt-3">Breakdown of overdue invoices by age (30, 60, 90+ days)
-                  </p>
+
+                  <p class="small text-muted text-center mt-3">Breakdown of overdue invoices: 30, 60, 90+ days</p>
                 </div>
               </div>
 
             </div>
           </div>
-
 
           <!-- Clients Section -->
           <div id="clients" class="report-section col-12" style="display:none;">
@@ -584,7 +566,6 @@
                           <th>Total Bookings</th>
                           <th>Total Sales</th>
                           <th>On-time Delivery %</th>
-                          <th>Late Shipments</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -677,26 +658,6 @@
   </script>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const exportButtons = document.querySelectorAll(".exportBtn");
-
-      exportButtons.forEach(btn => {
-        btn.addEventListener("click", async () => {
-          const type = btn.dataset.type;
-          const chartId = btn.dataset.chart;
-          const tableId = btn.dataset.table;
-
-          if (chartId) {
-            await exportChart(chartId, type);
-          } else if (tableId) {
-            await exportTable(tableId, type);
-          } else {
-            showNotification("Export Error", "No target found to export.", "error");
-          }
-        });
-      });
-    });
-
 
     async function exportChart(chartId, type = "pdf") {
       const canvas = document.getElementById(chartId);
@@ -818,6 +779,8 @@
       }
     });
   </script>
+
+
 
 </body>
 

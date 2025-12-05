@@ -65,6 +65,11 @@
           </a>
         </li>
         <li>
+          <a href="./driver.html">
+            <i class="uil uil-truck"></i>
+            <span class="link-name">Drivers</span>
+          </a>
+        <li>
           <a href="./booking-management.html">
             <i class="uil uil-schedule"></i>
             <span class="link-name">Bookings</span>
@@ -272,6 +277,38 @@
     </div>
   </div>
 
+  <!-- Custom Range Modal -->
+  <div class="modal fade" id="dateRangeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;width:92%;">
+      <div class="modal-content border-0 shadow-sm">
+
+        <div class="modal-header" style="background:#0077b6;color:#fff;">
+          <h6 class="modal-title mb-0">Select Date Range</h6>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+
+          <label class="form-label small text-muted mb-1">From</label>
+          <input type="date" id="customFromDate" class="form-control mb-3">
+
+          <label class="form-label small text-muted mb-1">To</label>
+          <input type="date" id="customToDate" class="form-control">
+
+          <small class="text-muted d-block mt-2">
+            Pick a date range using the calendar.
+          </small>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+          <button id="applyDateRangeBtn" type="button" class="btn btn-primary">Apply</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
   <!--- Confirm Modal --->
   <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">

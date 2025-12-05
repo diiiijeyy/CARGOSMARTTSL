@@ -2,14 +2,15 @@
 # Fonts & Colors
 --------------------------------------------------------------*/
 :root {
-  --font-default: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-primary: 'Poppins', sans-serif;
-  --font-secondary: 'Inter', sans-serif;
+  --font-default: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  --font-primary: "Poppins", sans-serif;
+  --font-secondary: "Inter", sans-serif;
 
-  --primary-color: #2e7fc0;
+  --primary-color: #60adf4;
   --panel-color: #f6f8fa;
   --text-color: #000;
-  --text-primary: #2e7fc0;
+  --text-primary: #60adf4;
   --black-light-color: #707070;
   --border-color: #e6e5e5;
   --tran-05: all 0.5s ease;
@@ -136,7 +137,7 @@ nav.close ~ .dashboard {
   left: 250px;
   right: 0;
   height: 60px;
-  background: linear-gradient(to right, #2e7fc0, #3a8fd6);
+  background: #60adf4;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -160,7 +161,7 @@ nav.close ~ .dashboard .top {
 
 .dashboard-date {
   font-size: 0.9rem;
-  color: #ddd;
+  color: #fff;
 }
 
 /*--------------------------------------------------------------
@@ -207,10 +208,11 @@ nav.close ~ .dashboard .top {
 .table tbody tr {
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
+
 .table tbody tr:hover {
-  background-color: #eef6fc !important;
-  transform: scale(1.01);
-  cursor: pointer;
+  background-color: inherit !important;
+  transform: none !important;
+  cursor: default !important;
 }
 
 .table-bordered th,
@@ -242,11 +244,22 @@ nav.close ~ .dashboard .top {
 }
 
 @media (max-width: 767px) {
-  .table th, .table td {
+  .table th,
+  .table td {
     font-size: 12px;
   }
   .dashboard h2 {
     font-size: 24px;
+  }
+}
+
+@media (min-width: 768px) {
+  td .d-flex {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+  }
+  td .btn {
+    white-space: nowrap;
   }
 }
 
@@ -281,7 +294,7 @@ select.no-arrow:hover {
   margin-bottom: 20px;
 }
 .create-shipment-btn {
-  background-color: #2e7fc0; 
+  background-color: #2e7fc0;
   color: #fff;
   border: none;
 }
@@ -317,7 +330,9 @@ select.no-arrow:hover {
     transition: left 0.3s ease;
     color: #fff;
   }
-  nav.active { left: 0; }
+  nav.active {
+    left: 0;
+  }
   .dashboard {
     margin-left: 0;
     width: 100%;
@@ -350,7 +365,7 @@ select.no-arrow:hover {
   padding: 6px 10px;
   min-width: 240px;
   transition: var(--tran-03);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 .search-bar:hover {
   box-shadow: 0 4px 12px rgba(46, 127, 192, 0.2);
@@ -392,51 +407,16 @@ select.no-arrow:hover {
 }
 
 /*--------------------------------------------------------------
-# summary card
---------------------------------------------------------------*/
-.summary-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border-radius: 12px;
-}
-.summary-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
-  cursor: pointer;
-}
-.summary-card h6 {
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-.summary-card h3 {
-  font-size: 1.6rem;
-  color: #2e7fc0 !important;   /* 👈 force theme blue for numbers */
-}
-.summary-card i {
-  opacity: 0.9;
-  transition: transform 0.3s ease;
-  color: #2e7fc0 !important;   /* 👈 force theme blue for icons */
-}
-.summary-card:hover i {
-  transform: scale(1.1);
-  opacity: 1;
-}
-
-/* Optional utility class for other icons */
-.icon-primary {
-  color: #2e7fc0 !important;
-}
-
-/*--------------------------------------------------------------
 # select dropdown
 --------------------------------------------------------------*/
 select.no-arrow option {
-  background-color: #fff;  
-  color: #000;        
+  background-color: #fff;
+  color: #000;
   padding: 5px 10px;
 }
 select.no-arrow option:hover {
   background-color: #2e7fc0;
-  color: #fff;             
+  color: #fff;
 }
 
 /*--------------------------------------------------------------
@@ -496,7 +476,7 @@ select.no-arrow option:hover {
 --------------------------------------------------------------*/
 .pagination .page-link.custom-page {
   background: transparent;
-  border: 1px solid #2e7fc0; 
+  border: 1px solid #2e7fc0;
   color: #2e7fc0;
   border-radius: 8px;
   margin: 0 3px;
@@ -505,14 +485,14 @@ select.no-arrow option:hover {
 }
 
 .pagination .page-link.custom-page:hover {
-  background: #2e7fc0;
+  background: #60adf4;
   color: #fff;
 }
 
 .pagination .page-item.active .page-link.custom-page {
-  background: #2e7fc0;
+  background: #60adf4;
   color: #fff;
-  border-color: #2e7fc0;
+  border-color: #60adf4;
 }
 
 .pagination .page-item.disabled .page-link.custom-page {
@@ -520,10 +500,107 @@ select.no-arrow option:hover {
   pointer-events: none;
 }
 
-.status-badge {
-  font-weight: 600;
+/*--------------------------------------------------------------
+# Charts (Card Style)
+--------------------------------------------------------------*/
+.tablecontainer .card p,
+.card h5 {
+  color: var(--text-color);
 }
 
+.tablecontainer .card {
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  transition: none;
+  background-color: #fff;
+}
+
+.tablecontainer .card:hover {
+  transform: none;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+/*--------------------------------------------------------------
+# Stat Cards (Unified KPI Style with Status Colors)
+--------------------------------------------------------------*/
+.stat-card {
+  border-radius: 10px;
+  background-color: #fff;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+}
+
+.stat-card h6 {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #555;
+}
+
+.stat-card h3 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #000;
+}
+
+.stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 100%;
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+}
+
+.stat-card i {
+  font-size: 1.4rem;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+/* ===== Status Colors ===== */
+
+/* Total (All) - Indigo */
+[data-status="all"]::before {
+  background-color: #4e73df;
+}
+[data-status="all"] i {
+  color: #4e73df !important;
+  background: #e7e9fb;
+}
+
+/* Approved - Blue */
+[data-status="Approved"]::before {
+  background-color: #007bff;
+}
+[data-status="Approved"] i {
+  color: #007bff !important;
+  background: #e6f0ff;
+}
+
+/* Pending - Yellow */
+[data-status="Pending"]::before {
+  background-color: #ffc107;
+}
+[data-status="Pending"] i {
+  color: #ffc107 !important;
+  background: #fff8e1;
+}
+
+/* ===== Status Texts ===== */
 .status-pending {
   color: #ffc107; /* Yellow */
 }
@@ -532,37 +609,87 @@ select.no-arrow option:hover {
   color: #0077b6; /* Blue */
 }
 
-.status-completed {
-  color: #2fbf71; /* Green */
-}
-
 .status-declined {
   color: #e63946; /* Red */
 }
 
+/* Responsive KPI Cards */
+@media (max-width: 992px) {
+  .stat-card h3 {
+    font-size: 1.4rem;
+  }
+  .stat-card h6 {
+    font-size: 0.85rem;
+  }
+}
 
-/* Make the backdrop darker */
+@media (max-width: 768px) {
+  .row.g-3.mb-4.mt-1 {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+
+  .stat-card {
+    width: 100%;
+    text-align: left;
+  }
+
+  .stat-card .card-body {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .stat-card h3 {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .row.g-3.mb-4.mt-1 {
+    grid-template-columns: 1fr;
+  }
+  .stat-card {
+    margin: 0 auto;
+    max-width: 95%;
+  }
+  .stat-card h3 {
+    font-size: 1.2rem;
+  }
+  .stat-card h6 {
+    font-size: 0.8rem;
+  }
+}
+
+/*--------------------------------------------------------------
+# Responsive Adjustments
+--------------------------------------------------------------*/
+@media (max-width: 768px) {
+  .stat-card .card-body {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    gap: 6px;
+  }
+  .stat-card i {
+    align-self: flex-end;
+  }
+}
+
 .modal-backdrop.show {
   background-color: rgba(0, 0, 0, 0.7) !important;
 }
 
-/* Center modal content properly */
 .modal-dialog {
   margin: 0 auto;
   display: flex;
   align-items: center;
-  min-height: 100vh; /* vertical centering */
+  min-height: 100vh;
 }
 
-/* Modal content styling */
 .modal-content {
   border-radius: 12px;
   transition: all 0.3s ease-in-out;
-}
-
-.modal-content:hover {
-  transform: scale(1.02);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
 }
 
 .modal .btn-close:focus,
@@ -576,19 +703,18 @@ select.no-arrow option:hover {
 --------------------------------------------------------------*/
 #bookingDetailsModal {
   overflow: hidden;
-  z-index: 99999; /* always on top */
+  z-index: 99999;
 
   display: flex !important;
-  align-items: center;       /* ✅ center vertically */
-  justify-content: center;   /* ✅ center horizontally */
-  padding: 1rem;             /* optional padding para may konting space */
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
 }
 
-
 #bookingDetailsModal .modal-dialog {
-  width: 85% !important;              
-  max-width: 1200px !important;       
-  margin: 0 auto !important;          /* reset bootstrap margins */
+  width: 85% !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
   transition: transform 0.25s ease, opacity 0.25s ease;
 }
 
@@ -608,7 +734,7 @@ select.no-arrow option:hover {
 #bookingDetailsModal .modal-header {
   flex: 0 0 auto;
   padding: 1rem 1.25rem;
-  background: linear-gradient(135deg, #2e7fc0, #3a8fd6);
+  background: #60adf4 !important;
   color: #fff;
   border-bottom: none;
 }
@@ -617,7 +743,7 @@ select.no-arrow option:hover {
   font-size: 1.1rem;
 }
 #bookingDetailsModal .modal-header .btn-close {
-  filter: invert(1);   /* white close button */
+  filter: invert(1); /* white close button */
   opacity: 0.9;
 }
 #bookingDetailsModal .modal-header .btn-close:hover {
@@ -630,7 +756,7 @@ select.no-arrow option:hover {
   overflow-y: auto;
   padding: 1.5rem;
   max-height: 70vh;
-  padding-bottom: 4rem; /* inside bottom padding */
+  padding-bottom: 4rem;
 }
 
 /* Footer */
@@ -641,7 +767,29 @@ select.no-arrow option:hover {
   border-top: 1px solid #e5e7eb;
 }
 
-/* Form elements inside modal */
+#updateBookingBtn {
+  background: #60adf4;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.8rem;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: all 0.25s ease-in-out;
+}
+
+#updateBookingBtn:hover {
+  background: #0069d9;
+  transform: translateY(-2px);
+}
+
+#updateBookingBtn:disabled {
+  background: #9ec6e4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
 #bookingDetailsBody.row {
   --bs-gutter-x: 1.25rem;
   --bs-gutter-y: 1rem;
@@ -655,7 +803,7 @@ select.no-arrow option:hover {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 #bookingDetailsBody .form-control:focus {
-  border-color: #2e7fc0;
+  border-color: #60adf4;
   box-shadow: 0 0 0 3px rgba(46, 127, 192, 0.25);
 }
 #bookingDetailsBody label.form-label {
@@ -670,7 +818,7 @@ select.no-arrow option:hover {
 --------------------------------------------------------------*/
 @media (max-width: 992px) {
   #bookingDetailsModal {
-    padding: 2rem 1rem; /* smaller spacing on tablet */
+    padding: 2rem 1rem;
   }
   #bookingDetailsModal .modal-dialog {
     width: 95% !important;
@@ -679,7 +827,7 @@ select.no-arrow option:hover {
 }
 @media (max-width: 576px) {
   #bookingDetailsModal {
-    padding: 0; /* fullscreen on mobile */
+    padding: 0;
   }
   #bookingDetailsModal .modal-dialog {
     width: 100% !important;
@@ -696,7 +844,6 @@ select.no-arrow option:hover {
   }
 }
 
-/* Always show notification modal above everything */
 #notificationModal {
   z-index: 100000 !important;
 }
@@ -705,4 +852,853 @@ select.no-arrow option:hover {
   z-index: 99999 !important;
 }
 
+#notifCount {
+  font-size: 10px;
+  min-width: 16px;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+  padding: 0;
+  border-radius: 50%;
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  background-color: #dc3545;
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
 
+#notifCount.updated {
+  transform: scale(1.2);
+  opacity: 0.9;
+}
+
+/*--------------------------------------------------------------
+# Status Update
+--------------------------------------------------------------*/
+table select.no-arrow {
+  background-color: #60adf4;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 6px 28px 6px 10px;
+  cursor: pointer;
+  text-align: center;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath fill='%23fff' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  transition: all 0.3s ease;
+}
+
+table select.no-arrow:hover {
+  background-color: #4d9be0;
+}
+
+table select.no-arrow:focus {
+  outline: none;
+}
+
+table select.no-arrow option[hidden] {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/*--------------------------------------------------------------
+# View Icon
+--------------------------------------------------------------*/
+.table td .btn-outline-primary {
+  color: #fff;
+  background-color: #60adf4;
+  border: none;
+  border-radius: 10px;
+  width: 38px;
+  height: 38px;
+}
+
+.table td .btn-outline-primary:hover {
+  background-color: #60adf4;
+  color: #fff;
+}
+
+.table td .btn-outline-primary:active {
+  background-color: #60adf4;
+  color: #fff;
+}
+
+.table td .btn-outline-primary:focus {
+  outline: none;
+}
+/*--------------------------------------------------------------
+# Confirm Action Modal (Booking Style)
+--------------------------------------------------------------*/
+.confirm-modal {
+  border: none;
+  border-radius: 16px;
+  background-color: #fff;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  animation: fadeInScale 0.3s ease-out forwards;
+}
+
+.confirm-modal-header {
+  border: none;
+  background: linear-gradient(to right, #60adf4, #3a94e9);
+  color: #fff;
+  text-align: left;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+}
+
+.confirm-modal-header h5 {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin: 0;
+}
+.confirm-modal-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 250px;
+  background-color: #fff;
+  text-align: center;
+  position: relative;
+  padding: 0 1rem;
+}
+
+.confirm-modal-icon {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background-color: #e7f2fd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+  animation: iconAppear 0.6s ease-out forwards;
+}
+
+.confirm-modal-icon i {
+  font-size: 3rem;
+  color: #60adf4;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.4s ease-out;
+  animation: iconPop 0.6s ease-out 0.2s forwards;
+}
+
+.confirm-modal-body p {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  margin: 0;
+  padding: 0 1rem;
+}
+
+.confirm-modal-footer {
+  border-top: none;
+  background-color: #f8f9fa;
+  padding: 1.2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.confirm-modal-footer .btn-cancel {
+  background: #dee2e6;
+  color: #333;
+  border: none;
+  padding: 0.6rem 1.8rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.confirm-modal-footer .btn-cancel:hover {
+  background: #cfd4d8;
+  transform: translateY(-1px);
+}
+
+.confirm-modal-footer .btn-confirm {
+  background: #60adf4;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.8rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.confirm-modal-footer .btn-confirm:hover {
+  background: #3a94e9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(96, 173, 244, 0.3);
+}
+
+@keyframes fadeInScale {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes iconAppear {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  80% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes iconPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateY(10px);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.15) translateY(-3px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/*--------------------------------------------------------------
+# Warning Modal (Missing Date)
+--------------------------------------------------------------*/
+.warning-modal {
+  border: none;
+  border-radius: 16px;
+  background-color: #fff;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.warning-modal-header {
+  border: none;
+  background: linear-gradient(to right, #f6c23e, #ffdd57);
+  color: #fff;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  padding: 1.25rem 1rem;
+}
+
+.warning-modal-header h5 {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.warning-modal-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 250px;
+  background-color: #fff;
+  text-align: center;
+  position: relative;
+  padding: 0 1rem;
+}
+
+.warning-modal-icon {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background-color: #fff8cc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+  margin-left: auto;
+  margin-right: auto;
+  animation: iconAppear 0.6s ease-out forwards;
+}
+
+.warning-modal-icon i {
+  font-size: 3rem;
+  color: #ffdd57;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.4s ease-out;
+  animation: checkPop 0.6s ease-out 0.2s forwards;
+}
+
+.warning-modal-body p {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  margin: 0;
+}
+
+.warning-modal-footer {
+  border-top: none;
+  background-color: #f8f9fa;
+  padding: 1.2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.warning-modal .btn-warning {
+  background: #ffdd57 !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 10px !important;
+  padding: 0.65rem 1.8rem !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 4px 12px rgba(246, 194, 62, 0.3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.warning-modal-footer .btn-warning:hover {
+  background: #ffdd57 !important;
+  color: #fff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(246, 194, 62, 0.3);
+}
+
+.warning-modal .btn-warning i {
+  color: #fff !important;
+}
+
+@keyframes iconAppear {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  80% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes checkPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateY(10px);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.15) translateY(-3px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/*--------------------------------------------------------------
+# Approve Booking Modal
+--------------------------------------------------------------*/
+.approve-modal {
+  border: none;
+  border-radius: 16px;
+  background-color: #fff;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  animation: fadeInModal 0.3s ease-out;
+}
+
+.approve-modal-header {
+  border: none;
+  background: linear-gradient(to right, #0077b6, #60adf4);
+  color: #fff;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  padding: 1.25rem 1rem;
+}
+
+.approve-modal-header h5 {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.approve-modal-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 240px;
+  background-color: #fff;
+  padding: 0 1rem;
+  text-align: center;
+}
+
+.approve-modal-icon {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background-color: #eaf6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+  animation: iconAppear 0.6s ease-out forwards;
+}
+
+.approve-modal-icon i {
+  font-size: 3rem;
+  color: #0077b6;
+  opacity: 0;
+  transform: scale(0.5);
+  animation: checkPop 0.6s ease-out 0.2s forwards;
+}
+
+.approve-modal-body p {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  margin: 0;
+}
+
+.approve-modal-footer {
+  border-top: none;
+  background-color: #f8f9fa;
+  padding: 1.2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.approve-modal .btn-approve {
+  background: #60adf4 !important;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.8rem;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: all 0.25s ease-in-out;
+}
+
+.approve-modal .btn-approve:hover {
+  background: #0069d9 !important;
+  transform: translateY(-1px);
+}
+
+.approve-modal .btn-approve i {
+  color: #fff !important;
+}
+
+@keyframes fadeInModal {
+  0% {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes iconAppear {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  80% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes checkPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateY(10px);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.15) translateY(-3px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/*--------------------------------------------------------------
+# Success Modal Redesign
+--------------------------------------------------------------*/
+.success-modal {
+  border: none;
+  border-radius: 16px;
+  background-color: #fff;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.success-modal-header {
+  border: none;
+  background: linear-gradient(to right, #2fbf71, #27a965);
+  color: #fff;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  padding: 1.25rem 1rem;
+}
+
+.success-modal-header h5 {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.success-modal-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 250px;
+  background-color: #fff;
+  text-align: center;
+  position: relative;
+  padding: 0 1rem;
+}
+
+.success-modal-icon {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background-color: #eafaf1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+  animation: iconAppear 0.6s ease-out forwards;
+}
+
+.success-modal-icon i {
+  font-size: 3rem;
+  color: #2fbf71;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.4s ease-out;
+  animation: checkPop 0.6s ease-out 0.2s forwards;
+}
+
+.success-modal-body p {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  margin: 0;
+}
+
+.success-modal-footer {
+  border-top: none;
+  background-color: #f8f9fa;
+  padding: 1.2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.success-modal-footer .btn-ok {
+  background: #2fbf71;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.8rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.success-modal-footer .btn-ok:hover {
+  background: #27a965;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(47, 191, 113, 0.3);
+}
+
+@keyframes iconAppear {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  80% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes checkPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateY(10px);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.15) translateY(-3px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/*--------------------------------------------------------------
+# Footer 
+--------------------------------------------------------------*/
+footer {
+  background-color: #60adf4;
+  color: #fff;
+  text-align: center;
+  padding: 0.6rem;
+  font-size: 0.85rem;
+  position: relative;
+  width: calc(100% - 250px);
+  margin-left: 250px;
+  transition: all 0.3s ease;
+}
+
+nav.close ~ .dashboard footer {
+  width: calc(100% - 73px);
+  margin-left: 73px;
+}
+
+@media (max-width: 1000px) {
+  footer {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+.action-btn-group {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-btn {
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.action-approve {
+  color: #60adf4;
+  background-color: #e7f3fe;
+  border: 1px solid #60adf4;
+}
+.action-approve:hover {
+  background-color: #60adf4;
+  color: #fff;
+}
+
+.action-decline {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #dc3545;
+}
+.action-decline:hover {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+/*--------------------------------------------------------------
+# BL Number Modal (Follows Approve Modal Style)
+--------------------------------------------------------------*/
+.bl-modal {
+  border: none;
+  border-radius: 16px;
+  background-color: #fff;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  animation: fadeInModal 0.3s ease-out;
+}
+
+/* Header */
+.bl-modal-header {
+  border: none;
+  background: linear-gradient(to right, #0077b6, #60adf4);
+  color: #fff;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  padding: 1.25rem 1rem;
+}
+
+.bl-modal-header h5 {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* Body */
+.bl-modal-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 240px;
+  background-color: #fff;
+  padding: 0 1rem;
+  text-align: center;
+}
+
+.bl-modal-icon {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background-color: #eaf6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+  animation: iconAppear 0.6s ease-out forwards;
+}
+
+.bl-modal-icon i {
+  font-size: 3rem;
+  color: #0077b6;
+  opacity: 0;
+  transform: scale(0.5);
+  animation: checkPop 0.6s ease-out 0.2s forwards;
+}
+
+.bl-modal-body p {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+/* Input */
+.bl-modal-input {
+  width: 100%;
+  max-width: 260px;
+}
+
+.bl-modal-input input {
+  padding: 0.65rem 1rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  background-color: #f7f9fc;
+  text-align: center;
+  font-weight: 600;
+}
+
+.bl-modal-input input:focus {
+  border-color: #60adf4;
+  box-shadow: 0 0 0 3px rgba(96, 173, 244, 0.25);
+  outline: none;
+}
+
+/* Footer */
+.bl-modal-footer {
+  border-top: none;
+  background-color: #f8f9fa;
+  padding: 1.2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.bl-modal-footer .btn-light {
+  border-radius: 8px;
+  padding: 0.6rem 1.8rem;
+  font-weight: 600;
+}
+
+.bl-modal-footer .btn-primary {
+  background: #60adf4;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.8rem;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: 0.25s ease-in-out;
+}
+
+.bl-modal-footer .btn-primary:hover {
+  background: #0069d9;
+  transform: translateY(-1px);
+}
+
+.input-error {
+  border: 2px solid #e63946 !important;
+}
+
+.error-text {
+  color: #e63946;
+  font-size: 0.85rem;
+  margin-top: 5px;
+  display: none;
+}
+
+.modal-footer,
+.approve-modal-footer,
+.confirm-modal-footer,
+.bl-modal-footer,
+.success-modal-footer {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+}

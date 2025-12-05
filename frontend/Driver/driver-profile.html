@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Driver Profile</title>
+
+  <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="./style/driver-profile.css" />
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary px-3">
+    <a class="navbar-brand fw-bold" href="./Driver_dashboard.html">TSL Driver</a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a id="navDashboard" class="nav-link" href="./Driver_dashboard.html">Dashboard</a>
+        </li>
+        <li class="nav-item">
+          <a id="navProfile" class="nav-link active" href="./driver-profile.html">Profile</a>
+        </li>
+      </ul>
+
+      <div class="d-flex align-items-center">
+        <button id="logoutBtn" class="btn btn-outline-light btn-sm">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+
+    <div class="profile-card p-4 rounded shadow-sm">
+
+      <!-- HEADER WITH AVATAR -->
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <div id="driverAvatar"
+          class="avatar rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center"
+          style="width:60px;height:60px;font-weight:700">
+          D
+        </div>
+
+        <div>
+          <h5 id="driverDisplayName" class="mb-0">Driver</h5>
+          <small id="driverEmailText" class="text-muted"></small>
+        </div>
+      </div>
+
+      <!-- FIRST NAME -->
+      <div class="mb-3">
+        <label class="form-label fw-semibold">First Name</label>
+        <input type="text" class="form-control" id="driverFirstName" placeholder="Juan">
+      </div>
+
+      <!-- LAST NAME -->
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Last Name</label>
+        <input type="text" class="form-control" id="driverLastName" placeholder="Dela Cruz">
+      </div>
+
+      <!-- EMAIL -->
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Email</label>
+        <input type="email" class="form-control" id="driverEmail" placeholder="email@domain.com">
+        <div class="form-text">This email is used for login.</div>
+      </div>
+
+      <!-- CONTACT NUMBER -->
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Contact Number</label>
+        <input type="text" class="form-control" id="driverContact" placeholder="09XXXXXXXXX">
+      </div>
+
+      <button class="btn btn-primary w-100 mb-4" onclick="saveProfile()">Save Changes</button>
+
+      <hr class="my-4" />
+
+      <!-- CHANGE PASSWORD -->
+      <h5 class="fw-bold">Change Password</h5>
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Current Password</label>
+        <input type="password" class="form-control" id="oldPass">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold">New Password</label>
+        <input type="password" class="form-control" id="newPass">
+      </div>
+
+      <button class="btn btn-warning w-100" onclick="changePassword()">Update Password</button>
+    </div>
+  </div>
+
+  <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="./script/driver-profile.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("logoutBtn").addEventListener("click", async () => {
+        try {
+          await fetch('https://cargosmarttsl-5.onrender.com/api/logout', {
+            method: 'POST',
+            credentials: 'include'
+          });
+        } catch (err) {
+          console.warn('Logout failed', err);
+        }
+        window.location.href = "../login.html";
+      });
+    });
+  </script>
+
+</body>
+
+</html>

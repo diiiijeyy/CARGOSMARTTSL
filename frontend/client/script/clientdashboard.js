@@ -1,25 +1,51 @@
+function countThisMonthsBookings(bookings = []) {
+  const now = new Date();
+  const m = now.getMonth();
+  const y = now.getFullYear();
+
+  return bookings.filter((b) => {
+    if (!b.created_at) return false;
+    const d = new Date(b.created_at);
+    return d.getMonth() === m && d.getFullYear() === y;
+  }).length;
+}
+
 /* =================== Client Dashboard =================== */
 async function loadDashboard() {
   try {
-    const res = await fetch("https://caiden-recondite-psychometrically.ngrok-free.dev/api/client/dashboard", {
-      credentials: "include"
+    const res = await fetch("https://cargosmarttsl-5.onrender.com/api/client/dashboard", {
+      credentials: "include",
     });
     if (!res.ok) throw new Error("Failed to fetch dashboard data");
 
     const data = await res.json();
 
+    // Logging the data to ensure it's coming correctly from the backend
+    console.log(data);
+
     // Update stats
     const totalBookingsEl = document.querySelector('[data-stat="total_bookings"]');
+    const landFreightEl = document.querySelector('[data-stat="land_freight"]');
     const airFreightEl = document.querySelector('[data-stat="air_freight"]');
     const seaFreightEl = document.querySelector('[data-stat="sea_freight"]');
     const pendingClientBookingsEl = document.querySelector('[data-stat="pendingclient_bookings"]');
     const pendingShipmentsEl = document.querySelector('[data-stat="pending_shipments"]');
 
-    if (totalBookingsEl) animateCounter(totalBookingsEl, data.totalBookings || 0);
+    // FIX: Monthly-only total bookings
+    if (totalBookingsEl) {
+      const thisMonthBookings = countThisMonthsBookings(data.bookings);
+      animateCounter(totalBookingsEl, thisMonthBookings);
+    }
+
+    // Update the KPIs (land, air, sea freight)
+    if (landFreightEl) animateCounter(landFreightEl, data.landFreight || 0);
     if (airFreightEl) animateCounter(airFreightEl, data.airFreight || 0);
     if (seaFreightEl) animateCounter(seaFreightEl, data.seaFreight || 0);
-    if (pendingClientBookingsEl) animateCounter(pendingClientBookingsEl, data.pendingShipments || 0);
-    if (pendingShipmentsEl) animateCounter(pendingShipmentsEl, data.pendingShipments || 0);
+
+    if (pendingClientBookingsEl)
+      animateCounter(pendingClientBookingsEl, data.pendingShipments || 0);
+    if (pendingShipmentsEl)
+      animateCounter(pendingShipmentsEl, data.pendingShipments || 0);
 
     updateDescriptiveAnalysis({
       totalBookings: data.totalBookings,
@@ -28,7 +54,7 @@ async function loadDashboard() {
       pendingShipments: data.pendingShipments,
       totalRevenue: data.totalRevenue,
       mostCommonFreight: data.mostCommonFreight,
-      monthlyBookings: data.monthlyBookings
+      monthlyBookings: data.monthlyBookings,
     });
 
     updateRecentBookingsTable(data.bookings);
@@ -40,10 +66,13 @@ async function loadDashboard() {
 /* =================== Load Profile =================== */
 async function loadProfile() {
   try {
-    const res = await fetch("https://caiden-recondite-psychometrically.ngrok-free.dev/api/v1/user/profile", {
-      method: "GET",
-      credentials: "include"
-    });
+    const res = await fetch(
+      "https://cargosmarttsl-5.onrender.com/api/v1/user/profile",
+      {
+        method: "GET",
+        credentials: "include",
+      }
+    );
     if (!res.ok) throw new Error("Failed to fetch profile");
 
     const data = await res.json();
@@ -52,9 +81,9 @@ async function loadProfile() {
 
     const usernameEls = [
       document.getElementById("username"),
-      document.getElementById("usernameWelcome")
+      document.getElementById("usernameWelcome"),
     ];
-    usernameEls.forEach(el => {
+    usernameEls.forEach((el) => {
       if (el) el.textContent = username;
     });
 
@@ -71,10 +100,9 @@ async function loadProfile() {
         profileIcon.replaceWith(img);
         profileIcon = img;
       }
-      profileIcon.src = `https://caiden-recondite-psychometrically.ngrok-free.dev/uploads/${data.photo}`;
+      profileIcon.src = `https://cargosmarttsl-5.onrender.com/uploads/${data.photo}`;
       profileIcon.alt = "Profile";
     }
-
   } catch (err) {
     console.error("Error loading profile:", err);
   }
@@ -83,23 +111,26 @@ async function loadProfile() {
 /* =================== Notification Count =================== */
 async function loadNotificationCount() {
   try {
-    const res = await fetch("https://caiden-recondite-psychometrically.ngrok-free.dev/api/client/notifications", {
-      credentials: "include"
-    });
+    const res = await fetch(
+      "https://cargosmarttsl-5.onrender.com/api/client/notifications",
+      {
+        credentials: "include",
+      }
+    );
 
-    if (!res.ok) throw new Error(`Failed to fetch notifications (${res.status})`);
+    if (!res.ok)
+      throw new Error(`Failed to fetch notifications (${res.status})`);
 
     const notifications = await res.json();
     if (!Array.isArray(notifications)) return;
 
-    const unreadCount = notifications.filter(n => !n.is_read).length;
+    const unreadCount = notifications.filter((n) => !n.is_read).length;
 
     const notifCountEl = document.getElementById("notifCount");
     if (notifCountEl) {
       notifCountEl.textContent = unreadCount > 0 ? unreadCount : "";
       notifCountEl.style.display = unreadCount > 0 ? "inline-block" : "none";
     }
-
   } catch (err) {
     console.error(" Error fetching notification count:", err);
   }
@@ -122,32 +153,58 @@ function updateDescriptiveAnalysis(data) {
   const monthly = data.monthlyBookings || [];
   const totalRevenue = data.totalRevenue || 0;
 
-  if (totalBookingsEl) totalBookingsEl.textContent = `Total Bookings: ${totalBookings}`;
+  if (totalBookingsEl)
+    totalBookingsEl.textContent = `Total Bookings: ${totalBookings}`;
   if (avgMonthlyEl) {
-    const avgMonthly = monthly.length > 0
-      ? (monthly.reduce((a, b) => a + b, 0) / monthly.length).toFixed(1)
-      : 0;
+    const avgMonthly =
+      monthly.length > 0
+        ? (monthly.reduce((a, b) => a + b, 0) / monthly.length).toFixed(1)
+        : 0;
     avgMonthlyEl.textContent = `Average Monthly Bookings: ${avgMonthly}`;
   }
   if (mostCommonEl) {
-    const mostCommon = air > sea ? "Air Freight" : sea > air ? "Sea Freight" : "Equal";
+    const mostCommon =
+      air > sea ? "Air Freight" : sea > air ? "Sea Freight" : "Equal";
     mostCommonEl.textContent = `Most Common Freight Type: ${mostCommon}`;
   }
   if (pendingRatioEl) {
-    const pendingRatio = totalBookings ? ((pending / totalBookings) * 100).toFixed(1) : 0;
+    const pendingRatio = totalBookings
+      ? ((pending / totalBookings) * 100).toFixed(1)
+      : 0;
     pendingRatioEl.textContent = `Pending Shipments Ratio: ${pendingRatio}%`;
   }
-  if (revenueEl) revenueEl.textContent = `Total Revenue: $${totalRevenue.toLocaleString()}`;
+  if (revenueEl)
+    revenueEl.textContent = `Total Revenue: $${totalRevenue.toLocaleString()}`;
 }
 
 /* =================== Status Badge Helper =================== */
 function getStatusBadge(status) {
-  switch (status?.toLowerCase()) {
-    case "pending": return "bg-warning text-dark";
-    case "approved": return "bg-success";
-    case "declined": return "bg-danger";
-    case "shipping": return "bg-shipping";
-    default: return "bg-secondary";
+  if (!status) return "bg-secondary";
+
+  switch (status.toLowerCase().trim()) {
+    case "pending":
+      return "bg-warning";
+
+    case "approved":
+      return "bg-success";
+
+    case "declined":
+    case "decline":
+      return "bg-declined"; // Custom declined style
+
+    case "cancel by client":
+    case "canceled by client":
+    case "cancelled by client":
+      return "bg-cancel-client"; // Custom cancel style
+
+    case "delivered":
+      return "bg-delivered"; // Custom delivered style
+
+    case "shipping":
+      return "bg-shipping";
+
+    default:
+      return "bg-secondary";
   }
 }
 
@@ -161,51 +218,56 @@ function updateRecentBookingsTable(bookings, limitToFive = true) {
 
   tableBody.innerHTML = "";
 
-  const filteredBookings = bookings?.filter(
-    b => ["approved", "pending", "declined", "decline"].includes(b.status?.toLowerCase().trim())
-  ) || [];
+  const filteredBookings =
+    bookings?.filter((b) => {
+      const status = b.status?.toLowerCase().trim();
+      return [
+        "pending",
+        "approved",
+        "declined",
+        "decline",
+        "cancel by client",
+      ].includes(status);
+    }) || [];
 
   if (filteredBookings.length === 0) {
-    tableBody.innerHTML =
-      `<tr><td colspan="7" class="text-center py-4">No approved, pending, or declined bookings.</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="5" class="text-center py-4">No approved, pending, or declined bookings.</td></tr>`;
     return;
   }
 
-  const displayBookings = limitToFive ? filteredBookings.slice(0, 5) : filteredBookings;
+  const displayBookings = limitToFive
+    ? filteredBookings.slice(0, 5)
+    : filteredBookings;
 
-  displayBookings.forEach(booking => {
+  displayBookings.forEach((booking) => {
     const status = booking.status?.toLowerCase().trim() || "-";
-    const isDeclined = status === "declined" || status === "decline";
 
-    const declineReason = isDeclined
-      ? `<span class="text-danger small">${booking.decline_reason || "No reason provided"}</span>`
-      : `<span class="text-muted small">—</span>`;
+    const tracking =
+      booking.tracking_number?.trim() || booking.booking_id || "";
 
-    const actionButtons = `
-      <div class="action-buttons d-flex gap-2">
-        <button class="btn btn-sm btn-outline-primary edit-booking-btn" data-id="${booking.id}">
-          <i class="fas fa-edit"></i>
-        </button>
-        ${
-          !isDeclined
-            ? `<button class="btn btn-sm btn-outline-danger cancel-booking-btn" data-id="${booking.id}" data-tracking="${booking.tracking_number || ''}">
-                <i class="fas fa-times"></i>
-              </button>`
-            : ""
-        }
-      </div>
-    `;
+    const route =
+      booking.route ||
+      (booking.port_origin && booking.port_delivery
+        ? `${booking.port_origin} → ${booking.port_delivery}`
+        : "");
+
+    const type = booking.service_type || "";
+
+    const date = booking.created_at
+      ? new Date(booking.created_at).toLocaleDateString()
+      : "";
 
     const row = document.createElement("tr");
+
     row.innerHTML = `
-      <td>${booking.tracking_number || booking.id || "-"}</td>
-      <td>${booking.route || "-"}</td>
-      <td>${booking.service_type || "-"}</td>
-      <td><span class="badge ${getStatusBadge(status)}">${booking.status || "-"}</span></td>
-      <td>${booking.created_at ? new Date(booking.created_at).toLocaleDateString() : "-"}</td>
-      <td>${declineReason}</td>
-      <td>${actionButtons}</td>
-    `;
+    <td>${tracking}</td>
+    <td>${route}</td>
+    <td>${type}</td>
+    <td><span class="badge ${getStatusBadge(status)}">${
+      booking.status
+    }</span></td>
+    <td>${date}</td>
+  `;
 
     tableBody.appendChild(row);
   });
@@ -221,7 +283,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-
 
 /* =================== Export Booking Trends =================== */
 async function exportBookingTrendsToPDF() {
@@ -292,13 +353,21 @@ async function exportBookingTrendsToPDF() {
   doc.setFont("helvetica", "bold");
   doc.setTextColor(0, 55, 128);
   doc.setFontSize(12);
-  doc.text(`Total Bookings: ${total.toLocaleString()}`, 14, doc.lastAutoTable.finalY + 10);
+  doc.text(
+    `Total Bookings: ${total.toLocaleString()}`,
+    14,
+    doc.lastAutoTable.finalY + 10
+  );
 
   const pageHeight = doc.internal.pageSize.getHeight();
   doc.setFont("helvetica", "italic");
   doc.setFontSize(9);
   doc.setTextColor(130);
-  doc.text("CARGOSMART: Shipment Tracking System with Data Analytics", 14, pageHeight - 10);
+  doc.text(
+    "CARGOSMART: Shipment Tracking System with Data Analytics",
+    14,
+    pageHeight - 10
+  );
 
   doc.save(`TSL_Booking_Trends_${year}.pdf`);
 }
@@ -323,7 +392,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   let savedStatus = localStorage.getItem(statusKey);
   if (!savedStatus) {
     applySidebarState(window.innerWidth <= 768 ? "close" : "open");
-    localStorage.setItem(statusKey, window.innerWidth <= 768 ? "auto-close" : "auto-open");
+    localStorage.setItem(
+      statusKey,
+      window.innerWidth <= 768 ? "auto-close" : "auto-open"
+    );
   } else {
     applySidebarState(savedStatus.includes("close") ? "close" : "open");
   }
@@ -334,123 +406,153 @@ document.addEventListener("DOMContentLoaded", async () => {
     localStorage.setItem(statusKey, isClosing ? "close" : "open");
   });
 
-// Load Dashboard and Profile
-await loadDashboard();
-await loadProfile();
-await loadNotificationCount();
-await loadRecentUpdates();
+  // Load Dashboard and Profile
+  await loadDashboard();
+  await loadProfile();
+  await loadNotificationCount();
+  await loadRecentUpdates();
 
   // Current Date
   const currentDateElement = document.getElementById("current-date");
   if (currentDateElement) {
     const now = new Date();
-    const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
+    const options = {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
     currentDateElement.textContent = now.toLocaleDateString("en-US", options);
   }
 
   // Active Nav
-  document.querySelectorAll('.nav-links a').forEach(link => {
-    if (link.href === window.location.href) link.classList.add('active');
+  document.querySelectorAll(".nav-links a").forEach((link) => {
+    if (link.href === window.location.href) link.classList.add("active");
   });
 
   // Hamburger Menu
   const hamburgerMenu = document.getElementById("hamburgerMenu");
   if (hamburgerMenu && sidebar) {
-    hamburgerMenu.addEventListener("click", () => sidebar.classList.toggle("active"));
-    document.addEventListener("click", e => {
+    hamburgerMenu.addEventListener("click", () =>
+      sidebar.classList.toggle("active")
+    );
+    document.addEventListener("click", (e) => {
       if (!sidebar.contains(e.target) && !hamburgerMenu.contains(e.target))
         sidebar.classList.remove("active");
     });
   }
 
-/* =================== Chart Booking Trends =================== */
-const chartCanvas = document.getElementById("bookingTrendsChart");
-if (chartCanvas) {
-  const ctx = chartCanvas.getContext("2d");
+  /* =================== Chart Booking Trends =================== */
+  const chartCanvas = document.getElementById("bookingTrendsChart");
+  if (chartCanvas) {
+    const ctx = chartCanvas.getContext("2d");
 
-  try {
-    const year = new Date().getFullYear();
-    const response = await fetch(`https://caiden-recondite-psychometrically.ngrok-free.dev/api/v1/dashboard/trends?year=${year}`, {
-      credentials: "include"
-    });
-    const monthlyBookings = await response.json();
+    try {
+      const year = new Date().getFullYear();
+      const response = await fetch(
+        `https://cargosmarttsl-5.onrender.com/api/v1/dashboard/trends?year=${year}`,
+        {
+          credentials: "include",
+        }
+      );
+      const monthlyBookings = await response.json();
 
-    const gradient = ctx.createLinearGradient(0, 0, 0, chartCanvas.offsetHeight);
-    gradient.addColorStop(0, "rgba(96, 173, 244, 0.25)");
-    gradient.addColorStop(1, "rgba(96, 173, 244, 0)");
+      const gradient = ctx.createLinearGradient(
+        0,
+        0,
+        0,
+        chartCanvas.offsetHeight
+      );
+      gradient.addColorStop(0, "rgba(96, 173, 244, 0.25)");
+      gradient.addColorStop(1, "rgba(96, 173, 244, 0)");
 
-    new Chart(ctx, {
-      type: "line",
-      data: {
-        labels: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
-        datasets: [{
-          label: "Bookings",
-          data: monthlyBookings,
-          fill: true,
-          borderColor: "#60adf4",
-          backgroundColor: gradient,
-          tension: 0.35,
-          borderWidth: 2.5,
-          pointBackgroundColor: "#60adf4",
-          pointBorderColor: "#fff",
-          pointBorderWidth: 2,
-          pointRadius: 4.5,
-          pointHoverRadius: 6
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { mode: "index", intersect: false },
-        scales: {
-          x: {
-            grid: { display: false },
-            ticks: { color: "#555", font: { size: 12 } },
-            title: {
-              display: true,
-              text: "Month",
-              color: "#555",
-              font: { size: 13, weight: "500" }
-            }
-          },
-          y: {
-            beginAtZero: true,
-            grid: { color: "rgba(0,0,0,0.08)" },
-            ticks: {
-              color: "#555",
-              font: { size: 12 },
-              callback: v => v.toLocaleString()
+      new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+          ],
+          datasets: [
+            {
+              label: "Bookings",
+              data: monthlyBookings,
+              fill: true,
+              borderColor: "#60adf4",
+              backgroundColor: gradient,
+              tension: 0.35,
+              borderWidth: 2.5,
+              pointBackgroundColor: "#60adf4",
+              pointBorderColor: "#fff",
+              pointBorderWidth: 2,
+              pointRadius: 4.5,
+              pointHoverRadius: 6,
             },
-            title: {
-              display: true,
-              text: "Number of Bookings",
-              color: "#555",
-              font: { size: 13, weight: "500" }
-            }
-          }
+          ],
         },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: "#fff",
-            titleColor: "#0077b6",
-            bodyColor: "#023e8a",
-            borderColor: "#90e0ef",
-            borderWidth: 1,
-            padding: 10,
-            displayColors: false,
-            callbacks: {
-              label: ctx => `${ctx.parsed.y.toLocaleString()} bookings`
-            }
-          }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: "index", intersect: false },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: "#555", font: { size: 12 } },
+              title: {
+                display: true,
+                text: "Month",
+                color: "#555",
+                font: { size: 13, weight: "500" },
+              },
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: "rgba(0,0,0,0.08)" },
+              ticks: {
+                color: "#555",
+                font: { size: 12 },
+                callback: (v) => v.toLocaleString(),
+              },
+              title: {
+                display: true,
+                text: "Number of Bookings",
+                color: "#555",
+                font: { size: 13, weight: "500" },
+              },
+            },
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: "#fff",
+              titleColor: "#0077b6",
+              bodyColor: "#023e8a",
+              borderColor: "#90e0ef",
+              borderWidth: 1,
+              padding: 10,
+              displayColors: false,
+              callbacks: {
+                label: (ctx) => `${ctx.parsed.y.toLocaleString()} bookings`,
+              },
+            },
+          },
+          layout: { padding: { top: 10, bottom: 10, left: 5, right: 5 } },
         },
-        layout: { padding: { top: 10, bottom: 10, left: 5, right: 5 } }
-      }
-    });
-  } catch (error) {
-    console.error("Error loading booking trends:", error);
+      });
+    } catch (error) {
+      console.error("Error loading booking trends:", error);
+    }
   }
-}
 
   // Preloader
   const preloader = document.getElementById("preloader");
@@ -462,14 +564,13 @@ if (chartCanvas) {
 
   handleWelcomeModal();
 
-/* =================== Export Button =================== */
-const exportBtn = document.getElementById("exportChart");
-if (exportBtn) {
-  exportBtn.addEventListener("click", () => {
-    exportBookingTrendsToPDF()
-  });
-}
-
+  /* =================== Export Button =================== */
+  const exportBtn = document.getElementById("exportChart");
+  if (exportBtn) {
+    exportBtn.addEventListener("click", () => {
+      exportBookingTrendsToPDF();
+    });
+  }
 });
 
 /* =================== Export Functions =================== */
@@ -486,23 +587,31 @@ function exportDashboardToExcel() {
     if (!chartInstance) return alert("Chart not loaded yet!");
     const trendData = chartInstance.data.datasets[0].data;
     const trendLabels = chartInstance.data.labels;
-    const chartSheetData = [["Month","Bookings"]];
-    trendLabels.forEach((label, idx) => chartSheetData.push([label, trendData[idx]]));
+    const chartSheetData = [["Month", "Bookings"]];
+    trendLabels.forEach((label, idx) =>
+      chartSheetData.push([label, trendData[idx]])
+    );
     const ws1 = XLSX.utils.aoa_to_sheet(chartSheetData);
 
     const tableBody = document.querySelector('[data-table="recentBookings"]');
     const tableRows = Array.from(tableBody.querySelectorAll("tr"));
-    const tableSheetData = [["Tracking Number","Route","Type","Status","Date","Value","Weight"]];
-    tableRows.forEach(row => {
+    const tableSheetData = [
+      ["Tracking Number", "Route", "Type", "Status", "Date"],
+    ];
+    tableRows.forEach((row) => {
       const cells = Array.from(row.querySelectorAll("td"));
-      if (cells.length === 7) tableSheetData.push(cells.map(c => c.textContent.trim()));
+      if (cells.length === 5)
+        tableSheetData.push(cells.map((c) => c.textContent.trim()));
     });
     const ws2 = XLSX.utils.aoa_to_sheet(tableSheetData);
 
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws1, "Booking Trends");
     XLSX.utils.book_append_sheet(wb, ws2, "Recent Bookings");
-    XLSX.writeFile(wb, `Dashboard_Export_${new Date().toISOString().slice(0,10)}.xlsx`);
+    XLSX.writeFile(
+      wb,
+      `Dashboard_Export_${new Date().toISOString().slice(0, 10)}.xlsx`
+    );
   } catch (err) {
     console.error("Excel export error:", err);
     alert("Failed to export dashboard data.");
@@ -516,7 +625,8 @@ document.addEventListener("click", (e) => {
   if (!icon || !dropdown) return;
 
   if (icon.contains(e.target)) {
-    dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    dropdown.style.display =
+      dropdown.style.display === "block" ? "none" : "block";
   } else if (!dropdown.contains(e.target)) {
     dropdown.style.display = "none";
   }
@@ -534,7 +644,8 @@ document.addEventListener("click", (e) => {
 
   if (notifBtn.contains(e.target)) {
     e.preventDefault();
-    notifPanel.style.display = notifPanel.style.display === "block" ? "none" : "block";
+    notifPanel.style.display =
+      notifPanel.style.display === "block" ? "none" : "block";
   } else if (!notifPanel.contains(e.target)) {
     notifPanel.style.display = "none";
   }
@@ -560,7 +671,7 @@ function handleWelcomeModal() {
 }
 
 /* =================== Counter Animation =================== */
-function animateCounter(element, endValue, duration = 1000, format = v => v) {
+function animateCounter(element, endValue, duration = 1000, format = (v) => v) {
   if (!element) return;
 
   let startValue = parseInt(element.textContent.replace(/\D/g, "")) || 0;
@@ -584,11 +695,15 @@ function animateCounter(element, endValue, duration = 1000, format = v => v) {
 /* =================== Load Recent Updates =================== */
 async function loadRecentUpdates() {
   try {
-    const res = await fetch("https://caiden-recondite-psychometrically.ngrok-free.dev/api/client/notifications", {
-      credentials: "include"
-    });
+    const res = await fetch(
+      "https://cargosmarttsl-5.onrender.com/api/client/notifications",
+      {
+        credentials: "include",
+      }
+    );
 
-    if (!res.ok) throw new Error(`Failed to fetch notifications (${res.status})`);
+    if (!res.ok)
+      throw new Error(`Failed to fetch notifications (${res.status})`);
 
     const notifications = await res.json();
     if (!Array.isArray(notifications)) return;
@@ -597,7 +712,7 @@ async function loadRecentUpdates() {
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
       .slice(0, 5);
 
-    const unreadCount = notifications.filter(n => !n.is_read).length;
+    const unreadCount = notifications.filter((n) => !n.is_read).length;
 
     const badge = document.querySelector('[data-updates="newCount"]');
     if (badge) badge.textContent = `${unreadCount} new`;
@@ -611,85 +726,28 @@ async function loadRecentUpdates() {
       return;
     }
 
-    recent.forEach(n => {
+    recent.forEach((n) => {
       const item = document.createElement("a");
       item.href = "./notifications.html";
-      item.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-start";
+      item.className =
+        "list-group-item list-group-item-action d-flex justify-content-between align-items-start";
       item.innerHTML = `
         <div class="me-auto">
           <div class="fw-semibold">${n.title || "Notification"}</div>
           <small class="text-muted">${n.message || ""}</small>
         </div>
-        <small class="text-secondary">${new Date(n.created_at).toLocaleDateString("en-US", {
+        <small class="text-secondary">${new Date(
+          n.created_at
+        ).toLocaleDateString("en-US", {
           month: "short",
-          day: "numeric"
+          day: "numeric",
         })}</small>
       `;
       list.appendChild(item);
     });
-
   } catch (err) {
     console.error("Error loading recent updates:", err);
   }
 }
 
-let selectedTrackingNumber = null;
-
-/* =================== Actions =================== */
-document.addEventListener("click", (e) => {
-  const cancelBtn = e.target.closest(".cancel-booking-btn");
-  const editBtn = e.target.closest(".edit-booking-btn");
-
-  // Cancel booking
-  if (cancelBtn) {
-    selectedTrackingNumber = cancelBtn.dataset.tracking;
-    const modal = new bootstrap.Modal(document.getElementById("cancelBookingModal"));
-    modal.show();
-  }
-
-  // Edit booking
-  if (editBtn) {
-    const bookingId = editBtn.dataset.id;
-    window.location.href = `./booking-edit.html?id=${bookingId}`;
-  }
-});
-
-/* =================== Cancel Confirmation =================== */
-document.getElementById("confirmCancelBtn")?.addEventListener("click", async () => {
-  const reason = document.getElementById("cancelReason").value.trim();
-  if (!reason) {
-    alert("Please enter a reason for cancellation.");
-    return;
-  }
-
-  try {
-    const res = await fetch(
-      `https://caiden-recondite-psychometrically.ngrok-free.dev/api/bookings/${selectedTrackingNumber}/cancel`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ reason }),
-      }
-    );
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || "Failed to cancel booking.");
-
-    alert("Booking cancelled successfully!");
-    document.getElementById("cancelReason").value = "";
-    bootstrap.Modal.getInstance(document.getElementById("cancelBookingModal")).hide();
-
-    await loadDashboard();
-
-  } catch (err) {
-    console.error("Cancel booking error:", err);
-    alert("Failed to cancel booking.");
-  }
-});
-
-
-
-
-
-
+let selectedBookingId = null;

@@ -33,7 +33,7 @@
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+  <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.8/css/line.css">
 </head>
 
 <body>
@@ -52,15 +52,15 @@
     <div class="menu-items">
       <ul class="nav-links">
         <li>
-          <a href="operationalmanager.html" class="active">
+          <a href="om_dashboard.html" class="active">
             <i class="uil uil-estate"></i>
             <span class="link-name">Dashboard</span>
           </a>
         </li>
         <li>
-          <a href="booking-management.html">
-            <i class="uil uil-schedule"></i>
-            <span class="link-name">Bookings</span>
+          <a href="./driver.html">
+            <i class="uil uil-truck"></i>
+            <span class="link-name">Drivers</span>
           </a>
         </li>
         <li>
@@ -91,10 +91,12 @@
 
   <main class="dashboard">
     <div class="top d-flex align-items-center justify-content-between px-3 py-2">
-      <i class="fas fa-bars hamburger-menu me-2" id="hamburgerMenu"></i>
-      <div class="d-flex flex-column">
-        <h4 class="dashboard-title mb-0">Dashboard</h4>
-        <p class="dashboard-date mb-0" id="current-date" data-field="currentDate">—</p>
+      <div class="d-flex align-items-center">
+        <i class="fas fa-bars hamburger-menu me-3" id="hamburgerMenu"></i>
+        <div class="d-flex flex-column">
+          <h4 class=" dashboard-title fw-semibold" id="greetingText">Good day, <span>Operational Manager</span>!</h4>
+          <p class="dashboard-date mb-0" id="current-date" data-field="currentDate">—</p>
+        </div>
       </div>
     </div>
 
@@ -103,7 +105,7 @@
         <div class="px-3 mt-3">
           <div class="d-flex flex-column">
             <h3 class="fw-semibold text-dark mb-1" style="font-size:1.3rem;">
-              Welcome back!
+              Dashboard
             </h3>
             <p class="text-muted mb-0" style="font-size:0.95rem;">
               Here's what's happening with your shipments and bookings today.
@@ -170,7 +172,9 @@
           </div>
         </div>
 
-        <!-- Charts Row -->
+        <!-- ======= Dashboard Charts (Clean 2-in-a-row Layout) ======= -->
+
+        <!-- Row 1: Shipment Volume + Weekly Bookings -->
         <div class="row g-4 mt-1">
           <div class="col-lg-6">
             <div class="card shadow-sm p-3 h-100">
@@ -199,96 +203,71 @@
           </div>
         </div>
 
-        <!-- Extra Charts Row -->
-        <div class="row g-4 mt-1">
-          <!-- Shipment Status -->
-          <div class="col-lg-4">
-            <div class="card shadow-sm p-3 h-100">
-              <h6 class="mb-2 d-flex align-items-center">
-                <i class="fas fa-chart-pie me-2" style="color:#2e7fc0;"></i>
-                Booking Status
-              </h6>
-              <div class="chart-container mt-3">
-                <canvas id="booking-status-chart"></canvas>
+        <!-- FULL WIDTH Recent Shipments Section -->
+        <div class="row g-4 mt-4">
+          <div class="col-12">
+            <div class="card shadow-sm p-3">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0 d-flex align-items-center">
+                  <i class="fas fa-shipping-fast me-2" style="color:#2e7fc0;"></i>
+                  Recent Shipments and bookings
+                </h6>
               </div>
+
+              <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                  <thead>
+                    <tr>
+                      <th>Shipment ID</th>
+                      <th>Client</th>
+                      <th>Origin</th>
+                      <th>Destination</th>
+                      <th>Date</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody data-table="recentShipments">
+                    <tr class="text-muted">
+                      <td colspan="6" class="text-center py-4">No shipments yet</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
             </div>
           </div>
-          <div class="col-lg-4">
-            <div class="card shadow-sm p-3 h-100">
-              <h6 class="mb-2 d-flex align-items-center">
-                <i class="fas fa-clock me-2" style="color:#2e7fc0;"></i>
-                <span>On-time vs Late</span>
-              </h6>
-              <div class="d-flex align-items-center justify-content-between mb-1">
-                <small class="text-muted">Shipments by Month</small>
-                <div class="d-flex align-items-center gap-2">
-                  <select id="monthSelect" class="form-select form-select-sm" style="width:auto;">
-                    <option value="1">Jan</option>
-                    <option value="2">Feb</option>
-                    <option value="3">Mar</option>
-                    <option value="4">Apr</option>
-                    <option value="5">May</option>
-                    <option value="6">Jun</option>
-                    <option value="7">Jul</option>
-                    <option value="8">Aug</option>
-                    <option value="9">Sep</option>
-                    <option value="10" selected>Oct</option>
-                    <option value="11">Nov</option>
-                    <option value="12">Dec</option>
-                  </select>
-                  <select id="yearSelect" class="form-select form-select-sm" style="width:auto;">
-                    <option value="2024">2024</option>
-                    <option value="2025" selected>2025</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="chart-container mt-2">
-                <canvas id="onTimeVsDelayedChart" height="220"></canvas>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-8 d-flex">
-            <div class="card shadow-sm flex-fill">
-              <div class="card-body d-flex flex-column">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <h6 class="mb-0 d-flex align-items-center">
-                    <i class="fas fa-shipping-fast me-2" style="color:#2e7fc0;"></i>
-                    Recent Shipments
-                  </h6>
-                  <button class="btn view-all-btn btn-sm">View All Shipments</button>
-                </div>
-                <div class="table-responsive flex-fill">
-                  <table class="table table-hover mb-0">
-                    <thead>
-                      <tr>
-                        <th>Shipment ID</th>
-                        <th>Client</th>
-                        <th>Origin</th>
-                        <th>Destination</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody data-table="recentShipments">
-                      <tr class="text-muted">
-                        <td colspan="6" class="text-center py-4">No shipments yet</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-
-
         </div>
+
+
+      </div>
       </div>
     </section>
   </main>
 
   <!-- JS -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const greetingEl = document.getElementById("greetingText");
+      const currentDateEl = document.getElementById("current-date");
+
+      const now = new Date();
+      const hour = now.getHours();
+
+      currentDateEl.textContent = now.toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
+
+      let greeting = "Good day";
+      if (hour >= 5 && hour < 12) greeting = "Good morning";
+      else if (hour >= 12 && hour < 17) greeting = "Good afternoon";
+      else greeting = "Good evening";
+
+      greetingEl.textContent = `${greeting}, Operational Manager!`;
+    });
+  </script>
   <script>
     // Date
     document.addEventListener("DOMContentLoaded", function () {
@@ -329,4 +308,5 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="./script/operationalmanager.js"></script>
 </body>
+
 </html>

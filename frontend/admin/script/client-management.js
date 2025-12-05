@@ -10,7 +10,7 @@ const notifCountEl = document.getElementById("notifCount");
 async function fetchNotifications() {
   try {
     const res = await fetch(
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/admin/notifications",
+      "https://cargosmarttsl-5.onrender.com/api/admin/notifications",
       { credentials: "include" }
     );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -51,7 +51,7 @@ async function loadClients() {
 
   try {
     const response = await fetch(
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/admin/clients?includeArchived=true"
+      "https://cargosmarttsl-5.onrender.com/api/admin/clients?includeArchived=true"
     );
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
@@ -240,13 +240,13 @@ function ensureArchiveModal() {
               You can restore it later from the archive list.
             </p>
           </div>
-          <div class="modal-footer">
-            <button type="button" class="archive-btn-cancel" data-bs-dismiss="modal">
-              <i class="fas fa-times me-2"></i>Cancel
-            </button>
-            <button type="button" class="archive-btn-confirm" id="archiveConfirmBtn">
-              <i class="fas fa-box me-2"></i>Archive
-            </button>
+          <div class="modal-footer justify-content-end">
+          <button type="button" class="archive-btn-cancel" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Cancel
+          </button>
+          <button type="button" class="archive-btn-confirm" id="archiveConfirmBtn">
+          <i class="fas fa-box me-2"></i>Archive
+          </button>
           </div>
         </div>
       </div>
@@ -312,7 +312,7 @@ async function toggleArchiveClient(clientId) {
     async () => {
       try {
         const response = await fetch(
-          `https://caiden-recondite-psychometrically.ngrok-free.dev/api/admin/clients/${clientId}/${action}`,
+          `https://cargosmarttsl-5.onrender.com/api/admin/clients/${clientId}/${action}`,
           { method: "PATCH" }
         );
         if (!response.ok)
@@ -409,7 +409,7 @@ async function viewClient(clientId) {
 
   try {
     const res = await fetch(
-      `https://caiden-recondite-psychometrically.ngrok-free.dev/api/admin/clients/${clientId}/shipments`
+      `https://cargosmarttsl-5.onrender.com/api/admin/clients/${clientId}/shipments`
     );
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
@@ -606,7 +606,7 @@ document
 
     try {
       const res = await fetch(
-        `https://caiden-recondite-psychometrically.ngrok-free.dev/api/admin/clients/${id}`,
+        `https://cargosmarttsl-5.onrender.com/api/admin/clients/${id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -725,7 +725,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       const response = await fetch(
-        "https://caiden-recondite-psychometrically.ngrok-free.dev/api/admin/clients",
+        "https://cargosmarttsl-5.onrender.com/api/admin/clients",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

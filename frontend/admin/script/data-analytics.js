@@ -73,7 +73,7 @@ function showNotification(arg1, arg2, arg3) {
 async function fetchNotifications() {
   try {
     const res = await fetch(
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/admin/notifications",
+      "https://cargosmarttsl-5.onrender.com/api/admin/notifications",
       { credentials: "include" }
     );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -259,7 +259,7 @@ async function initShipmentVolumeChart(
     const ctx = canvas.getContext("2d");
 
     // ✅ Build API URL dynamically
-    let url = `https://caiden-recondite-psychometrically.ngrok-free.dev/api/analytics/shipment-volume?filter=${filterType}`;
+    let url = `https://cargosmarttsl-5.onrender.com/api/analytics/shipment-volume?filter=${filterType}`;
     if (filterType === "custom" && customRange.start && customRange.end) {
       url += `&start=${customRange.start}&end=${customRange.end}`;
     }
@@ -420,11 +420,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ✅ Toggle dropdown visibility
   filterBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+
     const rect = filterBtn.getBoundingClientRect();
+
     dropdown.style.top = rect.bottom + window.scrollY + "px";
-    dropdown.style.left = rect.left + window.scrollX + "px";
+    dropdown.style.left = rect.left + window.scrollX + "px"; // 👈 left aligned
+    dropdown.style.width = filterBtn.offsetWidth + "px"; // 👈 optional: match button width
+
     dropdown.style.display =
-      dropdown.style.display === "none" ? "block" : "none";
+      dropdown.style.display === "block" ? "none" : "block";
   });
 
   // ✅ Initialize Flatpickr for custom date range (only once)
@@ -528,7 +533,7 @@ async function initOnTimeLate(filterType = "this_month", customRange = {}) {
 
   try {
     // ✅ Build API URL dynamically
-    let url = `https://caiden-recondite-psychometrically.ngrok-free.dev/api/admin/reports/on-time-vs-delayed?filter=${filterType}`;
+    let url = `https://cargosmarttsl-5.onrender.com/api/admin/reports/on-time-vs-delayed?filter=${filterType}`;
     if (filterType === "custom" && customRange.start && customRange.end) {
       url += `&start=${customRange.start}&end=${customRange.end}`;
     }
@@ -580,9 +585,11 @@ async function initOnTimeLate(filterType = "this_month", customRange = {}) {
     // 🔹 Update text label
     const total = values.reduce((a, b) => a + b, 0);
     const pct = total ? Math.round((data.on_time / total) * 100) : 0;
-    document.getElementById(
-      "onTimeLatePercentage"
-    ).innerHTML = `On-time deliveries: <strong>${pct}%</strong>`;
+
+    document.getElementById("onTimeLatePercentage").innerHTML = `
+  On-time deliveries: <strong>${pct}%</strong><br>
+  Total deliveries: <strong>${total}</strong>
+`;
   } catch (err) {
     console.error("Error loading On-Time vs Late:", err);
     showNotification("Error", "Failed to load On-Time vs Late chart.", "error");
@@ -788,33 +795,9 @@ async function exportOnTimeLateCSV() {
   );
 }
 
-/* -------------------------------
-   Export Booking Status as PDF
---------------------------------*/
 async function exportBookingStatusTablePDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(16);
-  doc.setTextColor(0, 55, 128);
-  doc.text("TSL Freight Movers Inc.", 14, 18);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(12);
-  doc.text("Booking Status Report", 14, 26);
-
-  const f = window.shipmentStatusFilter || "this_month";
-  let filterText = "This Month";
-  if (f === "last_month") filterText = "Last Month";
-  else if (f === "this_year") filterText = "This Year";
-  else if (f === "custom" && window.shipmentStatusRange?.start) {
-    const { start, end } = window.shipmentStatusRange;
-    filterText = `Custom Range (${start} → ${end})`;
-  }
-
-  doc.setFontSize(11);
-  doc.text(`Filter: ${filterText}`, 14, 34);
-  doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 40);
 
   const data = window.shipmentStatusData;
   if (!data) {
@@ -826,29 +809,42 @@ async function exportBookingStatusTablePDF() {
     return;
   }
 
-  const total =
-    (data.approved ?? 0) +
-    (data.pending ?? 0) +
-    (data.completed ?? 0) +
-    (data.declined ?? 0);
+  // FIX: Read correct field names from API
+  const approved = Number(data.approved ?? data.approved_bookings ?? 0);
+  const pending = Number(data.pending ?? data.pending_bookings ?? 0);
+  const completed = Number(data.completed ?? data.completed_bookings ?? 0);
+  const declined = Number(data.declined ?? data.declined_bookings ?? 0);
 
+  const total = approved + pending + completed + declined;
+
+  // ---- HEADER ----
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.text("TSL Freight Movers Inc.", 14, 18);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(12);
+  doc.text("Booking Status Report", 14, 26);
+
+  const f = window.shipmentStatusFilter || "this_month";
+  let filterText =
+    f === "last_month"
+      ? "Last Month"
+      : f === "this_year"
+      ? "This Year"
+      : f === "custom"
+      ? `Custom Range (${window.shipmentStatusRange.start} → ${window.shipmentStatusRange.end})`
+      : "This Month";
+
+  doc.text(`Filter: ${filterText}`, 14, 34);
+  doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 40);
+
+  // ---- TABLE ----
   const body = [
-    [
-      "Approved",
-      data.approved,
-      `${((data.approved / total) * 100).toFixed(1)}%`,
-    ],
-    ["Pending", data.pending, `${((data.pending / total) * 100).toFixed(1)}%`],
-    [
-      "Completed",
-      data.completed,
-      `${((data.completed / total) * 100).toFixed(1)}%`,
-    ],
-    [
-      "Declined",
-      data.declined,
-      `${((data.declined / total) * 100).toFixed(1)}%`,
-    ],
+    ["Approved", approved, `${((approved / total) * 100).toFixed(1)}%`],
+    ["Pending", pending, `${((pending / total) * 100).toFixed(1)}%`],
+    ["Completed", completed, `${((completed / total) * 100).toFixed(1)}%`],
+    ["Declined", declined, `${((declined / total) * 100).toFixed(1)}%`],
     ["Total", total, "100%"],
   ];
 
@@ -861,11 +857,6 @@ async function exportBookingStatusTablePDF() {
     styles: { fontSize: 11, halign: "center" },
   });
 
-  doc.text(
-    "Generated by CARGOSMART: SHIPMENT TRACKING SYSTEM WITH DATA ANALYTICS",
-    14,
-    285
-  );
   doc.save(`booking_status_${f}.pdf`);
 
   showNotification(
@@ -886,38 +877,30 @@ async function exportBookingStatusCSV() {
     return;
   }
 
+  // FIX: Use proper field names
+  const approved = Number(data.approved ?? data.approved_bookings ?? 0);
+  const pending = Number(data.pending ?? data.pending_bookings ?? 0);
+  const completed = Number(data.completed ?? data.completed_bookings ?? 0);
+  const declined = Number(data.declined ?? data.declined_bookings ?? 0);
+
+  const total = approved + pending + completed + declined;
+
   const f = window.shipmentStatusFilter || "this_month";
-  let filterText = "This Month";
-  if (f === "last_month") filterText = "Last Month";
-  else if (f === "this_year") filterText = "This Year";
-  else if (f === "custom" && window.shipmentStatusRange?.start) {
-    const { start, end } = window.shipmentStatusRange;
-    filterText = `Custom Range (${start} → ${end})`;
-  }
+  let filterText =
+    f === "last_month"
+      ? "Last Month"
+      : f === "this_year"
+      ? "This Year"
+      : f === "custom"
+      ? `Custom Range (${window.shipmentStatusRange.start} → ${window.shipmentStatusRange.end})`
+      : "This Month";
 
-  const total =
-    (data.approved ?? 0) +
-    (data.pending ?? 0) +
-    (data.completed ?? 0) +
-    (data.declined ?? 0);
-
-  let csv = `Booking Status Report\n`;
-  csv += `Filter:,${filterText}\n`;
-  csv += `Generated on:,${new Date().toLocaleDateString()}\n\n`;
-  csv += `Status,Count,Percentage\n`;
-  csv += `Approved,${data.approved},${((data.approved / total) * 100).toFixed(
-    1
-  )}%\n`;
-  csv += `Pending,${data.pending},${((data.pending / total) * 100).toFixed(
-    1
-  )}%\n`;
-  csv += `Completed,${data.completed},${(
-    (data.completed / total) *
-    100
-  ).toFixed(1)}%\n`;
-  csv += `Declined,${data.declined},${((data.declined / total) * 100).toFixed(
-    1
-  )}%\n`;
+  let csv = `Booking Status Report\nFilter:,${filterText}\nGenerated:,${new Date().toLocaleDateString()}\n\n`;
+  csv += "Status,Count,Percentage\n";
+  csv += `Approved,${approved},${((approved / total) * 100).toFixed(1)}%\n`;
+  csv += `Pending,${pending},${((pending / total) * 100).toFixed(1)}%\n`;
+  csv += `Completed,${completed},${((completed / total) * 100).toFixed(1)}%\n`;
+  csv += `Declined,${declined},${((declined / total) * 100).toFixed(1)}%\n`;
   csv += `Total,${total},100%\n`;
 
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -926,45 +909,57 @@ async function exportBookingStatusCSV() {
   a.href = url;
   a.download = `booking_status_${f}.csv`;
   a.click();
+
   URL.revokeObjectURL(url);
 
-  showNotification(
-    "Exported",
-    "Booking Status report saved as CSV.",
-    "success"
-  );
+  showNotification("Exported", "Booking Status saved as CSV.", "success");
 }
 
 /* -------------------------------
    Revenue (Monthly) - Styled
 --------------------------------*/
-async function initRevenueChart() {
+async function initRevenueChart(filter = "this_month", customRange = {}) {
   const canvas = document.getElementById("monthlyRevenueChart");
   if (!canvas) return;
+  const ctx = canvas.getContext("2d");
 
   try {
-    const ctx = canvas.getContext("2d");
+    // Build API URL
+    let url = `https://cargosmarttsl-5.onrender.com/api/reports/revenue-trend?filter=${filter}`;
+    if (filter === "custom" && customRange.start && customRange.end) {
+      url += `&start=${customRange.start}&end=${customRange.end}`;
+    }
 
-    const res = await fetch(
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/reports/revenue-trend",
-      { credentials: "include" }
-    );
-    if (!res.ok)
-      throw new Error(`Failed to fetch revenue trend: ${res.status}`);
+    const res = await fetch(url, { credentials: "include" });
 
-    const data = await res.json();
-    if (!Array.isArray(data)) throw new Error("Invalid data format");
+    if (!res.ok) {
+      console.error("Revenue API error", await res.text());
+      throw new Error(`Failed revenue trend: ${res.status}`);
+    }
+
+    const raw = await res.json();
+
+    // 🔥 FIX: Ensure correct fields exist
+    const data = raw.map((row) => ({
+      label: row.label || row.month || row.period || "N/A",
+      revenue: Number(row.revenue || row.total_revenue || 0),
+    }));
+
+    window.revenueTrendData = data;
+    window.revenueTrendFilter = filter;
+    window.revenueTrendRange = customRange;
 
     const labels = data.map((d) => d.label);
-    const revenues = data.map((d) => Number(d.revenue));
+    const revenues = data.map((d) => d.revenue);
 
-    if (window.accountingRevenueChart instanceof Chart)
+    if (window.accountingRevenueChart instanceof Chart) {
       window.accountingRevenueChart.destroy();
+    }
 
-    // 🎨 Gradient fill (matching Shipment Volume style)
+    // Gradient
     const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-    gradient.addColorStop(0, "rgba(0, 119, 182, 0.9)");
-    gradient.addColorStop(1, "rgba(0, 119, 182, 0.3)");
+    gradient.addColorStop(0, "rgba(0,119,182,0.9)");
+    gradient.addColorStop(1, "rgba(0,119,182,0.3)");
 
     window.accountingRevenueChart = new Chart(ctx, {
       type: "bar",
@@ -972,13 +967,12 @@ async function initRevenueChart() {
         labels,
         datasets: [
           {
+            label: "Revenue",
             data: revenues,
             backgroundColor: gradient,
             borderColor: "#0077b6",
             borderWidth: 1.5,
             borderRadius: 8,
-            barThickness: 40,
-            maxBarThickness: 50,
           },
         ],
       },
@@ -988,85 +982,109 @@ async function initRevenueChart() {
         plugins: {
           legend: { display: false },
           tooltip: {
-            backgroundColor: "#fff",
-            titleColor: "#0077b6",
-            bodyColor: "#023e8a",
-            borderColor: "#90e0ef",
-            borderWidth: 1,
-            displayColors: false,
-            padding: 10,
             callbacks: {
               label: (ctx) => `₱${ctx.parsed.y.toLocaleString()}`,
             },
           },
         },
-        interaction: { mode: "index", intersect: false },
         scales: {
-          x: {
-            grid: { display: false },
-            ticks: { color: "#5c677d", font: { size: 12 } },
-            title: {
-              display: true,
-              text: "Month",
-              color: "#5c677d",
-              font: { size: 14 },
-            },
-          },
           y: {
             beginAtZero: true,
-            grid: { color: "rgba(0,0,0,0.06)" },
-            ticks: {
-              color: "#5c677d",
-              font: { size: 12 },
-              callback: (v) => `₱${v.toLocaleString()}`,
-            },
-            title: {
-              display: true,
-              text: "Revenue (₱)",
-              color: "#5c677d",
-              font: { size: 14 },
-            },
-          },
-        },
-        layout: { padding: { top: 10, bottom: 10, left: 5, right: 5 } },
-        animation: {
-          duration: 1000,
-          easing: "easeInOutQuad",
-          delay: (ctx) =>
-            ctx.type === "data" && ctx.mode === "default"
-              ? ctx.dataIndex * 100
-              : 0,
-        },
-        transitions: {
-          show: {
-            animations: {
-              y: { from: 0, duration: 1000, easing: "easeInOutQuad" },
-            },
+            ticks: { callback: (v) => `₱${v.toLocaleString()}` },
           },
         },
       },
     });
   } catch (err) {
-    console.error("Error loading revenue chart:", err);
+    console.error("Revenue trend error:", err);
+    showNotification("Error", "Unable to load Sales Trend", "error");
   }
 }
 
 /* -------------------------------
+   Revenue Filter Buttons
+--------------------------------*/
+
+// Blue filter button click
+document.getElementById("revenueFilterBtn")?.addEventListener("click", () => {
+  const filter = document.getElementById("revenueFilterSelect").value;
+
+  // If custom range is selected
+  if (filter === "custom") {
+    const start = document.getElementById("revenueStartDate").value;
+    const end = document.getElementById("revenueEndDate").value;
+
+    if (!start || !end) {
+      showNotification(
+        "Error",
+        "Please choose both start and end dates.",
+        "error"
+      );
+      return;
+    }
+
+    initRevenueChart("custom", { start, end });
+    return;
+  }
+
+  // Other filters
+  initRevenueChart(filter);
+});
+
+/* -------------------------------
+   Auto-show Custom Range Inputs
+--------------------------------*/
+document
+  .getElementById("revenueFilterSelect")
+  ?.addEventListener("change", (e) => {
+    const isCustom = e.target.value === "custom";
+    document.getElementById("customRangeFields").style.display = isCustom
+      ? "block"
+      : "none";
+  });
+
+/* -------------------------------
    Invoice Status Report
 --------------------------------*/
-async function initInvoiceStatus() {
+async function initInvoiceStatus(filter = "this_month", customRange = {}) {
   const canvas = document.getElementById("invoiceStatus");
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
 
   try {
-    const res = await fetch(
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/reports/payment-status",
-      { credentials: "include" }
-    );
+    let url = `https://cargosmarttsl-5.onrender.com/api/reports/payment-status?filter=${filter}`;
+
+    if (filter === "custom" && customRange.start && customRange.end) {
+      url += `&start=${customRange.start}&end=${customRange.end}`;
+    }
+
+    const res = await fetch(url, { credentials: "include" });
     const data = await res.json();
 
-    new Chart(ctx, {
+    // ⭐ STEP 3 — STORE FILTERED DATA FOR EXPORT
+    window.invoiceStatusData = data;
+    window.invoiceStatusFilter = filter;
+    window.invoiceStatusRange = customRange;
+
+    // ---------------------------
+    // Compute total invoices
+    // ---------------------------
+    const totalInvoices =
+      Number(data.on_time || 0) +
+      Number(data.late || 0) +
+      Number(data.pending || 0);
+
+    // Display in UI
+    const totalEl = document.getElementById("invoiceStatusTotal");
+    if (totalEl) {
+      totalEl.textContent = `Total invoices: ${totalInvoices.toLocaleString()}`;
+    }
+
+    // your chart code below...
+
+    if (window.invoiceStatusChart) window.invoiceStatusChart.destroy();
+
+    window.invoiceStatusChart = new Chart(ctx, {
       type: "doughnut",
       data: {
         labels: ["On-Time", "Late", "Pending"],
@@ -1080,233 +1098,137 @@ async function initInvoiceStatus() {
       options: { responsive: true, maintainAspectRatio: false },
     });
   } catch (err) {
-    console.error("Error loading invoice status chart:", err);
+    console.error("Invoice status error:", err);
   }
 }
 
 /* -------------------------------
-   Revenue by Client (Styled + Top 5)
+   Revenue by Client (Top 5 Only)
 --------------------------------*/
 let revenueByClientChart;
 
-async function loadRevenueByClientChart(mode = "single") {
+/* Load Top 5 Revenue Chart */
+async function loadRevenueByClientChart(
+  filter = "this_month",
+  customRange = {}
+) {
   const canvas = document.getElementById("revenueByClientChart");
   if (!canvas) return;
 
   try {
     const ctx = canvas.getContext("2d");
-    const url =
-      mode === "single"
-        ? "https://caiden-recondite-psychometrically.ngrok-free.dev/api/analytics/client-revenue"
-        : "https://caiden-recondite-psychometrically.ngrok-free.dev/api/analytics/client-revenue-trend";
+
+    // ----------------------------
+    // Build API URL
+    // ----------------------------
+    let url = `https://cargosmarttsl-5.onrender.com/api/reports/client-revenue?filter=${filter}`;
+
+    if (filter === "custom" && customRange.start && customRange.end) {
+      url += `&start=${customRange.start}&end=${customRange.end}`;
+    }
 
     const res = await fetch(url, { credentials: "include" });
-    if (!res.ok) throw new Error(`Failed to fetch revenue data: ${res.status}`);
+    if (!res.ok) throw new Error("Failed to fetch top clients revenue");
+
     const data = await res.json();
 
-    if (revenueByClientChart instanceof Chart) revenueByClientChart.destroy();
+    // -----------------------------------------
+    // Convert grouped-month data → total revenue
+    // -----------------------------------------
+    const totalsByClient = {};
 
-    // 🎨 Shared gradient for single mode
+    data.forEach((row) => {
+      const name = row.company_name;
+      const revenue = Number(row.revenue || 0);
+
+      if (!totalsByClient[name]) totalsByClient[name] = 0;
+      totalsByClient[name] += revenue;
+    });
+
+    // Convert to array
+    const sorted = Object.entries(totalsByClient)
+      .map(([name, revenue]) => ({ name, revenue }))
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5);
+
+    // Prepare chart data
+    const labels = sorted.map((x) => x.name).reverse();
+    const totals = sorted.map((x) => x.revenue).reverse();
+
+    // ----------------------------
+    // Destroy existing chart
+    // ----------------------------
+    if (revenueByClientChart instanceof Chart) {
+      revenueByClientChart.destroy();
+    }
+
+    // ----------------------------
+    // Gradient
+    // ----------------------------
     const gradient = ctx.createLinearGradient(0, 0, 0, 300);
     gradient.addColorStop(0, "rgba(0, 119, 182, 0.9)");
     gradient.addColorStop(1, "rgba(0, 119, 182, 0.3)");
 
-    // 🎯 SINGLE MODE — Top 5 clients by revenue
-    if (mode === "single") {
-      // Sort by total revenue (descending)
-      const sorted = data
-        .sort((a, b) => Number(b.total) - Number(a.total))
-        .slice(0, 5);
+    // ----------------------------
+    // Draw Chart
+    // ----------------------------
+    revenueByClientChart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: "Revenue (₱)",
+            data: totals,
+            backgroundColor: gradient,
+            borderColor: "#0077b6",
+            borderWidth: 1.5,
+            borderRadius: 8,
+            barThickness: 35,
+          },
+        ],
+      },
+      options: {
+        indexAxis: "y",
+        responsive: true,
+        maintainAspectRatio: false,
 
-      // Reverse to make highest appear at top (for horizontal chart)
-      const labels = sorted.map((d) => d.company_name).reverse();
-      const totals = sorted.map((d) => Number(d.total)).reverse();
-
-      revenueByClientChart = new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels,
-          datasets: [
-            {
-              data: totals,
-              backgroundColor: gradient,
-              borderColor: "#0077b6",
-              borderWidth: 1.5,
-              borderRadius: 8,
-              barThickness: 30,
-              maxBarThickness: 40,
-            },
-          ],
-        },
-        options: {
-          indexAxis: "y", // ✅ horizontal bars
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              backgroundColor: "#fff",
-              titleColor: "#0077b6",
-              bodyColor: "#023e8a",
-              borderColor: "#90e0ef",
-              borderWidth: 1,
-              displayColors: false,
-              padding: 10,
-              callbacks: {
-                label: (ctx) => `₱${ctx.parsed.x.toLocaleString()}`,
-              },
-            },
-          },
-          interaction: { mode: "index", intersect: false },
-          scales: {
-            x: {
-              beginAtZero: true,
-              grid: { color: "rgba(0,0,0,0.06)" },
-              ticks: {
-                color: "#5c677d",
-                font: { size: 12 },
-                callback: (v) => `₱${v.toLocaleString()}`,
-              },
-              title: {
-                display: true,
-                text: "Revenue (₱)",
-                color: "#5c677d",
-                font: { size: 14 },
-              },
-            },
-            y: {
-              grid: { display: false },
-              ticks: { color: "#5c677d", font: { size: 12 } },
-              title: {
-                display: true,
-                text: "Top 5 Clients",
-                color: "#5c677d",
-                font: { size: 14 },
-              },
-            },
-          },
-          layout: { padding: { top: 10, bottom: 10, left: 5, right: 5 } },
-          animation: {
-            duration: 1000,
-            easing: "easeInOutQuad",
-            delay: (ctx) =>
-              ctx.type === "data" && ctx.mode === "default"
-                ? ctx.dataIndex * 150
-                : 0,
-          },
-          transitions: {
-            show: {
-              animations: {
-                x: { from: 0, duration: 1000, easing: "easeInOutQuad" },
-              },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => `₱${ctx.raw.toLocaleString()}`,
             },
           },
         },
-      });
 
-      // 📈 TREND MODE — keep as grouped bars
-    } else {
-      const months = [...new Set(data.map((d) => d.month))];
-      const clients = [...new Set(data.map((d) => d.company_name))];
-      const colors = [
-        "#0077b6",
-        "#0096c7",
-        "#00b4d8",
-        "#48cae4",
-        "#90e0ef",
-        "#5c677d",
-        "#6c63ff",
-        "#64dfdf",
-      ];
-
-      const datasets = clients.map((client, i) => ({
-        label: client,
-        data: months.map((m) => {
-          const rec = data.find(
-            (d) => d.company_name === client && d.month === m
-          );
-          return rec ? Number(rec.total) : 0;
-        }),
-        backgroundColor: colors[i % colors.length],
-        borderRadius: 6,
-      }));
-
-      revenueByClientChart = new Chart(ctx, {
-        type: "bar",
-        data: { labels: months, datasets },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: "bottom",
-              labels: { color: "#5c677d", font: { size: 12 } },
+        scales: {
+          x: {
+            beginAtZero: true,
+            ticks: {
+              callback: (v) => `₱${v.toLocaleString()}`,
             },
-            tooltip: {
-              backgroundColor: "#fff",
-              titleColor: "#0077b6",
-              bodyColor: "#023e8a",
-              borderColor: "#90e0ef",
-              borderWidth: 1,
-              displayColors: true,
-              padding: 10,
-              callbacks: {
-                label: (ctx) => `₱${ctx.parsed.y.toLocaleString()}`,
-              },
+            title: {
+              display: true,
+              text: "Revenue (₱)",
             },
           },
-          scales: {
-            x: {
-              grid: { display: false },
-              ticks: { color: "#5c677d", font: { size: 12 } },
-              title: {
-                display: true,
-                text: "Month",
-                color: "#5c677d",
-                font: { size: 14 },
-              },
-            },
-            y: {
-              beginAtZero: true,
-              grid: { color: "rgba(0,0,0,0.06)" },
-              ticks: {
-                color: "#5c677d",
-                font: { size: 12 },
-                callback: (v) => `₱${v.toLocaleString()}`,
-              },
-              title: {
-                display: true,
-                text: "Revenue (₱)",
-                color: "#5c677d",
-                font: { size: 14 },
-              },
-            },
-          },
-          animation: {
-            duration: 1000,
-            easing: "easeInOutQuad",
-            delay: (ctx) =>
-              ctx.type === "data" && ctx.mode === "default"
-                ? ctx.dataIndex * 100
-                : 0,
-          },
-          transitions: {
-            show: {
-              animations: {
-                y: { from: 0, duration: 1000, easing: "easeInOutQuad" },
-              },
+          y: {
+            title: {
+              display: true,
+              text: "Top 5 Clients",
             },
           },
         },
-      });
-    }
+      },
+    });
   } catch (err) {
-    console.error("Error loading revenue by client chart:", err);
+    console.error("Error loading top clients chart:", err);
   }
 }
 
 /* -------------------------------
-   Booking Status Reports (with filters)
+   Booking Status Reports (Frontend)
 --------------------------------*/
 let shipmentStatusChart;
 
@@ -1316,8 +1238,9 @@ async function initShipmentStatus(filterType = "this_month", customRange = {}) {
   const ctx = canvas.getContext("2d");
 
   try {
-    //Build API URL dynamically
-    let url = `https://caiden-recondite-psychometrically.ngrok-free.dev/api/analytics/shipment-status?filter=${filterType}`;
+    // Build API URL (Correct: shipment-status)
+    let url = `https://cargosmarttsl-5.onrender.com/api/analytics/shipment-status?filter=${filterType}`;
+
     if (filterType === "custom" && customRange.start && customRange.end) {
       url += `&start=${customRange.start}&end=${customRange.end}`;
     }
@@ -1325,12 +1248,15 @@ async function initShipmentStatus(filterType = "this_month", customRange = {}) {
     const res = await fetch(url, { credentials: "include" });
     if (!res.ok)
       throw new Error(`Failed to fetch booking status: ${res.status}`);
+
     const data = await res.json();
 
+    // Save for export
     window.shipmentStatusData = data;
     window.shipmentStatusFilter = filterType;
     window.shipmentStatusRange = customRange;
 
+    // Destroy previous chart
     if (shipmentStatusChart) shipmentStatusChart.destroy();
 
     shipmentStatusChart = new Chart(ctx, {
@@ -1339,7 +1265,12 @@ async function initShipmentStatus(filterType = "this_month", customRange = {}) {
         labels: ["Approved", "Pending", "Completed", "Declined"],
         datasets: [
           {
-            data: [data.approved, data.pending, data.completed, data.declined],
+            data: [
+              data.approved ?? 0,
+              data.pending ?? 0,
+              data.completed ?? 0,
+              data.declined ?? 0,
+            ],
             backgroundColor: ["#50ABE7", "#ffff90", "#1cc88a", "#ff6666"],
             borderWidth: 2,
             hoverOffset: 8,
@@ -1353,11 +1284,11 @@ async function initShipmentStatus(filterType = "this_month", customRange = {}) {
           tooltip: {
             callbacks: {
               label: function (context) {
-                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                const value = context.raw;
-                const percentage =
-                  total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                return `${context.label}: ${value} (${percentage}%)`;
+                const arr = context.dataset.data;
+                const total = arr.reduce((a, b) => a + b, 0);
+                const val = context.raw;
+                const pct = total ? ((val / total) * 100).toFixed(1) : 0;
+                return `${context.label}: ${val} (${pct}%)`;
               },
             },
           },
@@ -1365,11 +1296,11 @@ async function initShipmentStatus(filterType = "this_month", customRange = {}) {
       },
     });
 
-    // ✅ Update summary
+    // Update summary
     document.querySelector("#shipmentStatusSummary").innerHTML = `
-      Approved: <strong>${data.approved}</strong> | 
-      Pending: <strong>${data.pending}</strong> | 
-      Completed: <strong>${data.completed}</strong> | 
+      Approved: <strong>${data.approved}</strong> |
+      Pending: <strong>${data.pending}</strong> |
+      Completed: <strong>${data.completed}</strong> |
       Declined: <strong>${data.declined}</strong>
     `;
   } catch (err) {
@@ -1379,13 +1310,13 @@ async function initShipmentStatus(filterType = "this_month", customRange = {}) {
 }
 
 /* -------------------------------
-   Booking Status Filter
+   Booking Status Filter Dropdown
 --------------------------------*/
 document.addEventListener("DOMContentLoaded", () => {
   const filterBtn = document.getElementById("filterShipmentStatusBtn");
   if (!filterBtn) return;
 
-  // Create dropdown
+  // Dropdown menu
   const dropdown = document.createElement("div");
   dropdown.className = "dropdown-menu show";
   dropdown.style.position = "absolute";
@@ -1408,7 +1339,7 @@ document.addEventListener("DOMContentLoaded", () => {
       dropdown.style.display === "none" ? "block" : "none";
   });
 
-  // Filter logic
+  // Handle selection
   dropdown.querySelectorAll(".dropdown-item").forEach((item) => {
     item.addEventListener("click", async (e) => {
       e.preventDefault();
@@ -1416,49 +1347,42 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const selected = item.dataset.filter;
 
-      if (selected === "custom") {
-        ensureDateRangePicker();
-        const modal = new bootstrap.Modal(
-          document.getElementById("dateRangeModal")
-        );
-        modal.show();
-
-        const applyBtn = document.getElementById("applyDateRangeBtn");
-        const newApply = applyBtn.cloneNode(true);
-        applyBtn.parentNode.replaceChild(newApply, applyBtn);
-
-        newApply.addEventListener("click", async () => {
-          if (!fpRange) return;
-          const picked = fpRange.selectedDates || [];
-          if (picked.length < 2) {
-            showNotification({
-              variant: "warning",
-              title: "Incomplete Range",
-              message: "Please select both start and end dates.",
-            });
-            return;
-          }
-
-          const toYMD = (d) => d.toISOString().slice(0, 10);
-          let [start, end] = picked;
-          if (start > end) [start, end] = [end, start];
-
-          await initShipmentStatus("custom", {
-            start: toYMD(start),
-            end: toYMD(end),
-          });
-
-          bootstrap.Modal.getInstance(
-            document.getElementById("dateRangeModal")
-          )?.hide();
-          filterBtn.innerHTML = `<i class="fas fa-filter me-1"></i> ${toYMD(
-            start
-          )} → ${toYMD(end)}`;
-        });
-      } else {
+      // Not custom: apply immediately
+      if (selected !== "custom") {
         await initShipmentStatus(selected);
         filterBtn.innerHTML = `<i class="fas fa-filter me-1"></i> ${item.textContent}`;
+        return;
       }
+
+      // Custom Range mode
+      ensureDateRangePicker();
+
+      const modal = new bootstrap.Modal(
+        document.getElementById("dateRangeModal")
+      );
+      modal.show();
+
+      const applyBtn = document.getElementById("applyDateRangeBtn");
+      const newApply = applyBtn.cloneNode(true);
+      applyBtn.parentNode.replaceChild(newApply, applyBtn);
+
+      newApply.addEventListener("click", async () => {
+        if (!fpRange || fpRange.selectedDates.length < 2) {
+          showNotification("Warning", "Please select both dates.", "warning");
+          return;
+        }
+
+        const [start, end] = fpRange.selectedDates.sort((a, b) => a - b);
+
+        const S = start.toISOString().slice(0, 10);
+        const E = end.toISOString().slice(0, 10);
+
+        await initShipmentStatus("custom", { start: S, end: E });
+
+        filterBtn.innerHTML = `<i class="fas fa-filter me-1"></i> ${S} → ${E}`;
+
+        modal.hide();
+      });
     });
   });
 
@@ -1483,7 +1407,7 @@ async function initTopClients(filterType = "this_month", customRange = {}) {
     const ctx = canvas.getContext("2d");
 
     // ✅ Build API URL dynamically with filters
-    let url = `https://caiden-recondite-psychometrically.ngrok-free.dev/api/analytics/top-clients-bookings?filter=${filterType}`;
+    let url = `https://cargosmarttsl-5.onrender.com/api/analytics/top-clients-bookings?filter=${filterType}`;
     if (filterType === "custom" && customRange.start && customRange.end) {
       url += `&start=${customRange.start}&end=${customRange.end}`;
     }
@@ -1583,87 +1507,94 @@ async function exportTopClientsPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
+  const data = window.topClientsData || [];
+  const filter = window.topClientsFilter || "this_month";
+  const range = window.topClientsRange || {};
+
+  if (!Array.isArray(data) || data.length === 0) {
+    showNotification("Warning", "No client data found.", "warning");
+    return;
+  }
+
+  // Header
   doc.setFont("helvetica", "bold");
   doc.setFontSize(16);
-  doc.setTextColor(0, 55, 128);
   doc.text("TSL Freight Movers Inc.", 14, 18);
+
   doc.setFont("helvetica", "normal");
   doc.setFontSize(12);
   doc.text("Top Clients by Booking", 14, 26);
 
-  const f = window.topClientsFilter || "this_month";
+  // Filter text
   let filterText = "This Month";
-  if (f === "last_month") filterText = "Last Month";
-  else if (f === "this_year") filterText = "This Year";
-  else if (f === "custom" && window.topClientsRange?.start) {
-    const { start, end } = window.topClientsRange;
-    filterText = `Custom Range (${start} → ${end})`;
-  }
+  if (filter === "last_month") filterText = "Last Month";
+  else if (filter === "this_year") filterText = "This Year";
+  else if (filter === "custom" && range.start && range.end)
+    filterText = `Custom Range (${range.start} → ${range.end})`;
 
   doc.setFontSize(11);
   doc.text(`Filter: ${filterText}`, 14, 34);
   doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 40);
 
-  const data = window.topClientsData || [];
-  if (!data.length) {
-    showNotification("No Data", "No client data found.", "warning");
-    return;
-  }
-
+  // FIXED: accurate mapping based on API data from chart
   const body = data.map((d, i) => [
     i + 1,
-    d.name,
-    d.total_bookings.toLocaleString(),
+    d.name || "N/A",
+    Number(d.total_bookings || 0).toLocaleString(),
   ]);
+
   doc.autoTable({
     startY: 50,
     head: [["#", "Client Name", "Total Bookings"]],
     body,
     theme: "grid",
     headStyles: { fillColor: [96, 173, 244], textColor: 255 },
-    styles: { fontSize: 11, halign: "center" },
+    styles: { halign: "center", fontSize: 10 },
   });
 
-  doc.text(
-    "Generated by CARGOSMART: SHIPMENT TRACKING SYSTEM WITH DATA ANALYTICS",
-    14,
-    285
-  );
-  doc.save(`top_clients_${f}.pdf`);
-  showNotification("Exported", "Top Clients saved as PDF.", "success");
+  doc.save(`top_clients_${filter}.pdf`);
+
+  showNotification("Success", "Top Clients saved as PDF.", "success");
 }
 
-async function exportTopClientsCSV() {
+function exportTopClientsCSV() {
   const data = window.topClientsData || [];
-  if (!data.length) {
-    showNotification("No Data", "No client data found.", "warning");
+  const filter = window.topClientsFilter || "this_month";
+  const range = window.topClientsRange || {};
+
+  if (!Array.isArray(data) || data.length === 0) {
+    showNotification("Warning", "No client data found.", "warning");
     return;
   }
 
-  const f = window.topClientsFilter || "this_month";
   let filterText = "This Month";
-  if (f === "last_month") filterText = "Last Month";
-  else if (f === "this_year") filterText = "This Year";
-  else if (f === "custom" && window.topClientsRange?.start) {
-    const { start, end } = window.topClientsRange;
-    filterText = `Custom Range (${start} → ${end})`;
-  }
+  if (filter === "last_month") filterText = "Last Month";
+  else if (filter === "this_year") filterText = "This Year";
+  else if (filter === "custom" && range.start && range.end)
+    filterText = `Custom Range (${range.start} → ${range.end})`;
 
-  let csv = `Top Clients by Booking\nFilter:,${filterText}\nGenerated on:,${new Date().toLocaleDateString()}\n\n`;
+  // CSV HEADER
+  let csv = `Top Clients by Booking\n`;
+  csv += `Filter:,${filterText}\n`;
+  csv += `Generated on:,${new Date().toLocaleDateString()}\n\n`;
   csv += "No.,Client Name,Total Bookings\n";
+
+  // FIXED: Match chart data exactly
   data.forEach((d, i) => {
-    csv += `${i + 1},"${d.name}",${d.total_bookings}\n`;
+    csv += `${i + 1},"${d.name}",${Number(d.total_bookings || 0)}\n`;
   });
 
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
+
   const a = document.createElement("a");
   a.href = url;
-  a.download = `top_clients_${f}.csv`;
+  a.download = `top_clients_${filter}.csv`;
   a.click();
+
   URL.revokeObjectURL(url);
 
-  showNotification("Exported", "Top Clients saved as CSV.", "success");
+  showNotification("Success", "Top Clients saved as CSV.", "success");
 }
 
 /* -------------------------------
@@ -1673,7 +1604,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const filterBtn = document.getElementById("filterTopClientsBtn");
   if (!filterBtn) return;
 
-  // Create dropdown dynamically
   const dropdown = document.createElement("div");
   dropdown.className = "dropdown-menu show shadow-sm";
   dropdown.style.position = "absolute";
@@ -1686,7 +1616,6 @@ document.addEventListener("DOMContentLoaded", () => {
   `;
   document.body.appendChild(dropdown);
 
-  // Toggle dropdown visibility
   filterBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     const rect = filterBtn.getBoundingClientRect();
@@ -1696,33 +1625,28 @@ document.addEventListener("DOMContentLoaded", () => {
       dropdown.style.display === "block" ? "none" : "block";
   });
 
-  // Hide dropdown when clicking outside
   document.addEventListener("click", (e) => {
     if (!filterBtn.contains(e.target) && !dropdown.contains(e.target)) {
       dropdown.style.display = "none";
     }
   });
 
-  // Filter logic
   dropdown.querySelectorAll(".dropdown-item").forEach((item) => {
     item.addEventListener("click", async (e) => {
       e.preventDefault();
       dropdown.style.display = "none";
+
       const selected = item.dataset.filter;
 
-      // ✅ Handle predefined filters
+      // ⭐ Predefined filters (works)
       if (selected !== "custom") {
-        await initTopClients(selected); // re-render chart
+        await initTopClients(selected);
         filterBtn.innerHTML = `<i class="fas fa-filter me-1"></i> ${item.textContent}`;
-        showNotification({
-          variant: "success",
-          title: "Filter Applied",
-          message: `Top Clients updated for ${item.textContent}.`,
-        });
+        window.topClientsFilter = selected;
         return;
       }
 
-      // ✅ Handle custom date range
+      // ⭐ Custom Range
       ensureDateRangePicker();
       const modal = new bootstrap.Modal(
         document.getElementById("dateRangeModal")
@@ -1734,38 +1658,27 @@ document.addEventListener("DOMContentLoaded", () => {
       applyBtn.parentNode.replaceChild(newApply, applyBtn);
 
       newApply.addEventListener("click", async () => {
-        if (!fpRange) return;
-        const picked = fpRange.selectedDates || [];
-        if (picked.length < 2) {
-          showNotification({
-            variant: "warning",
-            title: "Incomplete Range",
-            message: "Please select both start and end dates.",
-          });
+        if (!fpRange || fpRange.selectedDates.length < 2) {
+          showNotification(
+            "Warning",
+            "Please select start and end dates",
+            "warning"
+          );
           return;
         }
 
-        const toYMD = (d) => d.toISOString().slice(0, 10);
-        let [start, end] = picked;
-        if (start > end) [start, end] = [end, start];
+        const [start, end] = fpRange.selectedDates.sort((a, b) => a - b);
+        const S = start.toISOString().slice(0, 10);
+        const E = end.toISOString().slice(0, 10);
 
-        await initTopClients("custom", {
-          start: toYMD(start),
-          end: toYMD(end),
-        });
+        await initTopClients("custom", { start: S, end: E });
 
-        bootstrap.Modal.getInstance(
-          document.getElementById("dateRangeModal")
-        )?.hide();
+        window.topClientsFilter = "custom";
+        window.topClientsRange = { start: S, end: E };
 
-        filterBtn.innerHTML = `<i class="fas fa-filter me-1"></i> ${toYMD(
-          start
-        )} → ${toYMD(end)}`;
-        showNotification({
-          variant: "success",
-          title: "Custom Range Applied",
-          message: `${toYMD(start)} → ${toYMD(end)}`,
-        });
+        modal.hide();
+
+        filterBtn.innerHTML = `<i class="fas fa-filter me-1"></i> ${S} → ${E}`;
       });
     });
   });
@@ -1779,7 +1692,7 @@ async function loadClientsOverview() {
   if (!tableBody) return;
 
   const res = await fetch(
-    "https://caiden-recondite-psychometrically.ngrok-free.dev/api/reports/clients",
+    "https://cargosmarttsl-5.onrender.com/api/reports/analytics/clients",
     { credentials: "include" }
   );
   const clients = await res.json();
@@ -1798,7 +1711,6 @@ async function loadClientsOverview() {
       <td>${client.total_bookings}</td>
       <td>₱${Number(client.total_revenue).toLocaleString()}</td>
       <td>${client.on_time_percent}%</td>
-      <td>${client.late_shipments}</td>
     `;
     tableBody.appendChild(row);
   });
@@ -1813,7 +1725,7 @@ async function initAgingReport() {
   const ctx = canvas.getContext("2d");
 
   const res = await fetch(
-    "https://caiden-recondite-psychometrically.ngrok-free.dev/api/reports/aging",
+    "https://cargosmarttsl-5.onrender.com/api/reports/aging",
     { credentials: "include" }
   );
   const data = await res.json();
@@ -1846,9 +1758,9 @@ async function initAgingReport() {
 document.addEventListener("DOMContentLoaded", () => {
   initShipmentVolumeChart();
   initOnTimeLate();
-  initRevenueChart();
+  initRevenueChart("this_year");
   initInvoiceStatus();
-  loadRevenueByClientChart("single");
+  loadRevenueByClientChart("this_year");
   initShipmentStatus("this_month");
   initTopClients();
   loadClientsOverview();
@@ -1901,45 +1813,7 @@ function openDateRangeModal(prefillStart, prefillEnd) {
 }
 
 /* -------------------------------
-   Shipment Volume Export Handlers
---------------------------------*/
-document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".export-option").forEach((item) => {
-    item.addEventListener("click", (e) => {
-      e.preventDefault();
-      const format = item.dataset.format;
-      const target = item.dataset.target;
-
-      switch (target) {
-        case "shipmentVolume":
-          if (format === "pdf") exportShipmentVolumeTablePDF();
-          else exportShipmentVolumeCSV();
-          break;
-
-        case "onTimeLate":
-          if (format === "pdf") exportOnTimeLatePDF();
-          else exportOnTimeLateCSV();
-          break;
-
-        case "shipmentStatus":
-          if (format === "pdf") exportBookingStatusTablePDF();
-          else exportBookingStatusCSV();
-          break;
-
-        case "topClients":
-          if (format === "pdf") exportTopClientsPDF();
-          else exportTopClientsCSV();
-          break;
-
-        default:
-          console.warn("Unknown export target:", target);
-      }
-    });
-  });
-});
-
-/* -------------------------------
-   Client Shipment History Filter
+   Client Shipment History Filter (FIXED)
 --------------------------------*/
 document.addEventListener("DOMContentLoaded", async () => {
   const filterBtn = document.getElementById("filterRevenueTrendBtn");
@@ -1948,101 +1822,107 @@ document.addEventListener("DOMContentLoaded", async () => {
   let clients = [];
   try {
     const res = await fetch(
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/reports/clients",
+      "https://cargosmarttsl-5.onrender.com/api/reports/clients-with-shipments",
       { credentials: "include" }
     );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     clients = await res.json();
-
-    if (!Array.isArray(clients) || clients.length === 0) {
-      showNotification("Info", "No clients available.", "info");
-      return;
-    }
   } catch (err) {
-    console.error("❌ Failed to fetch clients:", err);
+    console.error("❌ Failed to load clients:", err);
     showNotification("Error", "Could not load client list.", "error");
     return;
   }
 
-  // 🔹 Create dropdown container
+  // Wrapper for dropdown
   const wrapper = document.createElement("div");
   wrapper.className = "dropdown position-relative d-inline-block";
-
-  // 🔹 Move filter button into wrapper
   filterBtn.parentNode.insertBefore(wrapper, filterBtn);
   wrapper.appendChild(filterBtn);
 
-  // 🔹 Create dropdown
+  // Create dropdown list
   const dropdown = document.createElement("ul");
-  dropdown.className = "dropdown-menu shadow-sm show mt-2 border-0 rounded-3";
+  dropdown.className = "dropdown-menu shadow-sm border-0 rounded-3";
   dropdown.style.position = "absolute";
-  dropdown.style.zIndex = "1050";
   dropdown.style.display = "none";
   dropdown.style.minWidth = "220px";
 
+  const uniqueClients = [
+    ...new Map(clients.map((c) => [c.company_name, c])).values(),
+  ];
+
   dropdown.innerHTML = `
-    <li><a class="dropdown-item" href="#" data-client="all"><strong>All Clients</strong></a></li>
+    <li>
+      <a class="dropdown-item fw-bold text-primary" href="#" data-client-id="all">
+        All Clients
+      </a>
+    </li>
     <li><hr class="dropdown-divider"></li>
-    ${clients
+
+    ${uniqueClients
       .map(
         (c) => `
-        <li><a class="dropdown-item" href="#" data-client="${encodeURIComponent(
-          c.client_name
-        )}">
-          ${c.client_name}
-        </a></li>`
+      <li>
+        <a class="dropdown-item" href="#"
+           data-client-id="${c.id}"
+           data-client-name="${encodeURIComponent(c.company_name)}">
+          ${c.company_name}
+        </a>
+      </li>`
       )
       .join("")}
   `;
   wrapper.appendChild(dropdown);
 
-  // 🔹 Toggle dropdown visibility
+  // Toggle dropdown
   filterBtn.addEventListener("click", (e) => {
     e.stopPropagation();
-    const isVisible = dropdown.style.display === "block";
-    document
-      .querySelectorAll(".dropdown-menu")
-      .forEach((d) => (d.style.display = "none"));
-    dropdown.style.display = isVisible ? "none" : "block";
+    dropdown.style.display =
+      dropdown.style.display === "block" ? "none" : "block";
   });
 
-  // 🔹 Hide when clicking outside
   document.addEventListener("click", (e) => {
     if (!wrapper.contains(e.target)) dropdown.style.display = "none";
   });
 
-  // 🔹 Handle client selection
+  // When selecting a client
   dropdown.querySelectorAll(".dropdown-item").forEach((item) => {
     item.addEventListener("click", async (e) => {
       e.preventDefault();
       dropdown.style.display = "none";
 
-      const clientName = decodeURIComponent(item.dataset.client);
-      const tbody = document.getElementById("clientHistoryTableBody");
-      if (!tbody) return;
+      const clientId = item.dataset.clientId;
+      const clientName = item.dataset.clientName
+        ? decodeURIComponent(item.dataset.clientName)
+        : "All Clients";
 
-      tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">Loading...</td></tr>`;
+      const tbody = document.getElementById("clientHistoryTableBody");
+      tbody.innerHTML = `
+        <tr><td colspan="8" class="text-center text-muted">Loading...</td></tr>
+      `;
+
+      // Build API
+      let url =
+        "https://cargosmarttsl-5.onrender.com/api/analytics/client-history";
+      if (clientId !== "all") url += `?client_id=${clientId}`;
 
       try {
-        let url =
-          "https://caiden-recondite-psychometrically.ngrok-free.dev/api/analytics/client-history";
-        if (clientName !== "all") {
-          url += `?client_name=${encodeURIComponent(clientName)}`;
-        }
-
         const res = await fetch(url, { credentials: "include" });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
         const data = await res.json();
+
+        /** FIX: Save filtered data FOR EXPORT (correct & safe) **/
+        window.clientHistoryFiltered = data;
+        window.clientHistoryFilterName = clientName;
+        window.clientHistoryFilterId = clientId;
 
         tbody.innerHTML = "";
 
         if (!Array.isArray(data) || data.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">No shipments found</td></tr>`;
-          showNotification(
-            "Info",
-            `No shipments found for ${clientName}.`,
-            "info"
-          );
+          tbody.innerHTML = `
+            <tr><td colspan="8" class="text-center text-muted">No shipments found</td></tr>
+          `;
+          showNotification("Info", `No shipments for ${clientName}.`, "info");
           return;
         }
 
@@ -2067,18 +1947,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         tbody.innerHTML = data
           .map(
             (row, i) => `
-              <tr>
-                <td>${i + 1}</td>
-                <td>${row.client_name}</td>
-                <td>${row.tracking_number}</td>
-                <td>${row.service_type}</td>
-                <td>${row.origin}</td>
-                <td>${row.destination}</td>
-                <td><span class="badge ${getBadgeClass(row.status)}">${
+            <tr>
+              <td>${i + 1}</td>
+              <td>${row.client_name}</td>
+              <td>${row.tracking_number}</td>
+              <td>${row.service_type}</td>
+              <td>${row.origin}</td>
+              <td>${row.destination}</td>
+              <td><span class="badge ${getBadgeClass(row.status)}">${
               row.status
             }</span></td>
-                <td>${new Date(row.shipment_date).toLocaleDateString()}</td>
-              </tr>`
+              <td>${new Date(row.shipment_date).toLocaleDateString()}</td>
+            </tr>`
           )
           .join("");
 
@@ -2088,50 +1968,45 @@ document.addEventListener("DOMContentLoaded", async () => {
           "success"
         );
       } catch (err) {
-        console.error("❌ Error filtering client history:", err);
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-danger">Failed to load client data</td></tr>`;
-        showNotification("Error", "Failed to load client data.", "error");
+        console.error("❌ Error loading client history:", err);
+        tbody.innerHTML =
+          '<tr><td colspan="8" class="text-center text-danger">Failed to load data.</td></tr>';
+
+        showNotification("Error", "Could not load client data.", "error");
       }
     });
   });
 });
 
-/* -------------------------------
-   Export Client Shipment History (PDF & CSV)
---------------------------------*/
 async function exportClientHistoryPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  // Header
+  const data = window.clientHistoryFiltered || [];
+  const clientName = window.clientHistoryFilterName || "All Clients";
+
+  if (!Array.isArray(data) || data.length === 0) {
+    showNotification(
+      "Warning",
+      "No shipment data available for export.",
+      "warning"
+    );
+    return;
+  }
+
+  // HEADER
   doc.setFont("helvetica", "bold");
   doc.setFontSize(16);
-  doc.setTextColor(0, 55, 128);
   doc.text("TSL Freight Movers Inc.", 14, 18);
+
   doc.setFont("helvetica", "normal");
   doc.setFontSize(12);
   doc.text("Client Shipment & Booking History", 14, 26);
 
-  const selectedClient =
-    window.clientHistoryFilter && window.clientHistoryFilter !== "all"
-      ? window.clientHistoryFilter
-      : "All Clients";
-
-  doc.setFontSize(11);
-  doc.text(`Client: ${selectedClient}`, 14, 34);
+  doc.text(`Client: ${clientName}`, 14, 34);
   doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 40);
 
-  const data = window.clientHistoryData || [];
-  if (!Array.isArray(data) || data.length === 0) {
-    showNotification({
-      variant: "warning",
-      title: "No Data",
-      message: "No shipment data available for export.",
-    });
-    return;
-  }
-
-  // Format table
+  // BUILD TABLE ROWS
   const tableBody = data.map((d, i) => [
     i + 1,
     d.client_name || "N/A",
@@ -2143,14 +2018,15 @@ async function exportClientHistoryPDF() {
     new Date(d.shipment_date).toLocaleDateString(),
   ]);
 
+  // GENERATE TABLE
   doc.autoTable({
-    startY: 50,
+    startY: 48,
     head: [
       [
         "#",
-        "Company Name",
+        "Client",
         "Tracking #",
-        "Service Type",
+        "Service",
         "Origin",
         "Destination",
         "Status",
@@ -2159,91 +2035,776 @@ async function exportClientHistoryPDF() {
     ],
     body: tableBody,
     theme: "grid",
-    headStyles: {
-      fillColor: [96, 173, 244],
-      textColor: 255,
-      fontStyle: "bold",
-      halign: "center",
-    },
-    styles: {
-      fontSize: 9,
-      cellPadding: 3,
-      halign: "center",
-    },
-    columnStyles: {
-      0: { cellWidth: 10 },
-      1: { cellWidth: 30 },
-      2: { cellWidth: 25 },
-      3: { cellWidth: 25 },
-      4: { cellWidth: 25 },
-      5: { cellWidth: 25 },
-      6: { cellWidth: 25 },
-      7: { cellWidth: 22 },
-    },
+    headStyles: { fillColor: [96, 173, 244], textColor: 255 },
+    styles: { fontSize: 9, halign: "center" },
   });
 
-  doc.setFont("helvetica", "italic");
-  doc.setFontSize(9);
-  doc.setTextColor(120);
-  doc.text(
-    "Generated by CARGOSMART: SHIPMENT TRACKING SYSTEM WITH DATA ANALYTICS",
-    14,
-    285
-  );
+  // SAVE FILE
+  const sanitized = clientName.replace(/[^\w\s]/g, "").replace(/\s+/g, "_");
+  doc.save(`client_history_${sanitized}.pdf`);
 
-  doc.save(
-    `client_shipment_history_${selectedClient.replace(/\s+/g, "_")}.pdf`
+  showNotification(
+    "Success",
+    "Client shipment history saved as PDF.",
+    "success"
   );
-
-  showNotification({
-    variant: "success",
-    title: "Exported",
-    message: `Client shipment history for ${selectedClient} saved as PDF.`,
-  });
 }
 
-async function exportClientHistoryCSV() {
-  const data = window.clientHistoryData || [];
-  if (!Array.isArray(data) || data.length === 0) {
-    showNotification({
-      variant: "warning",
-      title: "No Data",
-      message: "No shipment data available for export.",
-    });
+async function exportRevenueTrendPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  const data = window.revenueTrendData || [];
+  const filter = window.revenueTrendFilter || "this_month";
+  const range = window.revenueTrendRange || {};
+
+  // Header
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.text("TSL Freight Movers Inc.", 14, 18);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(12);
+  doc.text("Sales Trend Report", 14, 26);
+
+  // Filter Label
+  let label = "This Month";
+  if (filter === "last_month") label = "Last Month";
+  else if (filter === "this_year") label = "This Year";
+  else if (filter === "custom" && range.start && range.end)
+    label = `Custom Range (${range.start} → ${range.end})`;
+
+  doc.text(`Filter: ${label}`, 14, 34);
+
+  // Validation
+  if (!data.length) {
+    showNotification("Warning", "No revenue data to export.", "warning");
     return;
   }
 
-  const selectedClient =
-    window.clientHistoryFilter && window.clientHistoryFilter !== "all"
-      ? window.clientHistoryFilter
-      : "All Clients";
+  // FIXED — correct fields
+  const body = data.map((d, i) => [
+    i + 1,
+    d.label,
+    Number(d.revenue).toLocaleString(),
+  ]);
 
-  let csv = `Client Shipment & Booking History\nClient:,${selectedClient}\nGenerated on:,${new Date().toLocaleDateString()}\n\n`;
-  csv +=
-    "No.,Company Name,Tracking #,Service Type,Origin,Destination,Status,Shipment Date\n";
+  doc.autoTable({
+    startY: 50,
+    head: [["#", "Month", "Revenue"]],
+    body,
+    theme: "grid",
+    headStyles: { fillColor: [96, 173, 244], textColor: 255 },
+    bodyStyles: { textColor: 50 },
+    styles: { halign: "center" },
+  });
+
+  doc.save(`sales_trend_${filter}.pdf`);
+  showNotification("Exported", "Sales Trend exported as PDF.", "success");
+}
+
+async function exportRevenueTrendCSV() {
+  const data = window.revenueTrendData || [];
+  const filter = window.revenueTrendFilter || "this_month";
+  const range = window.revenueTrendRange || {};
+
+  if (!data.length) {
+    showNotification("Warning", "No revenue data to export.", "warning");
+    return;
+  }
+
+  // Filter label
+  let label = "This Month";
+  if (filter === "last_month") label = "Last Month";
+  else if (filter === "this_year") label = "This Year";
+  else if (filter === "custom" && range.start && range.end)
+    label = `Custom Range (${range.start} → ${range.end})`;
+
+  // CSV Header
+  let csv = `Sales Trend Report\n`;
+  csv += `Filter:,${label}\n`;
+  csv += `Generated on:,${new Date().toLocaleDateString()}\n\n`;
+  csv += "No.,Month,Revenue\n";
+
+  // Add rows WITHOUT commas
+  data.forEach((d, i) => {
+    csv += `${i + 1},"${d.label}",${Number(d.revenue)}\n`;
+  });
+
+  // Download CSV
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `sales_trend_${filter}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+
+  showNotification("Success", "Sales Trend exported as CSV.", "success");
+}
+
+async function exportClientHistoryCSV() {
+  const data = window.clientHistoryFiltered || [];
+  const clientName = window.clientHistoryFilterName || "All Clients";
+
+  if (!Array.isArray(data) || data.length === 0) {
+    showNotification(
+      "Warning",
+      "No shipment data available for export.",
+      "warning"
+    );
+    return;
+  }
+
+  let csv = `Client Shipment & Booking History\n`;
+  csv += `Client:,${clientName}\n`;
+  csv += `Generated:,${new Date().toLocaleDateString()}\n\n`;
+
+  csv += "No.,Client,Tracking #,Service,Origin,Destination,Status,Date\n";
 
   data.forEach((d, i) => {
     csv += `${i + 1},"${d.client_name}","${d.tracking_number}","${
       d.service_type
-    }","${d.origin}","${d.destination}","${d.status}","${new Date(
+    }","${d.origin}","${d.destination}","${d.status}",${new Date(
       d.shipment_date
-    ).toLocaleDateString()}"\n`;
+    ).toLocaleDateString()}\n`;
   });
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+
+  const sanitized = clientName.replace(/[^\w\s]/g, "").replace(/\s+/g, "_");
+  a.download = `client_history_${sanitized}.csv`;
+
+  a.click();
+  URL.revokeObjectURL(a.href);
+
+  showNotification(
+    "Success",
+    "Client shipment history saved as CSV.",
+    "success"
+  );
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const filterBtn = document.getElementById("filterInvoiceStatusBtn");
+  if (!filterBtn) return;
+
+  const dropdown = document.createElement("div");
+  dropdown.className = "dropdown-menu show";
+  dropdown.style.position = "absolute";
+  dropdown.style.display = "none";
+  dropdown.innerHTML = `
+    <a class="dropdown-item" data-filter="this_month" href="#">This Month</a>
+    <a class="dropdown-item" data-filter="last_month" href="#">Last Month</a>
+    <a class="dropdown-item" data-filter="this_year" href="#">This Year</a>
+    <a class="dropdown-item" data-filter="custom" href="#">Custom Range</a>
+  `;
+  document.body.appendChild(dropdown);
+
+  // toggle dropdown
+  filterBtn.addEventListener("click", (e) => {
+    const rect = filterBtn.getBoundingClientRect();
+    dropdown.style.top = rect.bottom + window.scrollY + "px";
+    dropdown.style.left = rect.left + window.scrollX + "px";
+    dropdown.style.display =
+      dropdown.style.display === "none" ? "block" : "none";
+  });
+
+  // apply filter
+  dropdown.querySelectorAll(".dropdown-item").forEach((item) => {
+    item.addEventListener("click", async (e) => {
+      e.preventDefault();
+      dropdown.style.display = "none";
+
+      const selected = item.dataset.filter;
+
+      if (selected !== "custom") {
+        await initInvoiceStatus(selected);
+        filterBtn.innerHTML = `<i class="fas fa-filter me-1"></i> ${item.textContent}`;
+        return;
+      }
+
+      // custom range
+      ensureDateRangePicker();
+      const modal = new bootstrap.Modal(
+        document.getElementById("dateRangeModal")
+      );
+      modal.show();
+
+      const apply = document.getElementById("applyDateRangeBtn");
+      const newApply = apply.cloneNode(true);
+      apply.parentNode.replaceChild(newApply, apply);
+
+      newApply.addEventListener("click", async () => {
+        if (!fpRange || fpRange.selectedDates.length < 2) {
+          showNotification("Warning", "Select date range", "warning");
+          return;
+        }
+
+        const [start, end] = fpRange.selectedDates.sort((a, b) => a - b);
+        const S = start.toISOString().slice(0, 10);
+        const E = end.toISOString().slice(0, 10);
+
+        await initInvoiceStatus("custom", { start: S, end: E });
+
+        filterBtn.innerHTML = `<i class="fas fa-filter me-1"></i> ${S} → ${E}`;
+        modal.hide();
+      });
+    });
+  });
+});
+
+async function exportInvoiceStatusPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  const data = window.invoiceStatusData;
+  const filter = window.invoiceStatusFilter;
+  const range = window.invoiceStatusRange;
+
+  if (!data) {
+    showNotification("Warning", "No invoice status data to export.", "warning");
+    return;
+  }
+
+  // Header
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.text("TSL Freight Movers Inc.", 14, 18);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(12);
+  doc.text("Invoice Status Report", 14, 26);
+
+  // Filter Label
+  let label = "This Month";
+  if (filter === "last_month") label = "Last Month";
+  else if (filter === "this_year") label = "This Year";
+  else if (filter === "custom" && range.start && range.end)
+    label = `Custom Range (${range.start} → ${range.end})`;
+
+  doc.text(`Filter: ${label}`, 14, 34);
+
+  // Convert safely to numbers
+  const onTime = Number(data.on_time || 0);
+  const late = Number(data.late || 0);
+  const pending = Number(data.pending || 0);
+
+  // Correct math
+  const total = onTime + late + pending;
+
+  // Correct rows
+  const rows = [
+    ["On-Time", onTime, percent(onTime, total)],
+    ["Late", late, percent(late, total)],
+    ["Pending", pending, percent(pending, total)],
+    ["Total", total, "100%"],
+  ];
+
+  doc.autoTable({
+    startY: 50,
+    head: [["Status", "Count", "Percentage"]],
+    body: rows,
+    theme: "grid",
+    headStyles: { fillColor: [96, 173, 244], textColor: 255 },
+    styles: { halign: "center" },
+  });
+
+  doc.save(`invoice_status_${filter}.pdf`);
+
+  showNotification("Success", "Invoice Status exported as PDF.", "success");
+}
+
+function percent(value, total) {
+  return total === 0 ? "0%" : ((value / total) * 100).toFixed(1) + "%";
+}
+
+async function exportInvoiceStatusCSV() {
+  const data = window.invoiceStatusData;
+  const filter = window.invoiceStatusFilter;
+  const range = window.invoiceStatusRange;
+
+  if (!data) {
+    showNotification("Warning", "No invoice status data to export.", "warning");
+    return;
+  }
+
+  // Fix: Convert values safely to numbers (same logic as PDF)
+  const onTime = Number(data.on_time || 0);
+  const late = Number(data.late || 0);
+  const pending = Number(data.pending || 0);
+
+  const total = onTime + late + pending;
+
+  // Filter label
+  let label = "This Month";
+  if (filter === "last_month") label = "Last Month";
+  else if (filter === "this_year") label = "This Year";
+  else if (filter === "custom" && range.start && range.end)
+    label = `Custom Range (${range.start} → ${range.end})`;
+
+  // Build CSV
+  let csv = `Invoice Status Report\n`;
+  csv += `Filter:,${label}\n`;
+  csv += `Generated:,${new Date().toLocaleDateString()}\n\n`;
+  csv += "Status,Count,Percentage\n";
+
+  csv += `On-Time,${onTime},${percent(onTime, total)}\n`;
+  csv += `Late,${late},${percent(late, total)}\n`;
+  csv += `Pending,${pending},${percent(pending, total)}\n`;
+
+  // Fix: Correct combined total row (same as PDF)
+  csv += `Total,${total},100%\n`;
+
+  // Download CSV
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `invoice_status_${filter}.csv`;
+  a.click();
+
+  URL.revokeObjectURL(url);
+
+  showNotification("Success", "Invoice Status exported as CSV.", "success");
+}
+
+async function exportRevenueByClientPDF() {
+  const data = window.revenueByClientData || [];
+  const mode = window.revenueByClientMode || "single";
+
+  if (!Array.isArray(data) || data.length === 0) {
+    showNotification("Warning", "No revenue data to export.", "warning");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  // Header
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.text("TSL Freight Movers Inc.", 14, 18);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(12);
+  doc.text(
+    mode === "single"
+      ? "Revenue by Client (Top 5)"
+      : "Revenue by Client (Multi-Month Trend)",
+    14,
+    26
+  );
+
+  doc.setFontSize(10);
+  doc.text(`View: ${mode === "single" ? "Top Clients" : "Trend"}`, 14, 32);
+  doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 38);
+
+  let head = [];
+  let body = [];
+
+  if (mode === "single") {
+    const sorted = [...data]
+      .sort((a, b) => Number(b.total) - Number(a.total))
+      .slice(0, 5);
+
+    head = [["#", "Client", "Total Revenue (₱)"]];
+    body = sorted.map((row, i) => [
+      i + 1,
+      row.company_name || "N/A",
+      Number(row.total || 0).toLocaleString(),
+    ]);
+  } else {
+    head = [["#", "Month", "Client", "Revenue (₱)"]];
+    body = data.map((row, i) => [
+      i + 1,
+      row.month || "N/A",
+      row.company_name || "N/A",
+      Number(row.total || 0).toLocaleString(),
+    ]);
+  }
+
+  doc.autoTable({
+    startY: 48,
+    head,
+    body,
+    theme: "grid",
+    headStyles: { fillColor: [96, 173, 244], textColor: 255 },
+    styles: { fontSize: 10, halign: "center" },
+  });
+
+  doc.save(
+    `revenue_by_client_${mode === "single" ? "top_clients" : "trend"}.pdf`
+  );
+
+  showNotification("Success", "Revenue by Client PDF exported.", "success");
+}
+
+async function exportRevenueByClientCSV() {
+  const data = window.revenueByClientData || [];
+  const mode = window.revenueByClientMode || "single";
+
+  if (!Array.isArray(data) || data.length === 0) {
+    showNotification("Warning", "No revenue data to export.", "warning");
+    return;
+  }
+
+  let csv = "Revenue by Client Report\n";
+  csv += `View,${mode === "single" ? "Top Clients" : "Multi-Month Trend"}\n`;
+  csv += `Generated on,${new Date().toLocaleDateString()}\n\n`;
+
+  if (mode === "single") {
+    const sorted = [...data]
+      .sort((a, b) => Number(b.total) - Number(a.total))
+      .slice(0, 5);
+
+    csv += "No.,Client,Total Revenue (₱)\n";
+    sorted.forEach((row, i) => {
+      csv += `${i + 1},"${row.company_name}",${Number(
+        row.total || 0
+      ).toLocaleString()}\n`;
+    });
+  } else {
+    csv += "No.,Month,Client,Revenue (₱)\n";
+    data.forEach((row, i) => {
+      csv += `${i + 1},"${row.month}","${row.company_name}",${Number(
+        row.total || 0
+      ).toLocaleString()}\n`;
+    });
+  }
 
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `client_shipment_history_${selectedClient.replace(
-    /\s+/g,
-    "_"
-  )}.csv`;
+  a.download = `revenue_by_client_${
+    mode === "single" ? "top_clients" : "trend"
+  }.csv`;
   a.click();
   URL.revokeObjectURL(url);
 
-  showNotification({
-    variant: "success",
-    title: "Exported",
-    message: `Client shipment history for ${selectedClient} saved as CSV.`,
-  });
+  showNotification("Success", "Revenue by Client CSV exported.", "success");
 }
+
+/* -------------------------------
+   Sales Trend Filter Dropdown
+--------------------------------*/
+const salesTrendBtn = document.getElementById("filterSalesTrendBtn");
+const salesTrendMenu = document.getElementById("filterSalesTrendDropdown");
+
+salesTrendBtn?.addEventListener("click", () => {
+  salesTrendMenu.classList.toggle("show");
+});
+
+document.addEventListener("click", (e) => {
+  if (!salesTrendBtn.contains(e.target) && !salesTrendMenu.contains(e.target)) {
+    salesTrendMenu.classList.remove("show");
+  }
+});
+
+document
+  .querySelectorAll("#filterSalesTrendDropdown .dropdown-item")
+  .forEach((item) => {
+    item.addEventListener("click", () => {
+      const filter = item.dataset.filter;
+
+      if (filter === "custom") {
+        const modal = new bootstrap.Modal(
+          document.getElementById("dateRangeModal")
+        );
+        modal.show();
+
+        document.getElementById("applyDateRangeBtn").onclick = () => {
+          const range = document.getElementById("dateRangeInput").value;
+          const [start, end] = range.split(" to ");
+
+          if (start && end) {
+            initRevenueChart("custom", { start, end });
+            modal.hide();
+            salesTrendMenu.classList.remove("show");
+          } else {
+            showNotification(
+              "Error",
+              "Please select a valid date range.",
+              "error"
+            );
+          }
+        };
+      } else {
+        initRevenueChart(filter);
+        salesTrendMenu.classList.remove("show");
+      }
+    });
+  });
+
+/* -------------------------------
+   Top 5 Client Report – Filter
+--------------------------------*/
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("filterRevenueByClientBtn");
+  const menu = document.getElementById("filterRevenueByClientDropdown");
+
+  if (!btn || !menu) return;
+
+  /* Toggle dropdown */
+  btn.addEventListener("click", () => {
+    menu.classList.toggle("show");
+  });
+
+  /* Close when clicking outside */
+  document.addEventListener("click", (e) => {
+    if (!btn.contains(e.target) && !menu.contains(e.target)) {
+      menu.classList.remove("show");
+    }
+  });
+
+  /* Handle dropdown selections */
+  menu.querySelectorAll(".dropdown-item").forEach((item) => {
+    item.addEventListener("click", () => {
+      const filter = item.dataset.filter;
+      menu.classList.remove("show");
+
+      /* NOT CUSTOM – load immediately */
+      if (filter !== "custom") {
+        loadRevenueByClientChart(filter);
+        btn.innerHTML = `<i class="fas fa-filter me-1"></i> ${item.textContent}`;
+        return;
+      }
+
+      /* CUSTOM RANGE */
+      ensureDateRangePicker(); // flatpickr init
+      const modal = new bootstrap.Modal(
+        document.getElementById("dateRangeModal")
+      );
+      modal.show();
+
+      /* Replace old click listener to avoid duplicate firing */
+      const applyBtn = document.getElementById("applyDateRangeBtn");
+      const newApplyBtn = applyBtn.cloneNode(true);
+      applyBtn.parentNode.replaceChild(newApplyBtn, applyBtn);
+
+      newApplyBtn.addEventListener("click", async () => {
+        if (!fpRange || fpRange.selectedDates.length < 2) {
+          showNotification("Warning", "Please select a date range.", "warning");
+          return;
+        }
+
+        let [start, end] = fpRange.selectedDates.sort((a, b) => a - b);
+        start = start.toISOString().slice(0, 10);
+        end = end.toISOString().slice(0, 10);
+
+        await loadRevenueByClientChart("custom", { start, end });
+        btn.innerHTML = `<i class="fas fa-filter me-1"></i> ${start} → ${end}`;
+        modal.hide();
+      });
+    });
+  });
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const filterBtn = document.getElementById("filterAgingReportBtn");
+  if (!filterBtn) return;
+
+  const dropdown = document.createElement("div");
+  dropdown.className = "dropdown-menu show";
+  dropdown.style.position = "absolute";
+  dropdown.style.display = "none";
+  dropdown.innerHTML = `
+    <a class="dropdown-item" data-filter="this_month" href="#">This Month</a>
+    <a class="dropdown-item" data-filter="last_month" href="#">Last Month</a>
+    <a class="dropdown-item" data-filter="this_year" href="#">This Year</a>
+    <a class="dropdown-item" data-filter="custom" href="#">Custom Range</a>
+  `;
+  document.body.appendChild(dropdown);
+
+  filterBtn.addEventListener("click", () => {
+    const rect = filterBtn.getBoundingClientRect();
+    dropdown.style.top = rect.bottom + window.scrollY + "px";
+    dropdown.style.left = rect.left + window.scrollX + "px";
+    dropdown.style.display =
+      dropdown.style.display === "none" ? "block" : "none";
+  });
+
+  dropdown.querySelectorAll(".dropdown-item").forEach((item) => {
+    item.addEventListener("click", async (e) => {
+      e.preventDefault();
+      dropdown.style.display = "none";
+
+      const selected = item.dataset.filter;
+
+      // Not custom — apply filter immediately
+      if (selected !== "custom") {
+        await initAgingReport(selected);
+        filterBtn.innerHTML = `<i class="fas fa-filter me-1"></i> ${item.textContent}`;
+        return;
+      }
+
+      // Custom Range
+      ensureDateRangePicker();
+      const modal = new bootstrap.Modal(
+        document.getElementById("dateRangeModal")
+      );
+      modal.show();
+
+      const applyBtn = document.getElementById("applyDateRangeBtn");
+      const newBtn = applyBtn.cloneNode(true);
+      applyBtn.parentNode.replaceChild(newBtn, applyBtn);
+
+      newBtn.addEventListener("click", async () => {
+        if (!fpRange || fpRange.selectedDates.length < 2) {
+          showNotification("Warning", "Please select a date range.", "warning");
+          return;
+        }
+
+        let [start, end] = fpRange.selectedDates.sort((a, b) => a - b);
+
+        start = start.toISOString().slice(0, 10);
+        end = end.toISOString().slice(0, 10);
+
+        await initAgingReport("custom", { start, end });
+
+        filterBtn.innerHTML = `<i class="fas fa-filter me-1"></i> ${start} → ${end}`;
+        modal.hide();
+      });
+    });
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!filterBtn.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.style.display = "none";
+    }
+  });
+});
+
+async function exportAgingReportPDF() {
+  const data = window.agingReportData;
+  if (!data) {
+    return showNotification("Warning", "No data to export.", "warning");
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  const filter = window.agingReportFilter;
+  const range = window.agingReportRange;
+
+  let label = "This Month";
+  if (filter === "last_month") label = "Last Month";
+  else if (filter === "this_year") label = "This Year";
+  else if (filter === "custom" && range.start && range.end) {
+    label = `Custom Range (${range.start} → ${range.end})`;
+  }
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.text("TSL Freight Movers Inc.", 14, 18);
+  doc.setFontSize(12);
+  doc.text("Aging Report (Unpaid Invoices)", 14, 26);
+  doc.text(`Filter: ${label}`, 14, 34);
+
+  const body = [
+    ["0–30 Days", data["0_30"]],
+    ["31–60 Days", data["31_60"]],
+    ["61–90 Days", data["61_90"]],
+    ["90+ Days", data["90_plus"]],
+  ];
+
+  doc.autoTable({
+    startY: 42,
+    head: [["Age Bracket", "Unpaid Count"]],
+    body,
+    theme: "grid",
+    headStyles: { fillColor: [96, 173, 244], textColor: 255 },
+    styles: { halign: "center" },
+  });
+
+  doc.save(`aging_report_${filter}.pdf`);
+  showNotification("Success", "Aging Report exported as PDF.", "success");
+}
+async function exportAgingReportCSV() {
+  const data = window.agingReportData;
+  if (!data) {
+    return showNotification("Warning", "No data to export.", "warning");
+  }
+
+  const filter = window.agingReportFilter;
+  const range = window.agingReportRange;
+
+  let label = "This Month";
+  if (filter === "last_month") label = "Last Month";
+  else if (filter === "this_year") label = "This Year";
+  else if (filter === "custom" && range.start && range.end)
+    label = `Custom Range (${range.start} → ${range.end})`;
+
+  let csv = "Aging Report (Unpaid Invoices)\n";
+  csv += `Filter:,${label}\n`;
+  csv += `Generated:,${new Date().toLocaleDateString()}\n\n`;
+  csv += "Age Bracket,Unpaid Count\n";
+
+  csv += `0–30 Days,${data["0_30"]}\n`;
+  csv += `31–60 Days,${data["31_60"]}\n`;
+  csv += `61–90 Days,${data["61_90"]}\n`;
+  csv += `90+ Days,${data["90_plus"]}\n`;
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `aging_report_${filter}.csv`;
+  a.click();
+
+  showNotification("Success", "Aging Report exported as CSV.", "success");
+}
+
+/* -------------------------------
+   SINGLE EXPORT DISPATCHER — FIXED
+--------------------------------*/
+document.addEventListener("click", function (e) {
+  const btn = e.target.closest(".export-option");
+  if (!btn) return;
+
+  e.preventDefault();
+
+  const format = btn.dataset.format;
+  const target = btn.dataset.target;
+
+  const actions = {
+    clientHistory: () =>
+      format === "pdf" ? exportClientHistoryPDF() : exportClientHistoryCSV(),
+
+    shipmentVolume: () =>
+      format === "pdf"
+        ? exportShipmentVolumeTablePDF()
+        : exportShipmentVolumeCSV(),
+
+    onTimeLate: () =>
+      format === "pdf" ? exportOnTimeLatePDF() : exportOnTimeLateCSV(),
+
+    shipmentStatus: () =>
+      format === "pdf"
+        ? exportBookingStatusTablePDF()
+        : exportBookingStatusCSV(),
+
+    topClients: () =>
+      format === "pdf" ? exportTopClientsPDF() : exportTopClientsCSV(),
+
+    salesTrend: () =>
+      format === "pdf" ? exportRevenueTrendPDF() : exportRevenueTrendCSV(),
+
+    revenueByClient: () =>
+      format === "pdf"
+        ? exportRevenueByClientPDF()
+        : exportRevenueByClientCSV(),
+
+    invoiceStatus: () =>
+      format === "pdf" ? exportInvoiceStatusPDF() : exportInvoiceStatusCSV(),
+
+    agingReport: () =>
+      format === "pdf" ? exportAgingReportPDF() : exportAgingReportCSV(),
+  };
+
+  if (actions[target]) actions[target]();
+  else console.warn("Unknown export target:", target);
+});

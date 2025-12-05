@@ -6,7 +6,7 @@ const getApiBaseUrl = () => {
     location.hostname === "localhost" || location.hostname === "127.0.0.1";
   return isLocal
     ? "http://localhost:5001"
-    : "https://caiden-recondite-psychometrically.ngrok-free.dev";
+    : "https://cargosmarttsl-5.onrender.com";
 };
 
 // ===============================

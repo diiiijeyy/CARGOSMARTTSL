@@ -7,11 +7,10 @@
 // - Synchronized weight units + validation
 // - Notification badge & profile setup
 // - Automatic field name mapping for backend
-// ==================================================
 
 document.addEventListener("DOMContentLoaded", () => {
   // ---------- CONFIG ----------
-  const API_BASE = "https://caiden-recondite-psychometrically.ngrok-free.dev";
+  const API_BASE = "https://cargosmarttsl-5.onrender.com";
   const LOCATIONIQ_TOKEN = "pk.cb06d9dc8a074f0eab5d70fb8a492649";
   const GEOAPIFY_KEY = "e5e95eba533c4eb69344256d49166905";
 
@@ -22,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const grossInput = document.getElementById("grossWeight");
   const netInput = document.getElementById("netWeight");
   const grossUnit = document.getElementById("grossWeightUnit");
+  const packagesInput = document.getElementById("numPackages");
   const netUnit = document.getElementById("netWeightUnit");
   const shipperInput = document.querySelector('input[name="shipper"]');
   const deliveryType = document.getElementById("deliveryType");
@@ -36,6 +36,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let originSelected = null;
   let deliverySelected = null;
+
+  // ------------------------------------------------
+  // NEW: SHOW/HIDE CONTAINER SIZE FOR FCL / LCL
+  // ------------------------------------------------
+  function toggleContainerSize() {
+    const wrapper = document.getElementById("containerSizeWrapper");
+    if (!wrapper) return; // wrapper not present on this page
+    if (!deliveryMode) return;
+
+    if (deliveryMode.value === "FCL" || deliveryMode.value === "LCL") {
+      wrapper.style.display = "block";
+    } else {
+      wrapper.style.display = "none";
+      document
+        .querySelectorAll('input[name="containerSize"]')
+        .forEach((r) => (r.checked = false));
+    }
+  }
+  deliveryMode?.addEventListener("change", toggleContainerSize);
 
   // ---------- UTILITIES ----------
   function debounce(fn, wait = 300) {
@@ -54,57 +73,51 @@ document.addEventListener("DOMContentLoaded", () => {
   async function geocodeSearch(query, limit = 6) {
     if (!query || !query.trim()) return [];
 
-    const geoapifyUrl = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&filter=countrycode:ph&limit=${limit}&apiKey=${GEOAPIFY_KEY}`;
-    const locationiqUrl = `https://us1.locationiq.com/v1/search?key=${LOCATIONIQ_TOKEN}&q=${encodeURIComponent(query)}&countrycodes=ph&format=json&limit=${limit}`;
+    const geoapifyUrl = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(
+      query
+    )}&filter=countrycode:ph&limit=${limit}&apiKey=${GEOAPIFY_KEY}`;
+    const locationiqUrl = `https://us1.locationiq.com/v1/search?key=${LOCATIONIQ_TOKEN}&q=${encodeURIComponent(
+      query
+    )}&countrycodes=ph&format=json&limit=${limit}`;
 
     let results = [];
 
-    // Try Geoapify first
     try {
       const geoRes = await fetch(geoapifyUrl);
       if (geoRes.ok) {
         const data = await geoRes.json();
         if (data.features?.length > 0) {
-          results = data.features.map(f => ({
+          results = data.features.map((f) => ({
             display_name: f.properties.formatted,
             lat: f.geometry.coordinates[1],
             lon: f.geometry.coordinates[0],
             type: f.properties.result_type || "Address",
-            source: "Geoapify"
+            source: "Geoapify",
           }));
         }
-      } else {
-        console.warn(`Geoapify returned status ${geoRes.status}`);
       }
     } catch (err) {
       console.error("Geoapify autocomplete failed:", err);
     }
 
-    // Fallback to LocationIQ
     if (results.length === 0) {
       try {
         const locRes = await fetch(locationiqUrl);
         if (locRes.ok) {
           const data = await locRes.json();
           if (Array.isArray(data) && data.length > 0) {
-            results = data.map(loc => ({
+            results = data.map((loc) => ({
               display_name: loc.display_name,
               lat: parseFloat(loc.lat),
               lon: parseFloat(loc.lon),
               type: loc.type || "Address",
-              source: "LocationIQ"
+              source: "LocationIQ",
             }));
           }
-        } else {
-          console.warn(`LocationIQ returned status ${locRes.status}`);
         }
       } catch (err) {
         console.error("LocationIQ fallback failed:", err);
       }
-    }
-
-    if (results.length === 0) {
-      console.warn("No location results found for:", query);
     }
 
     return results;
@@ -126,11 +139,14 @@ document.addEventListener("DOMContentLoaded", () => {
   function showList(container, items) {
     container.innerHTML = "";
     if (!items.length) {
-      container.innerHTML = '<div class="autocomplete-noresults">No results found</div>';
+      container.innerHTML =
+        '<div class="autocomplete-noresults">No results found</div>';
       container.style.display = "block";
       return;
     }
-    items.forEach(it => container.appendChild(createItemNode(it.display_name, it)));
+    items.forEach((it) =>
+      container.appendChild(createItemNode(it.display_name, it))
+    );
     container.style.display = "block";
   }
 
@@ -147,19 +163,18 @@ document.addEventListener("DOMContentLoaded", () => {
     inputEl.addEventListener("keydown", async (ev) => {
       const items = listEl.querySelectorAll(".autocomplete-item");
 
-      // Navigate suggestions
       if (ev.key === "ArrowDown" || ev.key === "ArrowUp") {
         ev.preventDefault();
         if (!items.length) return;
-        focused = ev.key === "ArrowDown"
-          ? Math.min(focused + 1, items.length - 1)
-          : Math.max(focused - 1, 0);
+        focused =
+          ev.key === "ArrowDown"
+            ? Math.min(focused + 1, items.length - 1)
+            : Math.max(focused - 1, 0);
         items.forEach((it, i) => it.classList.toggle("focused", i === focused));
         items[focused].scrollIntoView({ block: "nearest" });
         return;
       }
 
-      // Enter → select or lookup manually
       if (ev.key === "Enter") {
         ev.preventDefault();
 
@@ -178,7 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
             inputEl.dataset.lon = loc.lon;
             setSelected(loc);
           } else {
-            alert("Could not find coordinates for this location. Please refine your input.");
+            alert("Could not find coordinates for this location.");
           }
         }
         hideList(listEl);
@@ -210,17 +225,37 @@ document.addEventListener("DOMContentLoaded", () => {
     inputEl.addEventListener("focus", () => {
       if (results.length) showList(listEl, results);
     });
-    inputEl.addEventListener("blur", () => setTimeout(() => hideList(listEl), 150));
+    inputEl.addEventListener("blur", () =>
+      setTimeout(() => hideList(listEl), 150)
+    );
   }
 
-  attachAutocomplete({ inputEl: originInput, listEl: originList, setSelected: p => originSelected = p });
-  attachAutocomplete({ inputEl: deliveryInput, listEl: deliveryList, setSelected: p => deliverySelected = p });
+  attachAutocomplete({
+    inputEl: originInput,
+    listEl: originList,
+    setSelected: (p) => (originSelected = p),
+  });
+
+  attachAutocomplete({
+    inputEl: deliveryInput,
+    listEl: deliveryList,
+    setSelected: (p) => (deliverySelected = p),
+  });
 
   // ---------- SERVICE TYPE ----------
   const serviceMap = {
-    Sea: ["Sea Freight Forwarding", "Customs Brokerage", "Sea Freight Consolidation"],
+    Sea: [
+      "Sea Freight Forwarding",
+      "Customs Brokerage",
+      "Sea Freight Consolidation",
+    ],
     Air: ["Air Freight Forwarding", "Customs Brokerage"],
-    Land: ["Trucking Services", "Warehousing", "Door to Door Services", "Rigging"]
+    Land: [
+      "Trucking Services",
+      "Warehousing",
+      "Door to Door Services",
+      "Rigging",
+    ],
   };
 
   function updateServiceType() {
@@ -229,7 +264,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const services = serviceMap[selectedMode] || [];
 
     serviceType.innerHTML = '<option value="">Select Service</option>';
-    services.forEach(service => {
+    services.forEach((service) => {
       const opt = document.createElement("option");
       opt.value = service;
       opt.textContent = service;
@@ -246,74 +281,99 @@ document.addEventListener("DOMContentLoaded", () => {
     const net = parseFloat(netInput?.value);
     const grossU = grossUnit?.value;
     const netU = netUnit?.value;
+
     let message = "";
 
-    if (!isNaN(gross) && !isNaN(net)) {
-      if (gross <= net) message = "Gross weight must be greater than Net weight.";
+    if (grossInput.value.trim() === "" || netInput.value.trim() === "") {
+      grossInput.classList.remove("is-invalid");
+      netInput.classList.remove("is-invalid");
+      showWeightMessage("");
+      return;
     }
 
-    if (grossU && netU && grossU !== netU) {
+    if (isNaN(gross) || isNaN(net)) {
+      message = "Please enter valid numerical weights.";
+    } else if (gross < 0 || net < 0) {
+      message = "Weights cannot be negative.";
+    } else if (gross <= net) {
+      message = "Gross weight must be greater than Net weight.";
+    } else if (grossU && netU && grossU !== netU) {
       message = "Gross and Net weight units must match.";
     }
-
-    if (netInput) netInput.setCustomValidity(message);
-    if (grossInput) grossInput.setCustomValidity(message);
 
     if (message) {
       grossInput.classList.add("is-invalid");
       netInput.classList.add("is-invalid");
+      showWeightMessage(message);
     } else {
       grossInput.classList.remove("is-invalid");
       netInput.classList.remove("is-invalid");
+      showWeightMessage("");
     }
   }
 
-  [grossInput, netInput, grossUnit, netUnit].forEach(el =>
-    safe(el, e => e.addEventListener("input", validateWeights))
+  [grossInput, netInput].forEach((field) => {
+    if (!field) return;
+
+    field.addEventListener("input", () => {
+      let raw = field.value;
+
+      if (raw.includes("-")) {
+        raw = raw.replace("-", "");
+        field.value = raw;
+      }
+
+      validateWeights();
+    });
+  });
+
+  [grossInput, netInput, grossUnit, netUnit].forEach((el) =>
+    safe(el, (e) => e.addEventListener("input", validateWeights))
   );
 
-  // ---------- SYNCHRONIZE UNITS ----------
+  if (grossUnit) {
+    grossUnit.addEventListener("change", () => {
+      if (grossUnit.value) grossUnit.classList.remove("is-invalid");
+    });
+  }
+
+  if (netUnit) {
+    netUnit.addEventListener("change", () => {
+      if (netUnit.value) netUnit.classList.remove("is-invalid");
+    });
+  }
+
   function syncWeightUnits(changedEl) {
     if (!grossUnit || !netUnit) return;
-    if (changedEl === grossUnit && grossUnit.value) netUnit.value = grossUnit.value;
+    if (changedEl === grossUnit && grossUnit.value)
+      netUnit.value = grossUnit.value;
     if (changedEl === netUnit && netUnit.value) grossUnit.value = netUnit.value;
     validateWeights();
   }
 
-  [grossUnit, netUnit].forEach(unitEl => {
-    safe(unitEl, el => el.addEventListener("change", () => syncWeightUnits(el)));
-  });
+  [grossUnit, netUnit].forEach((unitEl) =>
+    safe(unitEl, (el) =>
+      el.addEventListener("change", () => syncWeightUnits(el))
+    )
+  );
 
-  // ---------- PROFILE DROPDOWN ----------
-  document.addEventListener("click", (e) => {
-    const icon = document.getElementById("profileIcon");
-    const dropdown = document.getElementById("profileDropdown");
-    if (!icon || !dropdown) return;
+  /* ================== PROFILE + NOTIFICATIONS ================== */
 
-    if (icon.contains(e.target)) {
-      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-    } else if (!dropdown.contains(e.target)) {
-      dropdown.style.display = "none";
-    }
-  });
-
-  // ---------- RELOAD PROFILE ON PAGE RETURN ----------
-  window.addEventListener("pageshow", () => {
-    loadProfile();
-  });
-
-  // ---------- LOAD PROFILE ----------
   async function loadProfile() {
     try {
-      const res = await fetch(`${API_BASE}/api/profile`, { method: "GET", credentials: "include" });
+      const res = await fetch(`${API_BASE}/api/profile`, {
+        method: "GET",
+        credentials: "include",
+      });
+
       if (!res.ok) throw new Error("Failed to fetch profile");
 
       const data = await res.json();
-
       const usernameEl = document.getElementById("username");
       if (usernameEl) usernameEl.textContent = data.contact_person || "Client";
 
       let profileIcon = document.getElementById("profileIcon");
+
       if (profileIcon && data.photo) {
         if (profileIcon.tagName.toLowerCase() !== "img") {
           const img = document.createElement("img");
@@ -327,24 +387,27 @@ document.addEventListener("DOMContentLoaded", () => {
           profileIcon = img;
         }
         profileIcon.src = `${API_BASE}/uploads/${data.photo}`;
-        profileIcon.alt = "Profile";
       }
     } catch (err) {
       console.error("Error loading profile:", err);
     }
   }
 
-  // ---------- LOAD NOTIFICATION COUNT ----------
   async function loadNotificationCount() {
     try {
-      const res = await fetch(`${API_BASE}/api/client/notifications`, { credentials: "include" });
-      if (!res.ok) throw new Error(`Failed to fetch notifications (${res.status})`);
+      const res = await fetch(`${API_BASE}/api/client/notifications`, {
+        credentials: "include",
+      });
+
+      if (!res.ok)
+        throw new Error(`Failed to fetch notifications (${res.status})`);
 
       const notifications = await res.json();
       if (!Array.isArray(notifications)) return;
 
-      const unreadCount = notifications.filter(n => !n.is_read).length;
+      const unreadCount = notifications.filter((n) => !n.is_read).length;
       const notifCountEl = document.getElementById("notifCount");
+
       if (notifCountEl) {
         notifCountEl.textContent = unreadCount > 0 ? unreadCount : "";
         notifCountEl.style.display = unreadCount > 0 ? "inline-block" : "none";
@@ -354,16 +417,31 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  window.addEventListener("DOMContentLoaded", () => {
-    loadProfile();
-    loadNotificationCount();
+  loadProfile();
+  loadNotificationCount();
+  setInterval(loadNotificationCount, 30000);
+
+  /* ================== PROFILE DROPDOWN ================== */
+
+  document.addEventListener("click", (e) => {
+    const icon = document.getElementById("profileIcon");
+    const dropdown = document.getElementById("profileDropdown");
+
+    if (!icon || !dropdown) return;
+
+    if (icon.contains(e.target)) {
+      dropdown.style.display =
+        dropdown.style.display === "block" ? "none" : "block";
+      dropdown.style.position = "absolute";
+      dropdown.style.right = "0";
+      dropdown.style.top = "45px";
+      dropdown.style.zIndex = "1060";
+    } else if (!dropdown.contains(e.target)) {
+      dropdown.style.display = "none";
+    }
   });
 
-  setInterval(() => {
-    loadNotificationCount();
-  }, 30000);
-
-  // ---------- FLOATING NOTIFICATIONS ----------
+  /* Floating Notification Panel Toggle */
   document.addEventListener("click", (e) => {
     const notifBtn = document.getElementById("notificationsLink");
     const notifPanel = document.getElementById("notificationsFloat");
@@ -371,7 +449,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (notifBtn.contains(e.target)) {
       e.preventDefault();
-      notifPanel.style.display = notifPanel.style.display === "block" ? "none" : "block";
+      notifPanel.style.display =
+        notifPanel.style.display === "block" ? "none" : "block";
     } else if (!notifPanel.contains(e.target)) {
       notifPanel.style.display = "none";
     }
@@ -382,44 +461,103 @@ document.addEventListener("DOMContentLoaded", () => {
     if (notifPanel) notifPanel.style.display = "none";
   });
 
+  // ---------- GENERAL EMPTY / ZERO VALIDATION ----------
+  const requiredInputs = document.querySelectorAll(
+    "#bookingForm input[required], #bookingForm select[required]"
+  );
+
+  function markRequiredField(field) {
+    const value = field.value.trim();
+
+    if (value === "" || value === "0" || value === 0) {
+      field.classList.add("is-invalid");
+    } else {
+      field.classList.remove("is-invalid");
+    }
+  }
+
+  function validateRequiredFields() {
+    let isValid = true;
+
+    requiredInputs.forEach((field) => {
+      markRequiredField(field);
+      if (field.classList.contains("is-invalid")) isValid = false;
+    });
+
+    return isValid;
+  }
+
+  requiredInputs.forEach((field) => {
+    field.addEventListener("blur", () => markRequiredField(field));
+    field.addEventListener("input", () => markRequiredField(field));
+  });
+
   // ---------- FORM SUBMISSION ----------
   if (form) {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+
+      if (!validateRequiredFields()) return;
+
+      const pkg = Number(packagesInput.value);
+      if (Number.isNaN(pkg) || pkg <= 0) {
+        packagesInput.classList.add("is-invalid");
+        showPackageMessage("Packages must be at least 1.");
+        isSubmitting = false;
+        submitButton.disabled = false;
+        submitButton.textContent = "Book Shipment";
+        return;
+      }
+
       if (isSubmitting) return;
+
       isSubmitting = true;
       submitButton.disabled = true;
       submitButton.textContent = "Submitting...";
 
       try {
-        const originValue = originInput?.value.trim();
-        const deliveryValue = deliveryInput?.value.trim();
+        if (!grossUnit.value || !netUnit.value) {
+          if (!grossUnit.value) grossUnit.classList.add("is-invalid");
+          if (!netUnit.value) netUnit.classList.add("is-invalid");
 
-        if (!originValue || !deliveryValue) {
+          isSubmitting = false;
+          submitButton.disabled = false;
+          submitButton.textContent = "Book Shipment";
+          return;
+        }
+
+        if (!originInput.value.trim() || !deliveryInput.value.trim()) {
           alert("Please enter both Port of Origin and Port of Delivery.");
           return;
         }
 
+        // ------------------------------------------
+        // NEW: REQUIRE CONTAINER SIZE WHEN FCL / LCL
+        // ------------------------------------------
+        if (deliveryMode.value === "FCL" || deliveryMode.value === "LCL") {
+          const selectedSize = document.querySelector(
+            'input[name="containerSize"]:checked'
+          );
+
+          if (!selectedSize) {
+            const sizeError = document.getElementById("containerSizeError");
+            if (sizeError) sizeError.style.display = "block";
+            isSubmitting = false;
+            submitButton.disabled = false;
+            submitButton.textContent = "Book Shipment";
+            return;
+          }
+        }
+
         const formData = new FormData(form);
 
-        const fieldMap = {
-          serviceType: "service_type",
-          deliveryMode: "delivery_mode",
-          portOrigin: "port_origin",
-          portDelivery: "port_delivery",
-          grossWeight: "gross_weight",
-          netWeight: "net_weight",
-          grossWeightUnit: "gross_weight_unit",
-          netWeightUnit: "net_weight_unit",
-          deliveryType: "delivery_type",
-          specificLocation: "specific_location"
-        };
-
-        for (const [camel, snake] of Object.entries(fieldMap)) {
-          if (formData.has(camel)) {
-            formData.set(snake, formData.get(camel));
-            formData.delete(camel);
-          }
+        if (deliveryMode.value === "FCL" || deliveryMode.value === "LCL") {
+          const selectedSize =
+            document.querySelector('input[name="containerSize"]:checked')
+              ?.value || "";
+          formData.set("containerSize", selectedSize);
+        } else {
+          formData.set("containerSize", "");
         }
 
         formData.set("origin_lat", originInput.dataset.lat || "");
@@ -430,7 +568,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const res = await fetch(`${API_BASE}/api/bookings`, {
           method: "POST",
           body: formData,
-          credentials: "include"
+          credentials: "include",
         });
 
         const result = await res.text();
@@ -449,11 +587,87 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ---------- NAVBAR HIGHLIGHT ----------
-  document.querySelectorAll(".nav-links a").forEach(link => {
+  document.querySelectorAll(".nav-links a").forEach((link) => {
     if (link.href === window.location.href) link.classList.add("active");
   });
+
+  function showPackageMessage(msg) {
+    let el = document.getElementById("packageErrorText");
+
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "packageErrorText";
+      el.style.color = "red";
+      el.style.fontSize = "13px";
+      el.style.marginTop = "5px";
+      packagesInput.parentElement.appendChild(el);
+    }
+
+    el.textContent = msg;
+  }
+
+  if (packagesInput) {
+    packagesInput.addEventListener("input", () => {
+      let raw = packagesInput.value;
+
+      if (raw.includes("-")) {
+        packagesInput.classList.add("is-invalid");
+        showPackageMessage("Negative values are not allowed.");
+      }
+
+      raw = raw.replace(/-/g, "").replace(/[^0-9]/g, "");
+      packagesInput.value = raw;
+
+      const num = Number(raw);
+
+      if (!raw || num <= 0 || Number.isNaN(num)) {
+        packagesInput.classList.add("is-invalid");
+        showPackageMessage("Packages must be at least 1.");
+      } else {
+        packagesInput.classList.remove("is-invalid");
+        showPackageMessage("");
+      }
+    });
+  }
+
+  function showWeightMessage(msg) {
+    let el = document.getElementById("weightErrorText");
+
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "weightErrorText";
+      el.style.color = "red";
+      el.style.fontSize = "13px";
+      el.style.marginTop = "5px";
+      grossInput.parentElement.appendChild(el);
+    }
+
+    el.textContent = msg;
+  }
 });
+
+// --------------------------------------------------------
+// NEW: EDIT BOOKING — CONTAINER SIZE HANDLING
+// --------------------------------------------------------
+function toggleEditContainerSize() {
+  const wrapper = document.getElementById("edit_containerSizeWrapper");
+  const mode = document.getElementById("edit_deliveryMode");
+
+  if (!mode || !wrapper) return;
+
+  if (mode.value === "FCL" || mode.value === "LCL") {
+    wrapper.style.display = "block";
+  } else {
+    wrapper.style.display = "none";
+    document
+      .querySelectorAll('input[name="edit_containerSize"]')
+      .forEach((r) => (r.checked = false));
+  }
+}
+
+document
+  .getElementById("edit_deliveryMode")
+  ?.addEventListener("change", toggleEditContainerSize);
 
 // ---------- MODAL HELPERS ----------
 function openModal(id) {

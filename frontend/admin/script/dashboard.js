@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
 async function initKpis() {
   try {
     const res = await fetch(
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/analytics/kpis",
+      "https://cargosmarttsl-5.onrender.com/api/analytics/kpis",
       { credentials: "include" }
     );
     const data = await res.json();
@@ -99,7 +99,7 @@ async function initRevenueChart() {
   try {
     const ctx = document.getElementById("revenue-chart").getContext("2d");
     const res = await fetch(
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/analytics/revenue",
+      "https://cargosmarttsl-5.onrender.com/api/analytics/revenue",
       { credentials: "include" }
     );
     const data = await res.json();
@@ -234,7 +234,7 @@ async function initPaymentStatusChart() {
       .getElementById("payment-status-chart")
       .getContext("2d");
     const res = await fetch(
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/analytics/payment-status",
+      "https://cargosmarttsl-5.onrender.com/api/analytics/payment-status",
       {
         credentials: "include",
       }
@@ -294,7 +294,7 @@ async function loadPaymentDecisionAnalytics() {
   const tableBody = document.getElementById("payment-decision-table-body");
   try {
     const res = await fetch(
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/analytics/payment-decision",
+      "https://cargosmarttsl-5.onrender.com/api/analytics/payment-decision",
       { credentials: "include" }
     );
     const data = await res.json();
@@ -333,14 +333,17 @@ async function loadPaymentDecisionAnalytics() {
       const decision = row.status_flag || "Good Standing";
       const decisionText = (row.status_flag || "").toLowerCase();
 
-let colorClass = "text-success fw-bold"; // default green
-if (decisionText.includes("require review") || decisionText.includes("removal")) {
-  colorClass = "text-danger fw-bold"; // red for high lateness
-} else if (decisionText.includes("monitor")) {
-  colorClass = "text-warning fw-bold"; // yellow for watchlist
-} else if (decisionText.includes("no available")) {
-  colorClass = "text-muted fw-semibold"; // gray for no data
-}
+      let colorClass = "text-success fw-bold"; // default green
+      if (
+        decisionText.includes("require review") ||
+        decisionText.includes("removal")
+      ) {
+        colorClass = "text-danger fw-bold"; // red for high lateness
+      } else if (decisionText.includes("monitor")) {
+        colorClass = "text-warning fw-bold"; // yellow for watchlist
+      } else if (decisionText.includes("no available")) {
+        colorClass = "text-muted fw-semibold"; // gray for no data
+      }
 
       tableBody.insertAdjacentHTML(
         "beforeend",
@@ -373,15 +376,14 @@ function escapeHtml(str) {
     .replaceAll("'", "&#039;");
 }
 
-// Initialize both when page loads
-document.addEventListener("DOMContentLoaded", initPaymentStatusChart);
-
 /* =================== Shipment Volume Chart (Improved) =================== */
 async function initShipmentVolumeChart() {
   try {
-    const ctx = document.getElementById("shipment-volume-chart").getContext("2d");
+    const ctx = document
+      .getElementById("shipment-volume-chart")
+      .getContext("2d");
     const res = await fetch(
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/dashboard/shipment-volume",
+      "https://cargosmarttsl-5.onrender.com/api/dashboard/shipment-volume",
       { credentials: "include" }
     );
     const data = await res.json();
@@ -490,7 +492,7 @@ async function initBookingStatusChart() {
 
     const ctx = canvas.getContext("2d");
     const res = await fetch(
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/analytics/booking-status",
+      "https://cargosmarttsl-5.onrender.com/api/analytics/booking-status",
       { credentials: "include" }
     );
     const data = await res.json();
@@ -534,7 +536,7 @@ async function initTopClients() {
     if (!container) return;
 
     const res = await fetch(
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/analytics/top-clients",
+      "https://cargosmarttsl-5.onrender.com/api/analytics/top-clients",
       { credentials: "include" }
     );
     const clients = await res.json();
@@ -569,27 +571,44 @@ async function initTopClients() {
 }
 
 /* =================== Recent Shipments =================== */
+/* =================== Recent Shipments =================== */
 async function initRecentShipments() {
   try {
     const res = await fetch(
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/admin/bookings",
+      "https://cargosmarttsl-5.onrender.com/api/admin/shipments",
       { credentials: "include" }
     );
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
-    const bookings = await res.json();
-    allBookings = bookings.filter((b) =>
-      ["Approved", "Shipping", "In Transit"].includes((b.status || "").trim())
+    const shipments = await res.json();
+
+    // Log to see actual statuses (important)
+    console.log("ADMIN SHIPMENTS:", shipments);
+
+    // Show all active shipments
+    const ACTIVE_STATUSES = [
+      "approved",
+      "shipping",
+      "in transit",
+      "in-transit",
+      "for dispatch",
+      "for pickup",
+    ];
+
+    allBookings = shipments.filter((s) =>
+      ACTIVE_STATUSES.includes((s.status || "").toLowerCase().trim())
     );
+
     filteredBookings = [...allBookings];
     currentPage = 1;
     renderBookings();
   } catch (err) {
-    console.error("Error loading approved bookings as shipments:", err);
+    console.error("Error loading shipments:", err);
+
     const tbody = document.getElementById("recent-bookings-table");
     if (tbody) {
       tbody.innerHTML = `<tr>
-        <td colspan="6" class="text-danger text-center py-4">Failed to load bookings</td>
+        <td colspan="6" class="text-danger text-center py-4">Failed to load shipments</td>
       </tr>`;
     }
   }
@@ -601,7 +620,7 @@ const notifCountEl = document.getElementById("notifCount");
 async function fetchNotifications() {
   try {
     const res = await fetch(
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/admin/notifications",
+      "https://cargosmarttsl-5.onrender.com/api/admin/notifications",
       { credentials: "include" }
     );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -749,7 +768,7 @@ function renderBookings() {
 
     row.innerHTML = `
       <td>${b.tracking_number || b.id}</td>
-      <td>${b.client_name}</td>
+      <td>${b.client_name || b.company_name || "Client #" + b.client_id}</td>
       <td>${b.origin || b.port_origin || "-"}</td>
       <td>${b.destination || b.port_destination || "-"}</td>
       <td>${new Date(b.created_at).toLocaleDateString()}</td>
@@ -767,7 +786,7 @@ function renderBookings() {
 async function updatePaymentDDS() {
   try {
     const res = await fetch(
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/analytics/payment-status",
+      "https://cargosmarttsl-5.onrender.com/api/analytics/payment-status",
       { credentials: "include" }
     );
     const data = await res.json();
@@ -814,7 +833,7 @@ async function updatePaymentDDS() {
 async function updateShipmentVolumeDDS() {
   try {
     const res = await fetch(
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/dashboard/shipment-volume",
+      "https://cargosmarttsl-5.onrender.com/api/dashboard/shipment-volume",
       { credentials: "include" }
     );
     const data = await res.json();
@@ -841,7 +860,7 @@ async function updateShipmentVolumeDDS() {
 async function updateTopClientsDDS() {
   try {
     const res = await fetch(
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/analytics/top-clients",
+      "https://cargosmarttsl-5.onrender.com/api/analytics/top-clients",
       { credentials: "include" }
     );
     const data = await res.json();

@@ -2,9 +2,10 @@
 # Fonts & Colors
 --------------------------------------------------------------*/
 :root {
-  --font-default: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-primary: 'Poppins', sans-serif;
-  --font-secondary: 'Inter', sans-serif;
+  --font-default: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  --font-primary: "Poppins", sans-serif;
+  --font-secondary: "Inter", sans-serif;
 
   --primary-color: #60adf4;
   --panel-color: #f6f8fa;
@@ -185,18 +186,27 @@ nav.close ~ .dashboard .top {
   position: absolute;
   top: 0;
   left: 0;
-  width: 6px;   
+  width: 6px;
   height: 100%;
   border-top-left-radius: 10px;
   border-bottom-left-radius: 10px;
 }
 
-.stat-card:has(.icon-bookings)::before { background-color: #4e73df; }  
-.stat-card:has(.icon-land)::before     { background-color: #1cc88a; }  
-.stat-card:has(.icon-air)::before      { background-color: #36b9cc; }  
-.stat-card:has(.icon-sea)::before      { background-color: #007bff; }  
-.stat-card:has(.icon-pending)::before  { background-color: #f6c23e; }  
-
+.stat-card:has(.icon-bookings)::before {
+  background-color: #4e73df;
+}
+.stat-card:has(.icon-land)::before {
+  background-color: #1cc88a;
+}
+.stat-card:has(.icon-air)::before {
+  background-color: #36b9cc;
+}
+.stat-card:has(.icon-sea)::before {
+  background-color: #007bff;
+}
+.stat-card:has(.icon-pending)::before {
+  background-color: #f6c23e;
+}
 
 .stat-card:hover {
   background-color: #fff;
@@ -206,25 +216,25 @@ nav.close ~ .dashboard .top {
 
 .stat-icon {
   font-size: 22px;
-  padding: 12px;          
-  border-radius: 50%;     
-  display: inline-flex;  
+  padding: 12px;
+  border-radius: 50%;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
 .icon-bookings {
-  color: #4e73df; 
+  color: #4e73df;
   background: #e4eff5;
 }
 
 .icon-land {
-  color: #1cc88a; 
+  color: #1cc88a;
   background: #eaf7ee;
 }
 
 .icon-air {
-  color: #36b9cc; 
+  color: #36b9cc;
   background: #e6f7f9;
 }
 
@@ -234,7 +244,7 @@ nav.close ~ .dashboard .top {
 }
 
 .icon-pending {
-  color: #f6c23e; 
+  color: #f6c23e;
   background: #fff7e6;
 }
 
@@ -249,9 +259,15 @@ nav.close ~ .dashboard .top {
 }
 
 @keyframes fadePulse {
-  0% { opacity: 0.6; }
-  50% { opacity: 1; }
-  100% { opacity: 0.6; }
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
 }
 
 /*--------------------------------------------------------------
@@ -268,7 +284,7 @@ nav.close ~ .dashboard .top {
   background-color: white;
   border: 1px solid #ccc;
   min-width: 150px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   overflow: hidden;
   z-index: 1000;
@@ -324,7 +340,9 @@ nav.close ~ .dashboard .top {
     transition: left 0.3s ease;
     color: #fff;
   }
-  nav.active { left: 0; }
+  nav.active {
+    left: 0;
+  }
   .dashboard {
     margin-left: 0;
     width: 100%;
@@ -353,7 +371,7 @@ nav.close ~ .dashboard .top {
 
 .quick-action:hover {
   transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 /*--------------------------------------------------------------
@@ -376,16 +394,16 @@ nav.close ~ .dashboard .top {
 
 .quick-action:hover .icon-circle {
   transform: scale(1.05);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
 .quick-action:hover .icon-circle {
   transform: scale(1.05);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
 .icon-circle.bg-primary {
-  background-color: #007bff !important; 
+  background-color: #007bff !important;
   color: #fff !important;
 }
 
@@ -413,46 +431,46 @@ nav.close ~ .dashboard .top {
 # Preloader
 --------------------------------------------------------------*/
 #preloader {
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #fff;
-    transition: all 0.6s ease-out;
-    width: 100%;
-    height: 100vh;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  transition: all 0.6s ease-out;
+  width: 100%;
+  height: 100vh;
 }
 
 #preloader:before,
 #preloader:after {
-    content: "";
-    position: absolute;
-    border: 4px solid #2e7fc0;
-    border-radius: 50%;
-    animation: animate-preloader 2s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+  content: "";
+  position: absolute;
+  border: 4px solid #2e7fc0;
+  border-radius: 50%;
+  animation: animate-preloader 2s cubic-bezier(0, 0.2, 0.8, 1) infinite;
 }
 
 #preloader:after {
-    animation-delay: -0.5s;
+  animation-delay: -0.5s;
 }
 
 @keyframes animate-preloader {
-    0% {
-        width: 10px;
-        height: 10px;
-        top: calc(50% - 5px);
-        left: calc(50% - 5px);
-        opacity: 1;
-    }
-    100% {
-        width: 72px;
-        height: 72px;
-        top: calc(50% - 36px);
-        left: calc(50% - 36px);
-        opacity: 0;
-    }
+  0% {
+    width: 10px;
+    height: 10px;
+    top: calc(50% - 5px);
+    left: calc(50% - 5px);
+    opacity: 1;
+  }
+  100% {
+    width: 72px;
+    height: 72px;
+    top: calc(50% - 36px);
+    left: calc(50% - 36px);
+    opacity: 0;
+  }
 }
 
 /*--------------------------------------------------------------
@@ -485,35 +503,35 @@ nav.close ~ .dashboard .top {
 .custom-row {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;  
+  justify-content: center;
   gap: 1rem;
   width: 100%;
 }
 
 .custom-row .stat-card {
-  flex: 1 1 calc(20% - 1rem);  
-  min-width: 180px;            
+  flex: 1 1 calc(20% - 1rem);
+  min-width: 180px;
   max-width: 100%;
   height: 100px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  overflow: hidden;         
+  overflow: hidden;
 }
 
 .custom-row .stat-card small,
 .custom-row .stat-card h3,
 .custom-row .stat-card span,
 .custom-row .stat-card .data {
-  white-space: nowrap;       
+  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;    
+  text-overflow: ellipsis;
 }
 
 @media (max-width: 1024px) {
   .custom-row .stat-card {
-    flex: 1 1 calc(33.333% - 1rem);  
+    flex: 1 1 calc(33.333% - 1rem);
   }
 }
 
@@ -525,7 +543,7 @@ nav.close ~ .dashboard .top {
 
 @media (max-width: 480px) {
   .custom-row .stat-card {
-    flex: 1 1 100%; 
+    flex: 1 1 100%;
   }
 }
 
@@ -533,8 +551,8 @@ nav.close ~ .dashboard .top {
 # contacts
 --------------------------------------------------------------*/
 .contacts-box {
-  background-color: #f9fafb; 
-  border: 1px solid #e1e4e8; 
+  background-color: #f9fafb;
+  border: 1px solid #e1e4e8;
   transition: all 0.3s ease;
 }
 
@@ -563,7 +581,7 @@ nav.close ~ .dashboard .top {
 
 .contacts-box:hover {
   background-color: #ffffff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 /*--------------------------------------------------------------
@@ -590,7 +608,7 @@ nav.close ~ .dashboard .top {
   color: #fff !important;
   font-weight: 600;
   text-align: center;
-  padding: 16px 15px; 
+  padding: 16px 15px;
   vertical-align: middle;
   border-bottom: 2px solid var(--border-color);
   font-size: 15px;
@@ -598,14 +616,14 @@ nav.close ~ .dashboard .top {
 }
 
 .table td {
-  padding: 18px 15px; 
+  padding: 18px 15px;
   text-align: center;
   font-size: 15px;
   font-weight: 500;
   color: var(--text-color);
   vertical-align: middle;
   border-top: 1px solid var(--border-color);
-  line-height: 1.5; 
+  line-height: 1.5;
   background-color: #fff;
 }
 
@@ -641,14 +659,15 @@ nav.close ~ .dashboard .top {
 }
 
 .badge {
-  padding: 0.5em 0.9em; 
+  padding: 0.5em 0.9em;
   font-size: 0.85rem;
   font-weight: 600;
   border-radius: 8px;
 }
 
 @media (max-width: 767px) {
-  .table th, .table td {
+  .table th,
+  .table td {
     font-size: 14px;
   }
   .dashboard h2 {
@@ -677,9 +696,9 @@ nav.close ~ .dashboard .top {
 }
 
 .bg-success {
-  color: #60adf4; 
+  color: #60adf4;
   background-color: #e7f3fe !important;
-  border: 1px solid #60adf4
+  border: 1px solid #60adf4;
 }
 
 .bg-danger {
@@ -689,7 +708,7 @@ nav.close ~ .dashboard .top {
 }
 
 .bg-shipping {
-  background-color: #17a2b8 !important; 
+  background-color: #17a2b8 !important;
   color: #fff !important;
 }
 
@@ -720,7 +739,7 @@ nav.close ~ .dashboard .top {
   padding: 15px;
   border-radius: 8px;
   background-color: #f8fafc;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .notification-item i {
@@ -728,14 +747,13 @@ nav.close ~ .dashboard .top {
   margin-right: 10px;
 }
 
-
 .notif-badge {
   position: absolute;
   top: -4px;
   right: -4px;
-  background-color: #E41E26; 
+  background-color: #e41e26;
   color: #fff;
-  font-size: clamp(9px, 1.8vw, 11px); 
+  font-size: clamp(9px, 1.8vw, 11px);
   font-weight: 600;
   padding: 2px 5px;
   border-radius: 50%;
@@ -762,9 +780,9 @@ nav.close ~ .dashboard .top {
 }
 
 [data-list="recentUpdates"] small.text-secondary {
-  white-space: nowrap;         
-  font-size: 0.85rem;           
-  min-width: 60px;             
+  white-space: nowrap;
+  font-size: 0.85rem;
+  min-width: 60px;
   text-align: right;
 }
 
@@ -782,7 +800,7 @@ nav.close ~ .dashboard .top {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 180px; 
+  max-width: 180px;
 }
 
 @media (max-width: 576px) {
@@ -801,14 +819,14 @@ nav.close ~ .dashboard .top {
 .facebook-link:focus,
 .facebook-link:active,
 .facebook-link:visited {
-  text-decoration: none !important;   
-  color: #1877f2;                   
+  text-decoration: none !important;
+  color: #1877f2;
   font-weight: 500;
   transition: color 0.2s ease;
 }
 
 .facebook-link:hover {
-  color: #0d6efd;                 
+  color: #0d6efd;
 }
 
 /*--------------------------------------------------------------
@@ -828,13 +846,19 @@ nav.close ~ .dashboard .top {
 }
 
 @media (max-width: 992px) {
-  #bookingTrendsChart { max-height: 280px; }
+  #bookingTrendsChart {
+    max-height: 280px;
+  }
 }
 @media (max-width: 768px) {
-  #bookingTrendsChart { max-height: 240px; }
+  #bookingTrendsChart {
+    max-height: 240px;
+  }
 }
 @media (max-width: 576px) {
-  #bookingTrendsChart { max-height: 200px; }
+  #bookingTrendsChart {
+    max-height: 200px;
+  }
 }
 
 /*--------------------------------------------------------------
@@ -904,7 +928,7 @@ td:last-child {
 #cancelBookingModal .modal-content {
   background: #fff;
   border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 #cancelBookingModal h5 {
@@ -952,7 +976,7 @@ td:last-child {
 # Welcome Modal Button
 --------------------------------------------------------------*/
 #welcomeModal .btn-primary {
-  background-color: #60adf4;   
+  background-color: #60adf4;
   border: none;
   color: #fff;
   font-weight: 600;
@@ -963,7 +987,7 @@ td:last-child {
 }
 
 #welcomeModal .btn-primary:hover {
-  background-color: #60adf4;        
+  background-color: #60adf4;
   box-shadow: 0 6px 14px rgba(46, 127, 192, 0.45);
   transform: translateY(-2px);
 }
@@ -1022,6 +1046,40 @@ td:last-child {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bg-cancel-client {
+  background-color: #fff1f3 !important;
+  color: #e63946 !important;
+  border: 1px solid #e63946 !important;
+}
+
+.bg-declined {
+  background-color: #fdecef !important;
+  color: #d90429 !important;
+  border: 1px solid #d90429 !important;
+}
+.bg-delivered {
+  background-color: #e6f9f2 !important;
+  color: #1cc88a !important;
+  border: 1px solid #1cc88a !important;
+}
+
+.input-error {
+  border: 2px solid #e63946 !important;
+}
+
+.error-text {
+  color: #e63946;
+  font-size: 0.85rem;
+  margin-top: 4px;
+  display: none;
 }

@@ -1,15 +1,13 @@
-
 // =============================
 // Dashboard Data + Charts
 // =============================
 document.addEventListener("DOMContentLoaded", async function () {
-
-  // =============================
-  // 1. Summary Cards (Animated)
-  // =============================
-  fetch("http://localhost:5001/api/analytics/kpis")
-    .then(res => res.json())
-    .then(data => {
+  // ===== 1. Summary KPIs =====
+  fetch(
+    "https://cargosmarttsl-5.onrender.com/api/analytics/kpis"
+  )
+    .then((res) => res.json())
+    .then((data) => {
       animateValue(
         document.querySelector("[data-stat='currentBookings']"),
         null,
@@ -34,149 +32,61 @@ document.addEventListener("DOMContentLoaded", async function () {
         data.completed_deliveries ?? 0,
         1000
       );
-    })
-    .catch(err => console.error("Error loading KPIs:", err));
-
-  // =============================
-  // 2. Booking Status Doughnut
-  // =============================
-  fetch("http://localhost:5001/api/analytics/shipment-status")
-    .then(res => res.json())
-    .then(data => {
-      const ctx = document.getElementById("booking-status-chart");
-      if (!ctx) return;
-
-      new Chart(ctx, {
-        type: "doughnut",
-        data: {
-          labels: ["Approved", "Pending", "Completed", "Declined"],
-          datasets: [{
-            data: [data.approved, data.pending, data.completed, data.declined],
-            backgroundColor: ['#03045e', '#f4d13d', '#45c33b', '#dc3545'],
-            borderWidth: 2,
-            hoverOffset: 8
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {
-              position: "bottom",
-              labels: { font: { size: 14 } }
-            },
-            tooltip: {
-              callbacks: {
-                label: function (context) {
-                  let total = context.dataset.data.reduce((a, b) => a + b, 0);
-                  let value = context.raw;
-                  let percentage = ((value / total) * 100).toFixed(1);
-                  return `${context.label}: ${value} (${percentage}%)`;
-                }
-              }
-            }
-          }
-        }
-      });
     });
 
-// =============================
-// 3. Shipment Status Bar
-// =============================
-fetch("http://localhost:5001/api/analytics/operational/shipment-status")
-  .then(res => res.json())
-  .then(data => {
-    const ctx = document.getElementById("shipment-status-chart");
-    if (!ctx) return;
-
-    new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels: ["Book Processed", "Order Shipped", "In Transit", "Delivered"],
-        datasets: [{
-          label: "Shipments",
-          data: [
-            data.processed ?? 0,
-            data.order_shipped ?? 0,
-            data.in_transit ?? 0,
-            data.delivered ?? 0
-          ],
-          backgroundColor: [
-            "#17a2b8",  // Processed (teal)
-            "#007bff",  // Order Shipped (blue)
-            "#ffc107",  // In Transit (yellow)
-            "#28a745"   // Delivered (green)
-          ],
-          borderRadius: 8
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { beginAtZero: true, ticks: { stepSize: 5 } }
-        }
-      }
-    });
-  })
-  .catch(err => console.error("❌ Error loading shipment status:", err));
-
-
-  // =============================
-  // 4. Top Clients
-  // =============================
-  fetch("http://localhost:5001/api/analytics/operational/top-clients")
-    .then(res => res.json())
-    .then(data => {
-      const ctx = document.getElementById("topClientsChart");
+  // ===== 2. Shipment Status Bar =====
+  fetch(
+    "https://cargosmarttsl-5.onrender.com/api/analytics/operational/shipment-status"
+  )
+    .then((res) => res.json())
+    .then((data) => {
+      const ctx = document.getElementById("shipment-status-chart");
       if (!ctx) return;
       new Chart(ctx, {
         type: "bar",
         data: {
-          labels: data.labels,
-          datasets: [{
-            label: "Completed Shipments",
-            data: data.data,
-            backgroundColor: "#2e7fc0",
-            borderRadius: 6
-          }]
+          labels: [
+            "Book Processed",
+            "Order Shipped",
+            "In Transit",
+            "Delivered",
+          ],
+          datasets: [
+            {
+              data: [
+                data.processed ?? 0,
+                data.order_shipped ?? 0,
+                data.in_transit ?? 0,
+                data.delivered ?? 0,
+              ],
+              backgroundColor: ["#17a2b8", "#007bff", "#ffc107", "#28a745"],
+              borderRadius: 8,
+            },
+          ],
         },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: ctx => ` ${ctx.raw} shipments`
-              }
-            }
-          },
-          scales: {
-            y: { beginAtZero: true, ticks: { stepSize: 5 } },
-            x: { grid: { display: false } }
-          }
-        }
+        options: { responsive: true, plugins: { legend: { display: false } } },
       });
     });
 
-  // =============================
-  // 5. Shipment Volume Line
-  // =============================
-  fetch("http://localhost:5001/api/om/analytics/shipment-volume-compare")
-    .then(res => res.json())
-    .then(data => {
-      const ctx = document.getElementById("shipmentVolumeChart");
-      if (!ctx) return;
-      const chartCtx = ctx.getContext("2d");
+  // ===== 3. Shipment Volume Line =====
+  fetch(
+    "https://cargosmarttsl-5.onrender.com/api/om/analytics/shipment-volume-compare"
+  )
+    .then((res) => res.json())
+    .then((data) => {
+      const canvas = document.getElementById("shipmentVolumeChart");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
 
-      const gradientThisMonth = chartCtx.createLinearGradient(0, 0, 0, 400);
-      gradientThisMonth.addColorStop(0, "rgba(46,127,192,0.3)");
-      gradientThisMonth.addColorStop(1, "rgba(255,255,255,0)");
+      const grad1 = ctx.createLinearGradient(0, 0, 0, 300);
+      grad1.addColorStop(0, "rgba(46,127,192,0.3)");
+      grad1.addColorStop(1, "rgba(255,255,255,0)");
 
-      const gradientLastMonth = chartCtx.createLinearGradient(0, 0, 0, 400);
-      gradientLastMonth.addColorStop(0, "rgba(255,193,7,0.3)");
-      gradientLastMonth.addColorStop(1, "rgba(255,255,255,0)");
+      const grad2 = ctx.createLinearGradient(0, 0, 0, 300);
+      grad2.addColorStop(0, "rgba(255,193,7,0.3)");
+      grad2.addColorStop(1, "rgba(255,255,255,0)");
 
-      new Chart(chartCtx, {
+      new Chart(ctx, {
         type: "line",
         data: {
           labels: data.labels,
@@ -185,73 +95,144 @@ fetch("http://localhost:5001/api/analytics/operational/shipment-status")
               label: "This Month",
               data: data.thisMonth,
               borderColor: "#0077b6",
-              backgroundColor: gradientThisMonth,
+              backgroundColor: grad1,
+              fill: true,
               tension: 0.4,
-              fill: true
             },
             {
               label: "Last Month",
               data: data.lastMonth,
               borderColor: "#dc3545",
-              backgroundColor: gradientLastMonth,
+              backgroundColor: grad2,
+              fill: true,
               tension: 0.4,
-              fill: true
-            }
-          ]
+            },
+          ],
         },
         options: {
           responsive: true,
-          plugins: { legend: { position: "bottom" } }
-        }
-      });
-    });
-
-  // =============================
-  // 6. On-time vs Late Pie
-  // =============================
-  
-  fetch("http://localhost:5001/api/analytics/on-time-vs-late")
-    .then(res => res.json())
-    .then(data => {
-      const ctx = document.getElementById("onTimeVsDelayedChart");
-      if (!ctx) return;
-      new Chart(ctx, {
-        type: "pie",
-        data: {
-          labels: data.labels,
-          datasets: [{
-            data: data.data,
-            backgroundColor: ['#0077b6', '#03045e']
-          }]
+          plugins: { legend: { position: "bottom" } },
         },
-        options: { responsive: true }
       });
     });
 
-  // =============================
-  // 7. Weekly Bookings Bar
-  // =============================
-  fetch("http://localhost:5001/api/analytics/weekly-bookings")
-    .then(res => res.json())
-    .then(data => {
+  // ===== 4. Weekly Bookings =====
+  fetch(
+    "https://cargosmarttsl-5.onrender.com/api/analytics/weekly-bookings"
+  )
+    .then((res) => res.json())
+    .then((data) => {
       const ctx = document.getElementById("weeklyBookingsChart");
       if (!ctx) return;
       new Chart(ctx, {
         type: "bar",
         data: {
           labels: data.labels,
-          datasets: [{
-            label: "Bookings",
-            data: data.data,
-            backgroundColor: "#2e7fc0"
-          }]
+          datasets: [{ data: data.data, backgroundColor: "#2e7fc0" }],
+        },
+        options: { responsive: true, plugins: { legend: { display: false } } },
+      });
+    });
+
+  // ===== 5. Booking Status (Doughnut) =====
+  fetch(
+    "https://cargosmarttsl-5.onrender.com/api/analytics/operational/booking-status"
+  )
+    .then((res) => res.json())
+    .then((data) => {
+      const canvas = document.getElementById("bookingStatusChart");
+      if (!canvas) return;
+
+      new Chart(canvas, {
+        type: "doughnut",
+        data: {
+          labels: ["Approved", "Pending", "Completed", "Declined"],
+          datasets: [
+            {
+              data: [
+                data.approved ?? 0,
+                data.pending ?? 0,
+                data.completed ?? 0,
+                data.declined ?? 0,
+              ],
+              backgroundColor: ["#50ABE7", "#ffff90", "#1cc88a", "#ff6666"],
+            },
+          ],
         },
         options: {
           responsive: true,
-          plugins: { legend: { display: false } }
-        }
+          plugins: { legend: { position: "bottom" } },
+        },
       });
     });
+
+  // ===== 6. On-Time vs Late =====
+  fetch(
+    "https://cargosmarttsl-5.onrender.com/api/analytics/operational/on-time-late"
+  )
+    .then((res) => res.json())
+    .then((data) => {
+      const canvas = document.getElementById("onTimeLateChart");
+      if (!canvas) return;
+
+      const values = [data.on_time ?? 0, data.late ?? 0];
+      const total = values[0] + values[1];
+      const percent = total ? Math.round((values[0] / total) * 100) : 0;
+
+      new Chart(canvas, {
+        type: "doughnut",
+        data: {
+          labels: ["On-Time", "Late"],
+          datasets: [
+            {
+              data: values,
+              backgroundColor: ["#52b788", "#D9534F"],
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: "bottom" } },
+        },
+      });
+
+      const pctEl = document.getElementById("onTimeLatePercentage");
+      if (pctEl)
+        pctEl.innerHTML = `On-time deliveries: <strong>${percent}%</strong>`;
+    });
+
+  // ===== 7. Recent Shipments =====
+  const tableBody = document.querySelector("[data-table='recentShipments']");
+  if (tableBody) {
+    fetch(
+      "https://cargosmarttsl-5.onrender.com/api/operational/shipments/recent"
+    )
+      .then((res) => res.json())
+      .then((rows) => {
+        tableBody.innerHTML = "";
+        if (!rows.length) {
+          tableBody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">No shipments yet</td></tr>`;
+          return;
+        }
+
+        rows.forEach((s) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${s.tracking_number ?? "-"}</td>
+            <td>${s.client_name ?? "-"}</td>
+            <td>${s.port_origin ?? "-"}</td>
+            <td>${s.port_delivery ?? "-"}</td>
+            <td>${
+              s.created_at ? new Date(s.created_at).toLocaleDateString() : "-"
+            }</td>
+            <td><span class="badge bg-${(
+              s.status ?? "secondary"
+            ).toLowerCase()}">${s.status ?? "Unknown"}</span></td>
+          `;
+          tableBody.appendChild(tr);
+        });
+      });
+  }
 });
 
 // =============================
@@ -262,7 +243,9 @@ document.addEventListener("DOMContentLoaded", async function () {
   if (!tableBody) return;
 
   try {
-    const res = await fetch("http://localhost:5001/api/operational/shipments/recent");
+    const res = await fetch(
+      "https://cargosmarttsl-5.onrender.com/api/operational/shipments/recent"
+    );
     if (!res.ok) throw new Error("Failed to fetch recent shipments");
 
     const shipments = await res.json();
@@ -279,15 +262,20 @@ document.addEventListener("DOMContentLoaded", async function () {
       return;
     }
 
-    shipments.forEach(shipment => {
+    shipments.forEach((shipment) => {
       const row = document.createElement("tr");
 
       const status = (shipment.status || "").toLowerCase();
       let badgeClass =
-        status === "approved" ? "success" :
-        status === "pending" ? "warning" :
-        status === "completed" ? "primary" :
-        status === "declined" ? "danger" : "secondary";
+        status === "approved"
+          ? "success"
+          : status === "pending"
+          ? "warning"
+          : status === "completed"
+          ? "primary"
+          : status === "declined"
+          ? "danger"
+          : "secondary";
 
       row.innerHTML = `
         <td>${shipment.tracking_number ?? "-"}</td>

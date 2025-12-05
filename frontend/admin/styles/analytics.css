@@ -682,3 +682,30 @@ nav.close ~ .dashboard footer {
     margin-left: 0;
   }
 }
+
+.client-filter-dropdown {
+  position: absolute !important;
+
+  /* OPEN DOWNWARD */
+  top: 100% !important;
+  bottom: auto !important;
+
+  /* ALIGN LEFT SIDE TO BUTTON */
+  left: 0 !important;
+  right: auto !important;
+
+  /* PREVENT FOOTER CUTTING */
+  max-height: 250px !important;
+  overflow-y: auto !important;
+
+  background: #fff;
+  z-index: 99999 !important;
+  border-radius: 8px;
+}
+
+/* Make all tab buttons same size */
+.tab-btn {
+  flex: 1 !important;
+  text-align: center;
+  white-space: nowrap;
+}

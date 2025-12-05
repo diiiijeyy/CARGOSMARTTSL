@@ -1,285 +1,39 @@
-// ==============================
-// Optimized WebSocket for GPS updates 
-// ==============================
-let ws;
-let mapMarkers = {};
-let lastPositions = {}; // ✅ Track last known coordinates per shipment
-let pendingGPSUpdates = [];
-let markerAnimations = {}; 
-let allShipments = [];
+let pendingGPSUpdates = []; // buffer GPS updates before map loads
+let mapMarkers = {}; // active map markers per shipment
+let markerAnimations = {}; // small trails memory
+let lastPositions = {}; // last known coordinates per shipment
+let allShipments = []; // cache from /api/admin/shipments
+let ws = null;
 
+let currentStatusFilter = "all";
+let currentSearch = "";
 
-function initWebSocket() {
-  ws = new WebSocket("wss://caiden-recondite-psychometrically.ngrok-free.dev");
+let adminRouteLayer = null;
+let adminRouteCoordinates = [];
+let adminLastRouteStart = {}; // store per shipment
+const ADMIN_ROUTE_REDRAW_MIN_DISTANCE = 50; // meters
+let autoFollow = true; // Map will follow the truck unless user moves map
 
-  ws.onopen = () => console.log("✅ GPS WebSocket connected");
+let adminLiveLine = null;
 
-  ws.onmessage = (event) => {
-    try {
-      const data = JSON.parse(event.data);
-
-      // 🟢 INITIAL BATCH DATA (first load)
-      if (data.type === "init" || data.type === "init_data") {
-        if (!modalMap || !state.activeShipmentId) {
-          pendingGPSUpdates.push(data);
-          return;
-        }
-
-        const allData = data.data || {};
-        const activeId = String(state.activeShipmentId);
-
-        if (allData[activeId]) {
-          const { latitude, longitude } = allData[activeId];
-          if (latitude && longitude) {
-            lastPositions[activeId] = { lat: latitude, lng: longitude };
-            updateShipmentMarkerSmooth(activeId, latitude, longitude);
-          }
-        }
-        return;
-      }
-
-      // 🟡 LIVE GPS UPDATE (from backend, no type)
-      if (data.deviceId && data.latitude && data.longitude) {
-        console.log(
-          `📡 Live GPS update for ${data.deviceId}: ${data.latitude}, ${data.longitude}`
-        );
-
-        // Find which shipment belongs to this device
-        const shipment = (allShipments || []).find(
-          (s) => s.device_id === data.deviceId
-        );
-
-        if (!shipment) {
-          console.warn("⚠️ No shipment found for device:", data.deviceId);
-          return;
-        }
-
-        const shipmentId = String(shipment.id);
-
-        // Only process if this shipment is currently viewed
-        if (
-          !state.activeShipmentId ||
-          shipmentId !== String(state.activeShipmentId)
-        )
-          return;
-
-        // Buffer update if map not ready
-        if (!modalMap) {
-          pendingGPSUpdates.push(data);
-          return;
-        }
-
-        // Avoid redundant updates
-        const last = lastPositions[shipmentId];
-        if (
-          last &&
-          Math.abs(last.lat - data.latitude) < 0.00001 &&
-          Math.abs(last.lng - data.longitude) < 0.00001
-        ) {
-          return;
-        }
-
-        // Save last known position
-        lastPositions[shipmentId] = { lat: data.latitude, lng: data.longitude };
-
-        // 🧭 Move marker smoothly
-        updateShipmentMarkerSmooth(shipmentId, data.latitude, data.longitude);
-      }
-    } catch (err) {
-      console.error("❌ WS parse error:", err, event.data);
-    }
-  };
-
-  ws.onclose = () => {
-    console.warn("⚠️ GPS WS disconnected, retrying in 3s...");
-    setTimeout(initWebSocket, 3000);
-  };
-
-  ws.onerror = (err) => {
-    console.error("❌ WebSocket error:", err);
-  };
-}
-
-
-
-
-// ==============================
-// 📍 Update or Create Shipment Marker (Improved + Auto Unassign)
-// ==============================
-async function updateShipmentMarker(shipmentId, lat, lng) {
-  // Validate coordinates
-  if (lat == null || lng == null || isNaN(lat) || isNaN(lng)) {
-    console.warn("⚠️ Skipping marker update: invalid coordinates", { shipmentId, lat, lng });
-    return;
-  }
-
-  if (!modalMap) {
-    console.warn("⚠️ Map not ready yet — skipping marker update");
-    return;
-  }
-
-  shipmentId = String(shipmentId);
-  console.log("🟢 updateShipmentMarker CALLED for:", shipmentId, lat, lng);
-
-  // ✅ Allow updates for ALL shipments (no filtering by activeShipmentId)
-  if (mapMarkers[shipmentId]) {
-    // Update existing marker position
-    mapMarkers[shipmentId].setLatLng([lat, lng]);
-   } else {
-    // Create immediately and store first
-    const marker = L.marker([lat, lng])
-      .addTo(modalMap)
-      .bindPopup(
-        `<b>Shipment #${shipmentId}</b><br>
-         Lat: ${lat.toFixed(5)}<br>
-         Lng: ${lng.toFixed(5)}`
-      );
-    mapMarkers[shipmentId] = marker;
-
-     hasAssignedGpsDevice(shipmentId).then(assigned => {
-      if (assigned && assigned.device_id) {
-        marker.device_id = assigned.device_id;
-      }
-    });
-  }
-
-  // 🧭 Auto-unassign when near destination
-  const shipment = state.shipments.find(s => String(s.id) === String(shipmentId));
-  if (shipment && shipment.delivery_port_lat && shipment.delivery_port_lng) {
-    const destLat = shipment.destination_lat;
-    const destLng = shipment.destination_lng;
-
-
-    const current = L.latLng(lat, lng);
-    const destination = L.latLng(destLat, destLng);
-    const distance = modalMap.distance(current, destination);
-
-    if (distance < 200) { // within 200 meters
-      console.log(`🚩 Shipment ${shipmentId} reached destination (${distance.toFixed(1)}m)`);
-
-      const deviceId = mapMarkers[shipmentId]?.device_id;
-      if (deviceId) {
-        try {
-          await fetch(`${CONFIG.gpsUrl}/unassign/${deviceId}`, { method: "PUT" });
-          modalMap.removeLayer(mapMarkers[shipmentId]);
-          delete mapMarkers[shipmentId];
-
-          showNotification({
-            variant: "info",
-            title: "Shipment Arrived",
-            message: `Shipment #${shipmentId} reached destination. GPS auto-unassigned.`,
-          });
-
-          fetchShipments();
-        } catch (err) {
-          console.error("❌ Auto-unassign error:", err);
-        }
-      }
-    }
-  }
-}
-
-// ==============================
-// Smoothly move markers (animated GPS updates)
-// ==============================
-function updateShipmentMarkerSmooth(shipmentId, newLat, newLng) {
-  shipmentId = String(shipmentId);
-
-  // Initialize trail storage
-  if (!markerAnimations[shipmentId]) markerAnimations[shipmentId] = [];
-
-  // Create truck marker if missing
-  if (!mapMarkers[shipmentId]) {
-    const truckIcon = L.divIcon({
-      html: '<i class="fas fa-truck-moving" style="color:#0077b6;font-size:28px;transform:rotate(0deg);"></i>',
-      className: "truck-marker",
-      iconSize: [30, 30],
-      iconAnchor: [15, 15],
-    });
-    const marker = L.marker([newLat, newLng], { icon: truckIcon }).addTo(modalMap);
-    mapMarkers[shipmentId] = marker;
-    markerAnimations[shipmentId].push([newLat, newLng]);
-    return;
-  }
-
-  const marker = mapMarkers[shipmentId];
-  const oldPos = marker.getLatLng();
-  const steps = 25; // smoother animation
-  const duration = 1200; // ms
-  const stepLat = (newLat - oldPos.lat) / steps;
-  const stepLng = (newLng - oldPos.lng) / steps;
-  let currentStep = 0;
-
-  // 🧭 Rotate marker to face direction of movement
-  const angle = Math.atan2(newLng - oldPos.lng, newLat - oldPos.lat) * (180 / Math.PI);
-  const iconEl = marker.getElement()?.querySelector("i");
-  if (iconEl) {
-    iconEl.style.transition = "transform 0.3s linear";
-    iconEl.style.transform = `rotate(${angle}deg)`;
-  }
-
-  // 🟦 Draw fading trail segment
-  const prevPoint = markerAnimations[shipmentId].slice(-1)[0];
-  const newPoint = [newLat, newLng];
-  markerAnimations[shipmentId].push(newPoint);
-
-  if (prevPoint) {
-    const trail = L.polyline([prevPoint, newPoint], {
-      color: "#0077b6",
-      weight: 3,
-      opacity: 0.8,
-    }).addTo(modalMap);
-
-    // 🔥 Gradually fade and remove after a few seconds
-    let opacity = 0.8;
-    const fadeInterval = setInterval(() => {
-      opacity -= 0.1;
-      if (opacity <= 0) {
-        clearInterval(fadeInterval);
-        modalMap.removeLayer(trail);
-      } else {
-        trail.setStyle({ opacity });
-      }
-    }, 400);
-  }
-
-  // 🎞️ Animate marker movement
-  const moveInterval = setInterval(() => {
-    if (currentStep >= steps) {
-      clearInterval(moveInterval);
-      marker.setLatLng([newLat, newLng]);
-      return;
-    }
-
-    const lat = oldPos.lat + stepLat * currentStep;
-    const lng = oldPos.lng + stepLng * currentStep;
-    marker.setLatLng([lat, lng]);
-
-    //center map optional when moving truck
-    // modalMap.panTo([lat, lng], { animate: true, duration: 0.5 });
-
-    currentStep++;
-  }, duration / steps);
-}
-
-// ==============================
-// Configuration
-// ==============================
+/* ==============================
+   Configuration
+   ============================== */
 const CONFIG = {
-  apiUrl: "https://caiden-recondite-psychometrically.ngrok-free.dev/api/admin/shipments",
-  notifUrl: "https://caiden-recondite-psychometrically.ngrok-free.dev/api/admin/notifications",
-  gpsUrl: "https://caiden-recondite-psychometrically.ngrok-free.dev/api/gps",
-  assignGpsUrl: "https://caiden-recondite-psychometrically.ngrok-free.dev/api/assign-gps",
-  wsUrl: "wss://caiden-recondite-psychometrically.ngrok-free.dev",
+  apiUrl:
+    "https://cargosmarttsl-5.onrender.com/api/admin/shipments",
+  notifUrl:
+    "https://cargosmarttsl-5.onrender.com/api/admin/notifications",
+  wsUrl: "wss://cargosmarttsl-5.onrender.com",
   defaultCenter: [14.5995, 120.9842],
   defaultZoom: 13,
   mapTileUrl: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
   mapAttribution: "© OpenStreetMap contributors",
 };
 
-// ==============================
-// DOM Elements
-// ==============================
+/* ==============================
+   DOM Elements
+   ============================== */
 const elements = {
   tableBody: document.getElementById("recent-shipments-table"),
   modalEl: document.getElementById("shipmentDetailsModal"),
@@ -287,19 +41,466 @@ const elements = {
   mapId: "shipmentMap",
 };
 
-// ==============================
-// State
-// ==============================
+/* ==============================
+   State
+   ============================== */
 const state = {
   shipments: [],
   activeShipmentId: null,
 };
 
+function computeBearing(lat1, lon1, lat2, lon2) {
+  const toRad = (d) => (d * Math.PI) / 180;
+  const toDeg = (r) => (r * 180) / Math.PI;
+
+  const dLon = toRad(lon2 - lon1);
+
+  lat1 = toRad(lat1);
+  lat2 = toRad(lat2);
+
+  const y = Math.sin(dLon) * Math.cos(lat2);
+  const x =
+    Math.cos(lat1) * Math.sin(lat2) -
+    Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+
+  const brng = Math.atan2(y, x);
+  return (toDeg(brng) + 360) % 360;
+}
+
+/* ==============================
+   Mga dinagdag ko (RUDY)
+   ============================== */
+
+// Convert driverId → shipmentId
+function getShipmentIdByDriverId(driverId) {
+  if (!driverId) return null;
+
+  const shipment = state.shipments.find(
+    (s) => String(s.driver_id) === String(driverId)
+  );
+
+  return shipment ? String(shipment.id) : null;
+}
+
 let modalMap = null;
 
-// ==============================
-// Notifications
-// ==============================
+/* ==============================
+   WebSocket stream for GPS updates
+   ============================== */
+function initWebSocket() {
+  try {
+    if (
+      ws &&
+      (ws.readyState === WebSocket.OPEN ||
+        ws.readyState === WebSocket.CONNECTING)
+    ) {
+      return;
+    }
+  } catch (_) {}
+
+  ws = new WebSocket(CONFIG.wsUrl);
+
+  ws.onopen = () => console.log("✅ GPS WebSocket connected (admin)");
+
+  ws.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+
+      /* ==============================
+         1) INITIAL COORDINATE BATCH
+         ============================== */
+      if (data.type === "init" || data.type === "init_data") {
+        const allData = data.data || {};
+        console.log("🟦 INIT DATA RECEIVED:", allData);
+
+        Object.entries(allData).forEach(([shipmentId, coords]) => {
+          const lat = Number(coords.latitude);
+          const lng = Number(coords.longitude);
+          if (isFinite(lat) && isFinite(lng)) {
+            lastPositions[String(shipmentId)] = {
+              lat,
+              lng,
+              t: Number(coords.timestamp) || Date.now(),
+            };
+          }
+        });
+        return;
+      }
+
+      /* ==============================
+         2) LIVE DRIVER GPS UPDATE
+         ============================== */
+      if (
+        data.type === "gps_update" ||
+        data.type === "update" ||
+        data.type === "driver_location" ||
+        data.type === "driver_gps"
+      ) {
+        const resolvedShipmentId = String(
+          data.shipmentId || getShipmentIdByDriverId(data.driverId)
+        );
+
+        const newLat = Number(data.latitude || data.lat);
+        const newLng = Number(data.longitude || data.lng);
+
+        if (!resolvedShipmentId || !isFinite(newLat) || !isFinite(newLng)) {
+          console.warn(
+            "⚠ GPS update ignored – invalid data",
+            data,
+            "resolvedShipmentId:",
+            resolvedShipmentId
+          );
+          return;
+        }
+
+        const shipment = state.shipments.find(
+          (s) => String(s.id) === resolvedShipmentId
+        );
+
+        if (!shipment) {
+          console.warn(
+            "⚠ GPS update for shipment that is not in state.shipments yet:",
+            resolvedShipmentId
+          );
+          return;
+        }
+
+        if (String(shipment.status).toLowerCase() === "delivered") {
+          console.log(
+            "ℹ GPS ignored because shipment already delivered:",
+            resolvedShipmentId
+          );
+          return;
+        }
+
+        if (!shipment.driver_id) {
+          console.log(
+            "ℹ GPS ignored because shipment has no driver_id:",
+            resolvedShipmentId
+          );
+          return;
+        }
+
+        console.log(
+          `📡 GPS → Shipment #${resolvedShipmentId} | ${newLat}, ${newLng}`
+        );
+
+        // jitter filter
+        const last = lastPositions[resolvedShipmentId];
+        const moved =
+          !last ||
+          Math.abs(last.lat - newLat) > 0.00001 ||
+          Math.abs(last.lng - newLng) > 0.00001;
+
+        if (!moved) {
+          // console.log("🟡 Ignoring tiny jitter for shipment", resolvedShipmentId);
+          return;
+        }
+
+        // save last coord
+        lastPositions[resolvedShipmentId] = {
+          lat: newLat,
+          lng: newLng,
+          t: Date.now(),
+        };
+
+        /* ==============================
+           3) If modal is open → live marker move
+           ============================== */
+        if (
+          modalMap &&
+          state.activeShipmentId &&
+          String(state.activeShipmentId) === resolvedShipmentId
+        ) {
+          console.log(
+            "🟢 Applying LIVE GPS to active modal shipment:",
+            resolvedShipmentId
+          );
+          updateShipmentMarker(resolvedShipmentId, newLat, newLng);
+
+          const shipment = state.shipments.find(
+            (s) => String(s.id) === resolvedShipmentId
+          );
+          if (!shipment || !shipment.driver_id) return;
+
+          if (shipment?.delivery_lat && shipment?.delivery_lon) {
+            drawAdminRoute(resolvedShipmentId, newLat, newLng);
+          }
+
+          if (mapMarkers[resolvedShipmentId]) {
+            mapMarkers[resolvedShipmentId].setLatLng([newLat, newLng]);
+          }
+        } else {
+          /* ==============================
+             4) Modal closed → buffer update
+             ============================== */
+          console.log(
+            "📦 Buffering GPS update for shipment (modal closed):",
+            resolvedShipmentId
+          );
+
+          pendingGPSUpdates = pendingGPSUpdates.filter(
+            (u) => String(u.shipmentid) !== resolvedShipmentId
+          );
+
+          pendingGPSUpdates.push({
+            shipmentid: resolvedShipmentId,
+            latitude: newLat,
+            longitude: newLng,
+          });
+        }
+      }
+    } catch (err) {
+      console.error("GPS parse error:", err, "raw:", event.data);
+    }
+  };
+
+  ws.onclose = () => {
+    console.warn("GPS socket closed — reconnecting in 3s…");
+    setTimeout(initWebSocket, 3000);
+  };
+
+  ws.onerror = (e) => {
+    console.warn("GPS socket error:", e?.message || e);
+  };
+}
+
+//===================================//
+//            GPS CODES             //
+//=================================//
+async function drawAdminRoute(shipmentId, startLat, startLng) {
+  const shipment = state.shipments.find(
+    (s) => String(s.id) === String(shipmentId)
+  );
+  if (!shipment) {
+    console.warn(
+      "❌ drawAdminRoute: shipment not found in state for id",
+      shipmentId
+    );
+    return;
+  }
+
+  // Ensure that the origin coordinates are valid
+  if (!isFinite(startLat) || !isFinite(startLng)) {
+    console.warn("❌ Invalid origin coordinates:", startLat, startLng);
+    return;
+  }
+
+  // Ensure the destination coordinates are valid (priority: specific_lat > delivery_lat)
+  let destLat = null;
+  let destLng = null;
+
+  if (isFinite(shipment.specific_lat) && isFinite(shipment.specific_lon)) {
+    destLat = Number(shipment.specific_lat);
+    destLng = Number(shipment.specific_lon);
+  } else if (
+    isFinite(shipment.delivery_lat) &&
+    isFinite(shipment.delivery_lon)
+  ) {
+    destLat = Number(shipment.delivery_lat);
+    destLng = Number(shipment.delivery_lon);
+  }
+
+  if (!isFinite(destLat) || !isFinite(destLng)) {
+    console.warn(
+      "❌ No valid destination coordinates for shipment:",
+      shipmentId
+    );
+    return;
+  }
+
+  console.log("🧭 ADMIN ROUTE REQUEST:", {
+    shipmentId,
+    startLat,
+    startLng,
+    destLat,
+    destLng,
+  });
+
+  // Now we can safely send the request to ORS
+  try {
+    const url = `/api/map/route?originLat=${startLat}&originLng=${startLng}&destLat=${destLat}&destLng=${destLng}`;
+    const res = await fetch(url);
+    if (!res.ok) {
+      console.warn("⚠ ORS HTTP error:", res.status);
+      return;
+    }
+
+    const json = await res.json();
+    let coords = json.features?.[0]?.geometry?.coordinates;
+
+    // Check if ORS returned coordinates
+    if (!coords || coords.length < 2) {
+      console.warn("⚠ ORS returned NO route — skipping draw.");
+      showNotification({
+        variant: "warning",
+        title: "No Route Found",
+        message: `Could not find a route between the driver and the destination for shipment #${shipmentId}.`,
+      });
+      return;
+    }
+
+    const latlng = coords.map((c) => [c[1], c[0]]);
+
+    if (adminRouteLayer && modalMap) {
+      modalMap.removeLayer(adminRouteLayer);
+    }
+
+    if (modalMap) {
+      adminRouteLayer = L.polyline(latlng, {
+        color: "#0077b6",
+        weight: 5,
+        opacity: 0.95,
+      }).addTo(modalMap);
+
+      adminRouteCoordinates = latlng;
+    }
+  } catch (err) {
+    console.error("❌ ADMIN ROUTE ERROR:", err);
+  }
+}
+
+//===================================//
+//       END of GPS CODES           //
+//=================================//
+
+function snapToRoute(lat, lng, routeCoords) {
+  if (!routeCoords || routeCoords.length === 0) return { lat, lng };
+
+  let nearestPoint = null;
+  let nearestDist = Infinity;
+
+  for (let i = 0; i < routeCoords.length; i++) {
+    const [rLat, rLng] = routeCoords[i];
+
+    const dist = haversine(lat, lng, rLat, rLng);
+    if (dist < nearestDist) {
+      nearestDist = dist;
+      nearestPoint = { lat: rLat, lng: rLng };
+    }
+  }
+
+  return nearestPoint || { lat, lng };
+}
+
+/* ============================
+   Haversine Distance (meters)
+=============================*/
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371000; // meters
+  const toRad = (v) => (v * Math.PI) / 180;
+
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+async function updateShipmentMarker(shipmentId, newLat, newLng) {
+  shipmentId = String(shipmentId);
+
+  const shipment = state.shipments.find((s) => String(s.id) === shipmentId);
+  if (!shipment) return;
+
+  if (String(shipment.status).toLowerCase() === "delivered") return;
+  if (!modalMap || !isFinite(newLat) || !isFinite(newLng)) return;
+
+  const markerExists = !!mapMarkers[shipmentId];
+
+  // Create marker if missing
+  if (!markerExists) {
+    const truckIcon = L.divIcon({
+      html: '<i class="fas fa-truck-moving" style="font-size:28px;color:#0077b6;"></i>',
+      className: "truck-marker",
+      iconSize: [30, 30],
+      iconAnchor: [15, 15],
+    });
+
+    mapMarkers[shipmentId] = L.marker([newLat, newLng], {
+      icon: truckIcon,
+    }).addTo(modalMap);
+
+    adminLastRouteStart[shipmentId] = { lat: newLat, lng: newLng };
+  }
+
+  const marker = mapMarkers[shipmentId];
+  marker.setLatLng([newLat, newLng]);
+
+  /* ----------------------------------------------
+     DESTINATION PRIORITY:
+     1) specific_lat/lon
+     2) delivery_lat/lon
+     3) fallback geocode(port_delivery)
+  ---------------------------------------------- */
+  let destLat = null;
+  let destLng = null;
+
+  if (isFinite(shipment.specific_lat) && isFinite(shipment.specific_lon)) {
+    destLat = Number(shipment.specific_lat);
+    destLng = Number(shipment.specific_lon);
+  } else if (
+    isFinite(shipment.delivery_lat) &&
+    isFinite(shipment.delivery_lon)
+  ) {
+    destLat = Number(shipment.delivery_lat);
+    destLng = Number(shipment.delivery_lon);
+  } else {
+    // Fallback geocoding
+    const address = shipment.port_delivery;
+    if (address && address.trim()) {
+      console.warn("⏳ Destination missing — geocoding:", address);
+
+      const geo = await validateGeoapifyLocation(address);
+      if (geo) {
+        destLat = geo.lat;
+        destLng = geo.lon;
+
+        // Save result into shipment for future use
+        shipment.delivery_lat = geo.lat;
+        shipment.delivery_lon = geo.lon;
+
+        console.log("✅ Geocoded destination:", geo.display_name);
+      }
+    }
+  }
+
+  // Still invalid → stop
+  if (!isFinite(destLat) || !isFinite(destLng)) {
+    if (adminLiveLine && modalMap) {
+      modalMap.removeLayer(adminLiveLine);
+      adminLiveLine = null;
+    }
+    console.warn(
+      "❌ No valid destination coordinates for shipment:",
+      shipmentId
+    );
+    return;
+  }
+
+  // Redraw straight line driver → destination
+  if (adminLiveLine && modalMap) {
+    modalMap.removeLayer(adminLiveLine);
+  }
+
+  adminLiveLine = L.polyline(
+    [
+      [newLat, newLng],
+      [destLat, destLng],
+    ],
+    {
+      color: "#ff8800",
+      weight: 4,
+    }
+  ).addTo(modalMap);
+}
+
+/* ==============================
+   Notifications
+   ============================== */
 function ensureNotificationModal() {
   if (document.getElementById("notificationModal")) return;
   const modalHTML = `
@@ -323,7 +524,11 @@ function ensureNotificationModal() {
 
 const NotificationTheme = {
   success: { accent: "#2fbf71", icon: "fas fa-check-circle", title: "Success" },
-  warning: { accent: "#ffc107", icon: "fas fa-exclamation-triangle", title: "Warning" },
+  warning: {
+    accent: "#ffc107",
+    icon: "fas fa-exclamation-triangle",
+    title: "Warning",
+  },
   error: { accent: "#e63946", icon: "fas fa-times-circle", title: "Error" },
   info: { accent: "#0d6efd", icon: "fas fa-info-circle", title: "Info" },
 };
@@ -350,363 +555,542 @@ function showNotification(arg1, arg2, arg3) {
   titleEl.textContent = title;
   msgEl.innerHTML = message;
 
-  const modal = new bootstrap.Modal(document.getElementById("notificationModal"));
+  const modal = new bootstrap.Modal(
+    document.getElementById("notificationModal")
+  );
   modal.show();
   setTimeout(() => modal.hide(), 1800);
 }
 
-// ==============================
-// ✅ Fetch and Display Assigned GPS Device
-// ==============================
-async function loadAssignedGPS(shipmentId) {
-  try {
-    const res = await fetch(`${CONFIG.gpsUrl}/assigned/${shipmentId}`);
-
-    // 🟡 Silently handle 404 (no GPS)
-    if (res.status === 404) {
-      const gpsStatus = document.getElementById("gpsStatus");
-      if (gpsStatus) {
-        gpsStatus.innerHTML = `
-          <div class="alert alert-warning py-2 px-3 mb-2">
-            ⚠️ No GPS device assigned.
-          </div>`;
-      }
-      return; // ✅ stop quietly — no console error
-    }
-
-    // 🟠 Handle unexpected errors but suppress console noise
-    if (!res.ok) return;
-
-    const data = await res.json();
-    const gpsStatus = document.getElementById("gpsStatus");
-    if (!gpsStatus) return;
-
-    gpsStatus.innerHTML = `
-      <div class="alert alert-success py-2 px-3 mb-2">
-        ✅ <b>${data.device_id}</b> assigned<br>
-        Notes: ${data.notes || "None"}<br>
-        Assigned: ${new Date(data.assigned_at).toLocaleString()}
-      </div>`;
-  } catch (err) {
-    // 👇 no error spam for harmless cases
-    console.debug("loadAssignedGPS() silent:", err);
-  }
-}
-
-// ==============================
-// 🧭 Show Shipment Details (with map + progress tracker)
-// ==============================
+/* ==============================
+   Show Shipment Details (map + progress)
+   ============================== */
 async function showShipmentDetails(shipment) {
+  state.activeShipmentId = String(shipment.id);
+  const idStr = state.activeShipmentId;
+
+  console.log("🔍 showShipmentDetails for shipment:", shipment.id);
+
   const card = document.getElementById("shipmentDetailsCard");
   if (!card) {
-    console.error("❌ shipmentDetailsCard not found in DOM");
+    console.error("shipmentDetailsCard not found in DOM");
     return;
   }
 
-  card.innerHTML = "";
+  /** ==========================================
+   *  CLEAN OLD MAP
+   * ========================================== */
   if (modalMap) {
-    modalMap.remove();
+    try {
+      modalMap.remove();
+    } catch (_) {}
     modalMap = null;
   }
 
-  // Render shipment tracker header
+  /** ==========================================
+   *  RENDER UI
+   * ========================================== */
   if (typeof renderOrderTrackerHTML === "function") {
-    card.innerHTML = renderOrderTrackerHTML(shipment);
+    card.innerHTML =
+      renderOrderTrackerHTML(shipment) + renderDriverInfoHTML(shipment);
   }
 
-  // Determine current shipment progress
+  // Progress bar
   const statusKey = normalizeShipmentStatus(shipment.status);
   const steps = ["processed", "shipped", "en_route", "delivered"];
   const idx = Math.max(0, steps.indexOf(statusKey));
   if (typeof setOrderStep === "function") setOrderStep(idx);
 
-  // Show modal
-  const modal = new bootstrap.Modal(document.getElementById("shipmentDetailsModal"));
+  /** ==========================================
+   *  OPEN MODAL
+   * ========================================== */
+  const modal = new bootstrap.Modal(
+    document.getElementById("shipmentDetailsModal")
+  );
   modal.show();
 
-  state.activeShipmentId = shipment.id;
-
-  // ✅ Load GPS assignment and check if one exists
-  await loadAssignedGPS(shipment.id);
-  const hasDevice = await hasAssignedGpsDevice(shipment.id);
-
-  if (!hasDevice) {
-    showNotification({
-      variant: "warning",
-      title: "No GPS Assigned",
-      message: `Shipment #${shipment.tracking_number || shipment.id} has no GPS device assigned.`,
-    });
-
-    const mapContainer = document.getElementById("shipmentMap");
-    if (mapContainer)
-      mapContainer.innerHTML = `<div class="text-center text-muted py-4">No GPS device assigned</div>`;
-
-    const unassignBtn = document.getElementById("unassignGpsBtn");
-    if (unassignBtn) unassignBtn.style.display = "none";
-    return;
-  } else {
-    const unassignBtn = document.getElementById("unassignGpsBtn");
-    if (unassignBtn) {
-      unassignBtn.style.display = "inline-block";
-      unassignBtn.onclick = () => unassignGpsDevice(hasDevice.device_id || hasDevice.id);
-    }
-  }
-
-  // ✅ Initialize map after short delay
-  state.activeShipmentId = String(shipment.id);
   setTimeout(async () => {
+    /** ==========================================
+     *  DRIVER LAST POSITION
+     * ========================================== */
+    const hasDriver =
+      shipment.driver_id &&
+      shipment.driver_first_name &&
+      shipment.driver_last_name;
+
+    let latestLive = lastPositions[idStr];
+    let coord = null;
+
+    if (hasDriver) {
+      if (latestLive && isFinite(latestLive.lat) && isFinite(latestLive.lng)) {
+        coord = { lat: latestLive.lat, lng: latestLive.lng, source: "live" };
+      } else if (
+        isFinite(Number(shipment.driver_lat)) &&
+        isFinite(Number(shipment.driver_lng))
+      ) {
+        coord = {
+          lat: Number(shipment.driver_lat),
+          lng: Number(shipment.driver_lng),
+          source: "driver_last_gps",
+        };
+      }
+    }
+
+    console.log("🗺 Initial coord for modal map:", { shipmentId: idStr, coord });
+
+    const centerLat = coord ? coord.lat : CONFIG.defaultCenter[0];
+    const centerLon = coord ? coord.lng : CONFIG.defaultCenter[1];
+
+    /** ==========================================
+     *  CREATE MAP
+     * ========================================== */
     modalMap = L.map(elements.mapId).setView(
-      [shipment.latitude || CONFIG.defaultCenter[0], shipment.longitude || CONFIG.defaultCenter[1]],
+      [centerLat, centerLon],
       CONFIG.defaultZoom
     );
-    L.tileLayer(CONFIG.mapTileUrl, { attribution: CONFIG.mapAttribution }).addTo(modalMap);
 
-    // ===============================
-    // 🗺️ Origin → Destination + Driving Route
-    // ===============================
-    if (shipment.origin_lat && shipment.origin_lon && shipment.delivery_lat && shipment.delivery_lon) {
-      const origin = [shipment.origin_lat, shipment.origin_lon];
-      const destination = [shipment.delivery_lat, shipment.delivery_lon];
+    L.tileLayer(CONFIG.mapTileUrl, {
+      attribution: CONFIG.mapAttribution,
+    }).addTo(modalMap);
 
-      // 🟢 Origin Marker
-      L.marker(origin, {
-        title: "Origin",
-        icon: L.divIcon({
-          className: "origin-marker",
-          html: '<i class="fas fa-warehouse" style="color:#2e7fc0;font-size:24px;"></i>',
-          iconSize: [24, 24],
-        }),
-      }).addTo(modalMap).bindPopup(`<b>Origin:</b><br>${shipment.port_origin || "Unknown"}`);
+    modalMap.on("dragstart", () => (autoFollow = false));
+    modalMap.on("zoomstart", () => (autoFollow = false));
 
-      // 🔵 Destination Marker
-      L.marker(destination, {
-        title: "Destination",
-        icon: L.divIcon({
-          className: "dest-marker",
-          html: '<i class="fas fa-map-marker-alt" style="color:#60adf4;font-size:26px;"></i>',
-          iconSize: [26, 26],
-        }),
-      }).addTo(modalMap).bindPopup(`<b>Destination:</b><br>${shipment.port_delivery || "Unknown"}`);
+    /** ==========================================
+     *  DESTINATION MARKER & LINE
+     * ========================================== */
+    await drawAdminRoute(idStr, coord.lat, coord.lng); // Redraw route with destination
 
-      // 🚗 Geoapify Driving Route (with fallback)
-      try {
-        const routeUrl = `https://api.geoapify.com/v1/routing?waypoints=${shipment.origin_lat},${shipment.origin_lon}|${shipment.delivery_lat},${shipment.delivery_lon}&mode=drive&apiKey=e5e95eba533c4eb69344256d49166905`;
-        const routeRes = await fetch(routeUrl);
-        const routeData = await routeRes.json();
-
-        if (routeData.features?.length) {
-          const coords = routeData.features[0].geometry.coordinates[0].map(([lon, lat]) => [lat, lon]);
-          const routeLine = L.polyline(coords, {
-            color: "#0077b6",
-            weight: 4,
-            opacity: 0.8,
-          }).addTo(modalMap);
-          modalMap.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
-        } else {
-          const fallback = L.polyline([origin, destination], {
-            color: "#60adf4",
-            weight: 4,
-            opacity: 0.9,
-            dashArray: "6,8",
-          }).addTo(modalMap);
-          modalMap.fitBounds(fallback.getBounds(), { padding: [50, 50] });
-        }
-      } catch (err) {
-        console.warn("Geoapify route fetch failed:", err);
-        const fallback = L.polyline([origin, destination], {
-          color: "#60adf4",
-          weight: 4,
-          opacity: 0.9,
-          dashArray: "6,8",
-        }).addTo(modalMap);
-        modalMap.fitBounds(fallback.getBounds(), { padding: [50, 50] });
-      }
+    /** ==========================================
+     *  APPLY LAST GPS / BUFFERED UPDATES
+     * ========================================== */
+    if (hasDriver && latestLive) {
+      updateShipmentMarker(idStr, latestLive.lat, latestLive.lng);
     }
 
-    // ✅ Apply buffered GPS updates (before map ready)
-    if (pendingGPSUpdates.length > 0) {
-      console.log(`📍 Applying ${pendingGPSUpdates.length} buffered GPS updates`);
-      for (const data of pendingGPSUpdates) {
-        if (String(data.shipmentid) === String(shipment.id)) {
-          updateShipmentMarkerSmooth(data.shipmentid, data.latitude, data.longitude);
-        }
-      }
-      pendingGPSUpdates = [];
+    const buffered = pendingGPSUpdates.filter(
+      (u) => String(u.shipmentid) === idStr
+    );
+    for (const b of buffered) {
+      updateShipmentMarker(idStr, b.latitude, b.longitude);
     }
 
-    // ✅ Fetch and display ONLY if there is an active GPS device
-    const activeDevice = await hasAssignedGpsDevice(shipment.id);
-    if (!activeDevice) {
-      console.log(`⛔ Skipping GPS history fetch — shipment ${shipment.id} has no assigned device.`);
-      const mapContainer = document.getElementById("shipmentMap");
-      if (mapContainer)
-        mapContainer.innerHTML = `<div class="text-center text-muted py-4">No GPS device assigned</div>`;
-      return;
-    }
+    pendingGPSUpdates = pendingGPSUpdates.filter(
+      (u) => String(u.shipmentid) !== idStr
+    );
 
-    // ✅ Fetch and display ONLY the latest GPS position (no route/trail)
-    const history = await fetchGpsHistory(shipment.id);
-    const lastValid = history
-      .filter((p) => p.latitude != null && p.longitude != null)
-      .pop();
-
-    if (lastValid) {
-      updateShipmentMarkerSmooth(String(shipment.id), lastValid.latitude, lastValid.longitude);
-      modalMap.setView([lastValid.latitude, lastValid.longitude], CONFIG.defaultZoom);
-    } else {
-      modalMap.setView(CONFIG.defaultCenter, CONFIG.defaultZoom);
-    }
-
-    // 🚀 Start live tracking (no history trails)
+    /** ==========================================
+     *  TRACK ONLY THIS SHIPMENT
+     * ========================================== */
     startGpsTracking(shipment.id, modalMap);
-  }, 350);
+  }, 250);
 }
 
-// 🔧 Ensure map resizes properly when modal becomes visible
-document.getElementById("shipmentDetailsModal").addEventListener("shown.bs.modal", () => {
-  if (modalMap) {
-    setTimeout(() => modalMap.invalidateSize(), 250);
+/* Map Resize When Modal Opens */
+document
+  .getElementById("shipmentDetailsModal")
+  ?.addEventListener("shown.bs.modal", () => {
+    if (modalMap) setTimeout(() => modalMap.invalidateSize(), 200);
+  });
+
+/* Cleanup on Close */
+document
+  .getElementById("shipmentDetailsModal")
+  ?.addEventListener("hidden.bs.modal", () => {
+    if (modalMap) {
+      try {
+        modalMap.eachLayer((layer) => {
+          if (layer instanceof L.Marker || layer instanceof L.Polyline)
+            modalMap.removeLayer(layer);
+        });
+        modalMap.remove();
+      } catch (_) {}
+    }
+    modalMap = null;
+  });
+
+/* ==============================
+   Keep map responsive
+============================== */
+document
+  .getElementById("shipmentDetailsModal")
+  ?.addEventListener("shown.bs.modal", () => {
+    if (modalMap) setTimeout(() => modalMap.invalidateSize(), 200);
+  });
+
+/* ==============================
+   Cleanup map when modal closes
+============================== */
+document
+  .getElementById("shipmentDetailsModal")
+  ?.addEventListener("hidden.bs.modal", () => {
+    if (modalMap && typeof modalMap.remove === "function") {
+      try {
+        modalMap.eachLayer((layer) => {
+          if (layer instanceof L.Marker || layer instanceof L.Polyline) {
+            modalMap.removeLayer(layer);
+          }
+        });
+        modalMap.remove();
+      } catch (err) {
+        console.warn("Map cleanup skipped:", err);
+      }
+    }
+    modalMap = null;
+  });
+
+/* ==============================
+   View Button + Status Buttons (Delegated)
+   ============================== */
+document.addEventListener("click", (e) => {
+  // View button
+  if (e.target.closest(".btn-view")) {
+    const btn = e.target.closest(".btn-view");
+    const shipmentId = btn.dataset.id;
+    const shipment = state.shipments.find((s) => String(s.id) === shipmentId);
+    if (shipment) showShipmentDetails(shipment);
+    return;
+  }
+
+  // Status buttons
+  if (e.target.closest(".shipment-action-btn")) {
+    const btn = e.target.closest(".shipment-action-btn");
+    const shipmentId = btn.dataset.id;
+    const newStatus = btn.dataset.status;
+    checkStatusSequenceBeforeUpdate(shipmentId, newStatus);
+    return;
   }
 });
 
-
-
-// ==============================
-// ✅ GPS + API calls
-// ==============================
-async function hasAssignedGpsDevice(id) {
+/* ==============================
+   Update shipment status (admin)
+   ============================== */
+async function updateShipmentStatus(shipmentId, newStatus) {
   try {
-    const res = await fetch(`${CONFIG.gpsUrl}/assigned/${id}`);
+    console.log("Updating status...", shipmentId, newStatus);
 
-    // 🟡 Ignore normal “not found” case
-    if (res.status === 404) return null;
-    if (!res.ok) return null;
-
-    const data = await res.json();
-    return data.device_id ? data : null;
-  } catch {
-    return null; // no console output
-  }
-}
-
-async function fetchGpsHistory(id) {
-  try {
-    const res = await fetch(`${CONFIG.gpsUrl}/history/${id}`);
-    if (!res.ok) return [];
-    return await res.json();
-  } catch {
-    return [];
-  }
-}
-
-//check if currently assigned
-
-async function fetchAssignedGPS(shipmentId) {
-  const res = await fetch(`${CONFIG.gpsUrl}/assigned/${shipmentId}`);
-  if (!res.ok) return null;
-  const data = await res.json();
-  return data.device_id ? data : null;
-}
-
-
-// ==============================
-// 💾 Add & Assign GPS Device
-// ==============================
-const addGpsForm = document.getElementById("addGpsForm");
-if (addGpsForm) {
-  addGpsForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const device_id = document.getElementById("gpsImei").value.trim();
-    const shipment_id = document.getElementById("gpsShipment").value.trim();
-    const notes = document.getElementById("gpsNotes").value.trim();
-
-console.log("🚀 Sending GPS assignment:", { device_id, shipment_id, notes });
-
-
-    if (!device_id || !shipment_id) {
-      alert("Please enter device ID and select a shipment.");
-      return;
-    }
-
-    try {
-      const res = await fetch(`${CONFIG.gpsUrl}/devices`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ device_id, shipment_id, notes }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to add and assign GPS device.");
-
-      alert(data.message);
-      addGpsForm.reset();
-      bootstrap.Modal.getInstance(document.getElementById("addGpsModal")).hide();
-    } catch (err) {
-      alert("❌ " + err.message);
-    }
-  });
-}
-
-
-// ==============================
-// 🔴 Unassign GPS Device (Improved)
-// ==============================
-async function unassignGpsDevice(device_id) {
-  if (!device_id) {
-    alert("⚠️ No device ID provided.");
-    return;
-  }
-
-  if (!confirm(`Are you sure you want to unassign device "${device_id}"?`)) return;
-
-  try {
-    const res = await fetch(`${CONFIG.gpsUrl}/unassign/${device_id}`, {
+    const res = await fetch(`${CONFIG.apiUrl}/${shipmentId}/status`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: newStatus }),
+      credentials: "include",
     });
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Failed to unassign device.");
+    console.log("Backend response:", data);
+
+    if (!res.ok) throw new Error(data.error || "Update failed");
 
     showNotification({
       variant: "success",
-      title: "GPS Device Unassigned",
-      message: data.message || `Device ${device_id} unassigned successfully.`,
+      title: "Status Updated",
+      message: `Shipment #${shipmentId} is now "${newStatus}".`,
     });
 
-    // ✅ Remove the marker immediately
-    for (const [shipmentId, marker] of Object.entries(mapMarkers)) {
-      if (marker.device_id === device_id) {
-        modalMap.removeLayer(marker);
-        delete mapMarkers[shipmentId];
-        console.log(`🗑️ Removed marker for shipment ${shipmentId} (device ${device_id})`);
-      }
-    }
-
-    // ✅ Refresh GPS + shipments list
-    await fetchShipments();
-
+    await fetchShipments(); // refresh
   } catch (err) {
+    console.error("Status update error:", err);
     showNotification({
       variant: "error",
-      title: "Unassign Failed",
+      title: "Update Failed",
       message: err.message,
     });
   }
 }
 
+/* ==============================
+   Status sequence validation (no more GPS requirement)
+   ============================== */
+function isValidStatusTransition(currentStatus, newStatus) {
+  const order = ["approved", "shipping", "in transit", "delivered"];
 
+  const normalize = (s) => (s || "").toLowerCase().trim();
 
-// ============================================================
-// ==============  ORDER TRACKER (4-step progress)  ============
-// ============================================================
+  const cur = normalize(currentStatus);
+  const next = normalize(newStatus);
+
+  const i = order.indexOf(cur);
+  const j = order.indexOf(next);
+
+  if (i === -1 || j === -1) return false;
+  return j === i + 1; // must be exactly the next step
+}
+
+async function checkStatusSequenceBeforeUpdate(shipmentId, newStatus) {
+  const shipment = state.shipments.find(
+    (s) => String(s.id) === String(shipmentId)
+  );
+  if (!shipment) {
+    showNotification({
+      variant: "error",
+      title: "Error",
+      message: "Shipment not found.",
+    });
+    return;
+  }
+
+  const currentStatus = (shipment.status || "").toLowerCase().trim();
+  const requestedStatus = (newStatus || "").toLowerCase().trim();
+
+  if (!isValidStatusTransition(currentStatus, requestedStatus)) {
+    showNotification({
+      variant: "warning",
+      title: "Invalid Status Transition",
+      message: `Cannot change to "${newStatus}" from "${shipment.status}".`,
+    });
+    return;
+  }
+
+  updateShipmentStatus(shipmentId, newStatus);
+}
+
+/* ==============================
+   Start GPS tracking (keep only active marker)
+   ============================== */
+function startGpsTracking(shipmentId, map) {
+  state.activeShipmentId = shipmentId;
+  for (const id in mapMarkers) {
+    if (String(id) !== String(shipmentId)) {
+      try {
+        map.removeLayer(mapMarkers[id]);
+      } catch (_) {}
+      delete mapMarkers[id];
+    }
+  }
+}
+
+/* ==============================
+   Fetch shipments + pagination
+   ============================== */
+let currentPage = 1;
+const rowsPerPage = 10;
+let totalPages = 1;
+
+async function fetchShipments() {
+  try {
+    const res = await fetch(CONFIG.apiUrl, { credentials: "include" });
+    if (!res.ok) throw new Error(`Failed to fetch shipments: ${res.status}`);
+    const data = await res.json();
+
+    allShipments = data;
+    state.shipments = data;
+
+    renderPaginatedShipments(1);
+  } catch (err) {
+    console.error("Error loading shipments:", err);
+    if (elements.tableBody)
+      elements.tableBody.innerHTML = `<tr><td colspan="9" class="text-danger text-center py-4">Failed to load shipments</td></tr>`;
+  }
+}
+
+function getBadgeClass(status) {
+  if (!status) return "badge-pending";
+  const s = status.toLowerCase();
+  if (s.includes("approved")) return "badge-approved";
+  if (s.includes("shipping")) return "badge-shipping";
+  if (s.includes("transit")) return "badge-transit";
+  if (s.includes("delivered")) return "badge-delivered";
+  if (s.includes("processed") || s.includes("booked")) return "badge-processed";
+  if (s.includes("pending")) return "badge-pending";
+  if (
+    s.includes("cancelled") ||
+    s.includes("declined") ||
+    s.includes("returned")
+  )
+    return "badge-cancelled";
+  return "badge-pending";
+}
+
+function renderPaginatedShipments(page = 1) {
+  const allowedStatuses = ["approved", "shipping", "in transit", "delivered"];
+
+  const visible = state.shipments
+    .filter((s) =>
+      allowedStatuses.includes((s.status || "").toLowerCase().trim())
+    )
+    .filter((s) => {
+      const status = (s.status || "").toLowerCase().trim();
+      if (currentStatusFilter === "all") return true;
+      return status === currentStatusFilter;
+    });
+
+  // Search filter (does NOT affect dropdown filter)
+  const searchFiltered = visible.filter((s) => {
+    if (!currentSearch) return true;
+
+    const text = `
+      ${s.tracking_number ?? s.id}
+      ${s.company_name ?? ""}
+      ${s.origin ?? ""}
+      ${s.destination ?? ""}
+      ${s.status ?? ""}
+    `.toLowerCase();
+
+    return text.includes(currentSearch);
+  });
+
+  totalPages = Math.ceil(searchFiltered.length / rowsPerPage) || 1;
+  currentPage = Math.max(1, Math.min(page, totalPages));
+
+  const start = (currentPage - 1) * rowsPerPage;
+  const end = start + rowsPerPage;
+  const paginated = searchFiltered.slice(start, end);
+
+  const tbody = elements.tableBody;
+  tbody.innerHTML = "";
+
+  if (paginated.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4">No shipments found</td></tr>`;
+    document.getElementById("pagination").innerHTML = "";
+    return;
+  }
+
+  paginated.forEach((s) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${s.tracking_number ?? s.id}</td>
+      <td>${s.company_name ?? "-"}</td>
+      <td>${s.origin ?? "-"}</td>
+      <td>${s.destination ?? "-"}</td>
+      <td>${
+        s.expected_delivery_date
+          ? new Date(s.expected_delivery_date).toLocaleDateString()
+          : "-"
+      }</td>
+
+      <td>
+        <span class="badge ${getBadgeClass(s.status)}">
+          ${s.status || "Unknown"}
+        </span>
+      </td>
+
+      <td>
+        <button class="btn btn-sm btn-primary btn-view" data-id="${
+          s.id
+        }">View</button>
+      </td>
+
+      <td>
+        <div class="d-flex gap-2 justify-content-center">
+          ${
+            !s.driver_id && (s.status || "").toLowerCase() !== "delivered"
+              ? `
+              <button 
+              class="btn btn-sm btn-assign-driver assign-driver-btn"
+              data-id="${s.id}"
+              data-bs-toggle="modal"
+              data-bs-target="#assignDriverModal">
+              Assign Driver
+              </button>
+            `
+              : (s.status || "").toLowerCase() === "approved"
+              ? `
+              <button 
+                class="shipment-action-btn btn-shipping"
+                data-id="${s.id}"
+                data-status="Shipping"
+              >
+                Shipping
+              </button>
+            `
+              : (s.status || "").toLowerCase() === "shipping"
+              ? `
+              <button 
+                class="shipment-action-btn btn-intransit"
+                data-id="${s.id}"
+                data-status="In Transit"
+              >
+                In Transit
+              </button>
+            `
+              : (s.status || "").toLowerCase() === "in transit"
+              ? `
+              <button 
+                class="shipment-action-btn btn-delivered"
+                data-id="${s.id}"
+                data-status="Delivered"
+              >
+                Delivered
+              </button>
+            `
+              : ""
+          }
+        </div>
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+
+  renderPaginationControls();
+}
+
+function renderPaginationControls() {
+  const container = document.getElementById("pagination");
+  if (!container) return;
+  container.innerHTML = "";
+
+  if (totalPages <= 1) return;
+
+  const pagination = document.createElement("ul");
+  pagination.className = "pagination justify-content-center mt-3";
+
+  const prevItem = document.createElement("li");
+  prevItem.className = `page-item ${currentPage === 1 ? "disabled" : ""}`;
+  prevItem.innerHTML = `<button class="page-link custom-page" ${
+    currentPage === 1 ? "disabled" : ""
+  }><i class="fas fa-chevron-left"></i></button>`;
+  prevItem.onclick = () => {
+    if (currentPage > 1) renderPaginatedShipments(currentPage - 1);
+  };
+  pagination.appendChild(prevItem);
+
+  const startPage = Math.floor((currentPage - 1) / 3) * 3 + 1;
+  const endPage = Math.min(startPage + 2, totalPages);
+  for (let i = startPage; i <= endPage; i++) {
+    const pageItem = document.createElement("li");
+    pageItem.className = `page-item ${i === currentPage ? "active" : ""}`;
+    pageItem.innerHTML = `<button class="page-link custom-page">${i}</button>`;
+    pageItem.onclick = () => renderPaginatedShipments(i);
+    pagination.appendChild(pageItem);
+  }
+
+  const nextItem = document.createElement("li");
+  nextItem.className = `page-item ${
+    currentPage === totalPages ? "disabled" : ""
+  }`;
+  nextItem.innerHTML = `<button class="page-link custom-page" ${
+    currentPage === totalPages ? "disabled" : ""
+  }><i class="fas fa-chevron-right"></i></button>`;
+  nextItem.onclick = () => {
+    if (currentPage < totalPages) renderPaginatedShipments(currentPage + 1);
+  };
+  pagination.appendChild(nextItem);
+
+  container.appendChild(pagination);
+}
+
+/* ==============================
+   Order tracker helpers
+   ============================== */
 function normalizeShipmentStatus(s) {
   s = (s || "").toLowerCase();
-  if (["pending", "approved", "processing", "processed", "booked", "awaiting pickup"].includes(s))
+  if (
+    [
+      "pending",
+      "approved",
+      "processing",
+      "processed",
+      "booked",
+      "awaiting pickup",
+    ].includes(s)
+  )
     return "processed";
   if (["shipping", "shipped", "dispatch"].includes(s)) return "shipped";
-  if (["in transit", "transit", "en route", "out for delivery"].includes(s)) return "en_route";
-  if (["delivered", "completed", "arrival", "arrived"].includes(s)) return "delivered";
+  if (["in transit", "transit", "en route", "out for delivery"].includes(s))
+    return "en_route";
+  if (["delivered", "completed", "arrival", "arrived"].includes(s))
+    return "delivered";
   return "processed";
 }
 
@@ -715,11 +1099,13 @@ function renderOrderTrackerHTML(shipment) {
   const steps = ["processed", "shipped", "en_route", "delivered"];
   const idx = Math.max(0, steps.indexOf(statusKey));
   const pct = (idx / (steps.length - 1)) * 100;
-  const cls = (n) => (n < idx ? "is-done" : n === idx ? "is-current" : "is-future");
+  const cls = (n) =>
+    n < idx ? "is-done" : n === idx ? "is-current" : "is-future";
 
   const orderId = shipment?.tracking_number || shipment?.id || "—";
   const origin = shipment?.origin || shipment?.port_origin || "—";
-  const destination = shipment?.destination || shipment?.port_destination || "—";
+  const destination =
+    shipment?.destination || shipment?.port_destination || "—";
   const eta = shipment?.expected_delivery_date
     ? new Date(shipment.expected_delivery_date).toLocaleDateString("en-US", {
         day: "2-digit",
@@ -748,350 +1134,346 @@ function renderOrderTrackerHTML(shipment) {
     <div class="ot-line"></div>
     <div class="ot-line-fill" style="width:${pct}%"></div>
     <div class="ot-steps">
-      <div class="ot-step ${cls(0)}"><div class="ot-dot"><i class="bi bi-check-lg"></i></div><div class="ot-label">Booking Processed</div></div>
-      <div class="ot-step ${cls(1)}"><div class="ot-dot"><i class="bi bi-check-lg"></i></div><div class="ot-label">Order Shipped</div></div>
-      <div class="ot-step ${cls(2)}"><div class="ot-dot"><i class="bi bi-check-lg"></i></div><div class="ot-label">In Transit</div></div>
-      <div class="ot-step ${cls(3)}"><div class="ot-dot"><i class="bi bi-check-lg"></i></div><div class="ot-label">Delivered</div></div>
+      <div class="ot-step ${cls(
+        0
+      )}"><div class="ot-dot"><i class="bi bi-check-lg"></i></div><div class="ot-label">Booking Processed</div></div>
+      <div class="ot-step ${cls(
+        1
+      )}"><div class="ot-dot"><i class="bi bi-check-lg"></i></div><div class="ot-label">Order Shipped</div></div>
+      <div class="ot-step ${cls(
+        2
+      )}"><div class="ot-dot"><i class="bi bi-check-lg"></i></div><div class="ot-label">In Transit</div></div>
+      <div class="ot-step ${cls(
+        3
+      )}"><div class="ot-dot"><i class="bi bi-check-lg"></i></div><div class="ot-label">Delivered</div></div>
     </div>
   </div>
 </section>`;
 }
 
-// ==============================
-// 👁️ View Handlers
-// ==============================
-function attachViewHandlers() {
-  document.querySelectorAll(".btn-view").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const shipmentId = btn.dataset.id;
-      const shipment = state.shipments.find(s => String(s.id) === String(shipmentId));
-      if (shipment) showShipmentDetails(shipment);
-      else console.error(`Shipment ${shipmentId} not found`);
-    });
-  });
+function renderDriverInfoHTML(shipment) {
+  const fullName =
+    `${shipment.driver_first_name || ""} ${
+      shipment.driver_last_name || ""
+    }`.trim() || "Not assigned";
+
+  const phone = shipment.driver_phone || "Not provided";
+  const hasDriver = !!shipment.driver_id;
+  const statusLabel = hasDriver ? "Driver Assigned" : "No driver assigned";
+
+  return `
+  <div class="card border-0 shadow-sm mb-3">
+    <div class="card-body py-3 d-flex align-items-center">
+      <div class="me-3 d-flex align-items-center justify-content-center rounded-circle border"
+           style="width:42px;height:42px;">
+        <i class="fas fa-user text-secondary"></i>
+      </div>
+      <div class="flex-grow-1">
+        <div class="small text-muted text-uppercase">Driver Information</div>
+        <div class="fw-semibold">${fullName}</div>
+        <div class="small text-muted">Phone: ${phone}</div>
+      </div>
+      <span class="badge bg-light text-dark border small">${statusLabel}</span>
+    </div>
+  </div>`;
 }
 
-
-// ==============================
-// 🔘 Action Handlers
-// ==============================
-function attachActionHandlers() {
-  document.querySelectorAll(".action-btn").forEach((btn) => {
-    btn.addEventListener("click", async (e) => {
-      const shipmentId = e.currentTarget.dataset.id;
-      const newStatus = e.currentTarget.dataset.status;
-      await updateShipmentStatus(shipmentId, newStatus);
-    });
-  });
-}
-
-
-function renderShipmentsTable() {
-  if (!elements.tableBody) return;
-  elements.tableBody.innerHTML = "";
-  const visible = state.shipments.filter((s) =>
-    ["approved", "shipping", "in transit"].includes((s.status || "").toLowerCase())
-  );
-  if (visible.length === 0) {
-    elements.tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4">No approved shipments</td></tr>`;
-    return;
-  }
-  visible.forEach((s) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${s.tracking_number ?? s.id}</td>
-      <td>${s.company_name ?? "-"}</td>
-      <td>${s.origin ?? "-"}</td>
-      <td>${s.destination ?? "-"}</td>
-      <td>${s.expected_delivery_date ? new Date(s.expected_delivery_date).toLocaleDateString() : "-"}</td>
-      <td>
-  <span class="badge ${getBadgeClass(s.status)}">
-    ${s.status || "Unknown"}
-  </span>
-</td>
-
-     <td>
-  <button class="shipment-action-btn btn-view" data-id="${s.id}" title="View">
-    View
-  </button>
-</td>
-
-      <td><div class="d-flex gap-2">
-          <button class="btn btn-sm btn-warning rounded-circle action-btn" data-id="${s.id}" data-status="Shipping" title="Shipping"><i class="fas fa-ship text-white"></i></button>
-          <button class="btn btn-sm btn-info rounded-circle action-btn" data-id="${s.id}" data-status="In Transit" title="In Transit"><i class="fas fa-truck text-white"></i></button>
-          <button class="btn btn-sm btn-success rounded-circle action-btn" data-id="${s.id}" data-status="Delivered" title="Delivered"><i class="fas fa-box-open text-white"></i></button>
-      </div></td>`;
-    elements.tableBody.appendChild(tr);
-  });
-  attachActionHandlers();
-  attachViewHandlers();
-}
-
-// 2️⃣ Now define fetchShipments() below it
-async function fetchShipments() {
-  try {
-    const res = await fetch(CONFIG.apiUrl, { credentials: "include" });
-    if (!res.ok) throw new Error(`Failed to fetch shipments: ${res.status}`);
-    const data = await res.json();
-    console.log("✅ Shipments fetched:", data);
-
-    // 🟢 Store globally for WebSocket GPS tracking
-    allShipments = data;
-    state.shipments = data;
-
-    renderPaginatedShipments(1);
-  } catch (err) {
-    console.error("❌ Error loading shipments:", err);
-    if (elements.tableBody)
-      elements.tableBody.innerHTML = `<tr><td colspan="9" class="text-danger text-center py-4">Failed to load shipments</td></tr>`;
-  }
-}
-
-function getBadgeClass(status) {
-  if (!status) return "badge-pending";
-  const s = status.toLowerCase();
-  if (s.includes("approved")) return "badge-approved";
-  if (s.includes("shipping")) return "badge-shipping";
-  if (s.includes("transit")) return "badge-transit";
-  if (s.includes("delivered")) return "badge-delivered";
-  if (s.includes("processed") || s.includes("booked")) return "badge-processed";
-  if (s.includes("pending")) return "badge-pending";
-  if (s.includes("cancelled") || s.includes("declined") || s.includes("returned")) return "badge-cancelled";
-  return "badge-pending";
-}
-
-// ==============================
-// 📄 Pagination Setup
-// ==============================
-let currentPage = 1;
-const rowsPerPage = 10;
-let totalPages = 1;
-
-function renderPaginatedShipments(page = 1) {
-  const visible = state.shipments.filter((s) =>
-    ["approved", "shipping", "in transit"].includes((s.status || "").toLowerCase())
-  );
-
-  totalPages = Math.ceil(visible.length / rowsPerPage);
-  currentPage = Math.max(1, Math.min(page, totalPages));
-
-  const start = (currentPage - 1) * rowsPerPage;
-  const end = start + rowsPerPage;
-  const paginated = visible.slice(start, end);
-
-  const tbody = elements.tableBody;
-  tbody.innerHTML = "";
-
-  if (paginated.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4">No shipments found</td></tr>`;
-    document.getElementById("pagination").innerHTML = "";
-    return;
-  }
-
-  paginated.forEach((s) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${s.tracking_number ?? s.id}</td>
-      <td>${s.company_name ?? "-"}</td>
-      <td>${s.origin ?? "-"}</td>
-      <td>${s.destination ?? "-"}</td>
-      <td>${s.expected_delivery_date ? new Date(s.expected_delivery_date).toLocaleDateString() : "-"}</td>
-      <td>
-  <span class="badge ${getBadgeClass(s.status)}">
-    ${s.status || "Unknown"}
-  </span>
-</td>
-
-      <td>
-  <button class="shipment-action-btn btn-view" data-id="${s.id}" title="View">
-   </i> View
-  </button>
-</td>
-
-<td>
-  <div class="d-flex gap-2 justify-content-center">
-    <button class="shipment-action-btn btn-shipping" data-id="${s.id}" data-status="Shipping">Shipping</button>
-    <button class="shipment-action-btn btn-intransit" data-id="${s.id}" data-status="In Transit">In Transit</button>
-    <button class="shipment-action-btn btn-delivered" data-id="${s.id}" data-status="Delivered">Delivered</button>
-  </div>
-</td>
-`;
-    tbody.appendChild(tr);
-  });
-
-  attachActionHandlers();
-  attachViewHandlers();
-  renderPaginationControls();
-}
-
-// ==============================
-// ⏩ Pagination Buttons
-// ==============================
-function renderPaginationControls() {
-  const container = document.getElementById("pagination");
-  if (!container) return;
-  container.innerHTML = "";
-
-  if (totalPages <= 1) return;
-
-  // Create main pagination wrapper
-  const pagination = document.createElement("ul");
-  pagination.className = "pagination justify-content-center mt-3";
-
-  // Previous button
-  const prevItem = document.createElement("li");
-  prevItem.className = `page-item ${currentPage === 1 ? "disabled" : ""}`;
-  prevItem.innerHTML = `
-    <button class="page-link custom-page" ${currentPage === 1 ? "disabled" : ""}>
-      <i class="fas fa-chevron-left"></i>
-    </button>`;
-  prevItem.onclick = () => {
-    if (currentPage > 1) renderPaginatedShipments(currentPage - 1);
-  };
-  pagination.appendChild(prevItem);
-
-  // Page number buttons (show up to 3 pages)
-  const startPage = Math.floor((currentPage - 1) / 3) * 3 + 1;
-  const endPage = Math.min(startPage + 2, totalPages);
-  for (let i = startPage; i <= endPage; i++) {
-    const pageItem = document.createElement("li");
-    pageItem.className = `page-item ${i === currentPage ? "active" : ""}`;
-    pageItem.innerHTML = `
-      <button class="page-link custom-page">${i}</button>`;
-    pageItem.onclick = () => renderPaginatedShipments(i);
-    pagination.appendChild(pageItem);
-  }
-
-  // Next button
-  const nextItem = document.createElement("li");
-  nextItem.className = `page-item ${currentPage === totalPages ? "disabled" : ""}`;
-  nextItem.innerHTML = `
-    <button class="page-link custom-page" ${currentPage === totalPages ? "disabled" : ""}>
-       <i class="fas fa-chevron-right"></i>
-    </button>`;
-  nextItem.onclick = () => {
-    if (currentPage < totalPages) renderPaginatedShipments(currentPage + 1);
-  };
-  pagination.appendChild(nextItem);
-
-  container.appendChild(pagination);
-}
-
-
-
-// ==============================
-// 🚚 Populate Shipment Dropdown (Approved only)
-// ==============================
-
-console.log("📦 populateShipmentDropdown() triggered");
-async function populateShipmentDropdown() {
-  const dropdown = document.getElementById("gpsShipment");
-  if (!dropdown) return;
-
-  dropdown.innerHTML = `<option value="">Loading...</option>`;
-
-  try {
-    const res = await fetch(CONFIG.apiUrl, { credentials: "include" });
-    if (!res.ok) throw new Error(`Failed to fetch shipments (${res.status})`);
-
-    const shipments = await res.json();
-    dropdown.innerHTML = `<option value="">Select Shipment...</option>`;
-
-    // ✅ Only include Approved or Active shipments
-    const filtered = shipments.filter(s => 
-      ["approved", "shipping", "in transit"].includes((s.status || "").toLowerCase())
-    );
-
-    if (filtered.length === 0) {
-      dropdown.innerHTML = `<option value="">No available shipments</option>`;
-      return;
-    }
-
-    filtered.forEach(s => {
-      const opt = document.createElement("option");
-      opt.value = s.id;
-      opt.textContent = `${s.tracking_number || "Shipment #" + s.id} (${s.status})`;
-      dropdown.appendChild(opt);
-    });
-
-    console.log("✅ GPS shipment dropdown populated:", filtered.length, "shipments");
-  } catch (err) {
-    console.error("❌ Failed to populate dropdown:", err);
-    dropdown.innerHTML = `<option value="">Failed to load shipments</option>`;
-  }
-}
-
-
-
-// ==============================
-// 🚀 Start Live GPS Tracking
-// ==============================
-function startGpsTracking(shipmentId, map) {
-  console.log(`▶️ Starting live GPS tracking for shipment ${shipmentId}`);
-  state.activeShipmentId = shipmentId;
-
-  // track
-for (const id in mapMarkers) {
-  if (String(id) !== String(shipmentId)) {
-    map.removeLayer(mapMarkers[id]);
-    delete mapMarkers[id];
-  }
-}
-}
-
-
-// ==============================
-// INIT
-// ==============================
-function initApp() {
-  fetchShipments();
-  fetchNotifications();
-  initWebSocket();
-  setInterval(fetchNotifications, 30000);
-}
-
-
-
-document.addEventListener("DOMContentLoaded", initApp);
-
-document.addEventListener("DOMContentLoaded", () => {
-  initApp();
-
-  // 🚀 Populate dropdown every time modal opens
-  const addGpsModal = document.getElementById("addGpsModal");
-  if (addGpsModal) {
-    addGpsModal.addEventListener("show.bs.modal", populateShipmentDropdown);
-  }
-});
-
-
-/* -------------------------------
-Notifications
---------------------------------*/
+/* ==============================
+   Notifications polling
+   ============================== */
 const notifCountEl = document.getElementById("notifCount");
 
 async function fetchNotifications() {
   try {
-    const res = await fetch("https://caiden-recondite-psychometrically.ngrok-free.dev/api/admin/notifications", { credentials: "include" });
+    const res = await fetch(CONFIG.notifUrl, { credentials: "include" });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const notifications = await res.json();
-
     if (!notifCountEl) return;
 
-    // ✅ Count only unread notifications
-    const unreadCount = notifications.filter(n => !n.is_read).length;
+    const unreadCount = notifications.filter((n) => !n.is_read).length;
 
     if (unreadCount > 0) {
       notifCountEl.textContent = unreadCount;
       notifCountEl.style.display = "inline-block";
     } else {
-      notifCountEl.textContent = "0";   // optional (can hide "0")
-      notifCountEl.style.display = "none"; // completely hide badge if no unread
+      notifCountEl.textContent = "0";
+      notifCountEl.style.display = "none";
     }
   } catch (err) {
     console.error("Failed to fetch notifications:", err);
   }
 }
 
-// keep checking
-setInterval(fetchNotifications, 30000);
+/* ==============================
+   Filter dropdown
+   ============================== */
+function setupFilterDropdown(filterBtn) {
+  // Inject CSS once
+  if (!document.getElementById("filterDropdownStyle")) {
+    const style = document.createElement("style");
+    style.id = "filterDropdownStyle";
+    style.textContent = `
+      .filter-option {
+        transition: background-color 0.15s ease, color 0.15s ease;
+      }
+      .filter-option:hover {
+        color: var(--bs-primary) !important;
+        background-color: rgba(0,123,255,0.1) !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  const dropdown = document.createElement("div");
+  dropdown.className = "dropdown-menu show";
+  dropdown.style.position = "absolute";
+  dropdown.style.background = "#fff";
+  dropdown.style.border = "1px solid #ccc";
+  dropdown.style.borderRadius = "6px";
+  dropdown.style.boxShadow = "0 2px 6px rgba(0,0,0,0.15)";
+  dropdown.style.padding = "4px 0";
+  dropdown.style.display = "none";
+  dropdown.style.zIndex = "9999";
+  dropdown.style.width = "150px";
+
+  dropdown.innerHTML = `
+    <div class="filter-option" data-value="all" style="padding:8px 12px; cursor:pointer;">All</div>
+    <div class="filter-option" data-value="approved" style="padding:8px 12px; cursor:pointer;">Approved</div>
+    <div class="filter-option" data-value="shipping" style="padding:8px 12px; cursor:pointer;">Shipping</div>
+    <div class="filter-option" data-value="in transit" style="padding:8px 12px; cursor:pointer;">In Transit</div>
+    <div class="filter-option" data-value="delivered" style="padding:8px 12px; cursor:pointer;">Delivered</div>
+  `;
+
+  document.body.appendChild(dropdown);
+
+  filterBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const rect = filterBtn.getBoundingClientRect();
+    dropdown.style.left = rect.left + "px";
+    dropdown.style.top = rect.bottom + "px";
+    dropdown.style.display =
+      dropdown.style.display === "none" ? "block" : "none";
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!dropdown.contains(e.target) && e.target !== filterBtn) {
+      dropdown.style.display = "none";
+    }
+  });
+
+  dropdown.querySelectorAll(".filter-option").forEach((opt) => {
+    opt.addEventListener("click", () => {
+      currentStatusFilter = opt.dataset.value;
+      dropdown.style.display = "none";
+      renderPaginatedShipments(1);
+    });
+  });
+}
+
+/* ==============================
+   Success & Warning Modals
+   ============================== */
+function ensureSuccessModal() {
+  if (document.getElementById("successModal")) return;
+
+  const modalHTML = `
+    <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content success-modal border-0 shadow-lg">
+          <div class="modal-header success-modal-header text-white">
+            <h5 class="modal-title fw-bold" id="successModalTitle">Success</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-center py-4 success-modal-body">
+            <div class="success-modal-icon">
+              <i class="fas fa-check"></i>
+            </div>
+            <p class="mb-0" id="successModalMessage">Action completed successfully!</p>
+          </div>
+          <div class="modal-footer justify-content-center border-0">
+            <button type="button" class="btn btn-success rounded-pill px-4 fw-semibold" data-bs-dismiss="modal">
+              <i class="fas fa-check me-2"></i>OK
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML("beforeend", modalHTML);
+}
+
+function showSuccessModal(title, message) {
+  ensureSuccessModal();
+  document.getElementById("successModalTitle").innerText = title;
+  document.getElementById("successModalMessage").innerText = message;
+
+  const modalEl = document.getElementById("successModal");
+  const modal = new bootstrap.Modal(modalEl);
+  modal.show();
+
+  modalEl.addEventListener(
+    "hidden.bs.modal",
+    () => {
+      location.reload();
+    },
+    { once: true }
+  );
+}
+
+function ensureWarningModal() {
+  if (document.getElementById("warningModal")) return;
+
+  const modalHTML = `
+    <div class="modal fade" id="warningModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content warning-modal border-0 shadow-lg">
+          <div class="modal-header warning-modal-header text-white">
+            <h5 class="modal-title fw-bold" id="warningModalTitle">Warning</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-center py-4">
+            <div class="warning-modal-icon mb-3">
+              <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <p class="mb-0" id="warningModalMessage">This is a warning message.</p>
+          </div>
+          <div class="modal-footer justify-content-center border-0">
+            <button type="button" class="btn btn-warning rounded-pill px-4 fw-semibold" data-bs-dismiss="modal">
+              <i class="fas fa-check me-2"></i>OK
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML("beforeend", modalHTML);
+}
+
+function showWarningModal(title, message) {
+  ensureWarningModal();
+  document.getElementById("warningModalTitle").innerText = title;
+  document.getElementById("warningModalMessage").innerText = message;
+
+  const modal = new bootstrap.Modal(document.getElementById("warningModal"));
+  modal.show();
+}
+
+/* ==============================
+   Driver assignment
+   ============================== */
+async function loadActiveDrivers(shipmentId) {
+  const container = document.getElementById("driverList");
+  if (!container) return;
+
+  container.innerHTML = `<div class="text-center text-muted py-2">Loading...</div>`;
+
+  try {
+    const res = await fetch(
+      "https://cargosmarttsl-5.onrender.com/api/admin/drivers/active",
+      { credentials: "include" }
+    );
+
+    if (!res.ok) throw new Error("Failed to load drivers");
+
+    const drivers = await res.json();
+
+    if (!drivers.length) {
+      container.innerHTML = `<div class="text-center text-danger py-2">
+        No active drivers available
+      </div>`;
+      return;
+    }
+
+    container.innerHTML = "";
+
+    drivers.forEach((d) => {
+      const btn = document.createElement("button");
+      btn.className = "driver-btn w-100";
+
+      btn.textContent = `${d.first_name} ${d.last_name} (${
+        d.phone || "No phone"
+      })`;
+
+      // IMPORTANT: BACKEND RETURNS d.driver_id NOT d.id
+      btn.dataset.driverId = d.driver_id || d.id;
+
+      btn.onclick = () => {
+        const driverId = btn.dataset.driverId;
+        assignDriverToShipment(shipmentId, driverId);
+      };
+
+      container.appendChild(btn);
+    });
+  } catch (err) {
+    container.innerHTML = `<div class="text-center text-danger py-2">Failed to load drivers</div>`;
+  }
+}
+
+async function assignDriverToShipment(shipmentId, driverId) {
+  try {
+    const res = await fetch(
+      `https://cargosmarttsl-5.onrender.com/api/admin/shipments/${shipmentId}/assign-driver`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ driver_id: driverId }),
+      }
+    );
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Failed to assign driver.");
+
+    showSuccessModal(
+      "Driver Assigned",
+      `Driver successfully assigned to shipment #${shipmentId}`
+    );
+
+    fetchShipments();
+
+    const modalInstance = bootstrap.Modal.getInstance(
+      document.getElementById("assignDriverModal")
+    );
+    if (modalInstance) modalInstance.hide();
+  } catch (err) {
+    showWarningModal("Assignment Failed", err.message);
+  }
+}
+
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".assign-driver-btn");
+  if (!btn) return;
+
+  const shipmentId = btn.dataset.id;
+  loadActiveDrivers(shipmentId);
+});
+
+/* ==============================
+   INIT
+   ============================== */
+function initApp() {
+  fetchShipments();
+  fetchNotifications();
+  initWebSocket();
+
+  setInterval(fetchNotifications, 30000);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  initApp();
+
+  // dropdown filter
+  const filterBtn = document.querySelector(
+    "button.btn-outline-secondary.btn-sm"
+  );
+  if (filterBtn) setupFilterDropdown(filterBtn);
+
+  // search
+  const searchInput = document.getElementById("clientSearch");
+  if (searchInput) {
+    searchInput.addEventListener("input", (e) => {
+      currentSearch = e.target.value.trim().toLowerCase();
+      renderPaginatedShipments(1);
+    });
+  }
+});

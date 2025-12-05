@@ -1,26 +1,32 @@
 // ==========================
-// Configuration
+// GLOBAL API BASE
 // ==========================
+const API_BASE = "https://cargosmarttsl-5.onrender.com";
+
+let clientOwnedTrackingNumbers = [];
+let clientOwnedShipmentIds = [];
+
 const CONFIG = {
-  apiUrl: "https://caiden-recondite-psychometrically.ngrok-free.dev/api/admin/shipments",
-  wsUrl: "wss://caiden-recondite-psychometrically.ngrok-free.dev", // Ngrok secure WebSocket URL
+  apiUrl: `${API_BASE}/api/admin/shipments`,
+  clientShipmentsUrl: `${API_BASE}/api/client/shipments`,
+  wsUrl: "wss://cargosmarttsl-5.onrender.com/client",
   defaultCenter: [14.5995, 120.9842],
   defaultZoom: 13,
   mapTileUrl: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
   mapAttribution: "© OpenStreetMap contributors",
+  maxReconnectAttempts: 10,
+  reconnectInterval: 2000,
 };
 
 console.log("Connecting to", CONFIG.wsUrl);
-
-
 
 // ==========================
 // DOM Elements
 // ==========================
 const elements = {
-  map: document.getElementById('map'),
-  connectionStatus: document.getElementById('connection-status'),
-  shipmentList: document.getElementById('shipment-list')
+  map: document.getElementById("map"),
+  connectionStatus: document.getElementById("connection-status"),
+  shipmentList: document.getElementById("shipment-list"),
 };
 
 // ==========================
@@ -32,111 +38,43 @@ const state = {
   activeShipmentId: null,
   connectionAttempts: 0,
   websocket: null,
-  routes: {}
+  routes: {},
 };
 
 // ==========================
 // Initialize Map
 // ==========================
-const map = L.map('map').setView(CONFIG.defaultCenter, CONFIG.defaultZoom);
-L.tileLayer(CONFIG.mapTileUrl, { attribution: CONFIG.mapAttribution }).addTo(map);
-
-// ==========================
-// Ports (coords only; no pins added)
-// ==========================
-const manilaCoords = [14.5995, 120.9842];
-const batangasPortCoords = [13.7560, 121.0585];
-const cebuCoords = [10.3157, 123.8854];
-
-// (Pins removed)
-// L.marker(manilaCoords).addTo(map).bindPopup('<strong>Manila Port</strong>');
-// L.marker(batangasPortCoords).addTo(map).bindPopup('<strong>Batangas Port</strong>');
-// L.marker(cebuCoords).addTo(map).bindPopup('<strong>Cebu Port</strong>');
+const map = L.map("map").setView(CONFIG.defaultCenter, CONFIG.defaultZoom);
+L.tileLayer(CONFIG.mapTileUrl, { attribution: CONFIG.mapAttribution }).addTo(
+  map
+);
 
 // ==========================
 // Icons
 // ==========================
-const shipmentIcon = L.icon({
-  iconUrl: '../../assets/img/shipment-icon.png',
-  iconSize: [40, 40],
-  iconAnchor: [20, 40],
-  popupAnchor: [0, -35]
-});
-
-const truckIcon = L.icon({
-  iconUrl: '../../assets/img/truck-icon.png',
-  iconSize: [50, 50],
-  iconAnchor: [25, 50],
-  popupAnchor: [0, -40]
+const truckIcon = L.divIcon({
+  html: '<i class="fas fa-truck-moving" style="font-size:28px;color:#0077b6;"></i>',
+  className: "truck-marker",
+  iconSize: [30, 30],
+  iconAnchor: [15, 15],
 });
 
 // ==========================
-// WebSocket
-// ==========================
-function initializeWebSocket() {
-  state.websocket = new WebSocket(CONFIG.wsUrl);
-
-  state.websocket.onopen = handleConnectionOpen;
-  state.websocket.onmessage = handleMessage;
-  state.websocket.onclose = handleConnectionClose;
-  state.websocket.onerror = handleConnectionError;
-}
-
-function handleConnectionOpen() {
-  updateConnectionStatus('connected', 'Connected');
-  state.connectionAttempts = 0;
-}
-
-function handleMessage(event) {
-  try {
-    const data = JSON.parse(event.data);
-
-    if (data.type === 'init') {
-      Object.entries(data.data).forEach(([shipmentId, shipmentData]) => {
-        updateShipmentData(shipmentId, shipmentData);
-      });
-    } else if (data.type === 'update') {
-      updateShipmentData(data.shipmentid, {
-        latitude: data.latitude,
-        longitude: data.longitude,
-        timestamp: data.timestamp
-      });
-    } else if (data.type === 'error') {
-      console.error('Server error:', data.message);
-    }
-  } catch (err) {
-    console.error('Error parsing message:', err);
-  }
-}
-
-function handleConnectionClose() {
-  updateConnectionStatus('disconnected', 'Disconnected');
-  attemptReconnection();
-}
-
-function handleConnectionError(error) {
-  console.error('WebSocket error:', error);
-  updateConnectionStatus('disconnected', 'Connection Error');
-}
-
-// ==========================
-// Reconnection Logic
+// Reconnection
 // ==========================
 function attemptReconnection() {
   if (state.connectionAttempts < CONFIG.maxReconnectAttempts) {
     state.connectionAttempts++;
-    updateConnectionStatus('disconnected', `Reconnecting (${state.connectionAttempts})...`);
-    setTimeout(() => {
-      initializeWebSocket();
-    }, CONFIG.reconnectInterval);
+    updateConnectionStatus(
+      "disconnected",
+      `Reconnecting (${state.connectionAttempts})...`
+    );
+    setTimeout(initializeWebSocket, CONFIG.reconnectInterval);
   } else {
-    updateConnectionStatus('disconnected', 'Connection Failed');
+    updateConnectionStatus("disconnected", "Connection Failed");
   }
 }
 
-// ==========================
-// UI Helpers
-// ==========================
 function updateConnectionStatus(status, message) {
   if (!elements.connectionStatus) return;
   elements.connectionStatus.textContent = message;
@@ -144,223 +82,326 @@ function updateConnectionStatus(status, message) {
 }
 
 // ==========================
-// Shipment Updates
+// DRAW ROUTE (Client Version)
 // ==========================
-function updateShipmentData(shipmentId, data) {
-  const { latitude, longitude, timestamp } = data;
-
-  state.shipments[shipmentId] = {
-    latitude,
-    longitude,
-    timestamp: timestamp || Date.now()
-  };
-
-  // Marker handling
-  if (!state.markers[shipmentId]) {
-    state.markers[shipmentId] = L.marker([latitude, longitude], { icon: truckIcon })
-      .addTo(map)
-      .bindPopup(`<strong>Shipment: ${shipmentId}</strong><br> Lat: ${latitude.toFixed(6)}<br> Lng: ${longitude.toFixed(6)}`);
-
-    state.markers[shipmentId].on('click', () => {
-      setActiveShipment(shipmentId);
-    });
-  } else {
-    state.markers[shipmentId].setLatLng([latitude, longitude]);
-    state.markers[shipmentId].getPopup().setContent(
-      `<strong>Shipment: ${shipmentId}</strong><br> Lat: ${latitude.toFixed(6)}<br> Lng: ${longitude.toFixed(6)}`
-    );
-  }
-
-  // Route drawing
-  drawRoute(shipmentId);
-
-  // Auto focus if active
-  if (!state.activeShipmentId || state.activeShipmentId === shipmentId) {
-    setActiveShipment(shipmentId);
-  }
-
-  updateShipmentListUI();
-}
-
-// ==========================
-// Route Drawing (Land & Sea)
-// ==========================
-function drawRoute(shipmentId) {
+async function drawRoute(shipmentId) {
+  shipmentId = String(shipmentId);
   const shipment = state.shipments[shipmentId];
   if (!shipment) return;
 
-  // Remove old route if exists
+  let destLat = null;
+  let destLng = null;
+
+  if (isFinite(shipment.specific_lat) && isFinite(shipment.specific_lon)) {
+    destLat = Number(shipment.specific_lat);
+    destLng = Number(shipment.specific_lon);
+  } else if (
+    isFinite(shipment.delivery_lat) &&
+    isFinite(shipment.delivery_lon)
+  ) {
+    destLat = Number(shipment.delivery_lat);
+    destLng = Number(shipment.delivery_lon);
+  }
+
+  if (!isFinite(destLat) || !isFinite(destLng)) {
+    console.warn("❌ Client: No valid destination for shipment", shipmentId);
+    return;
+  }
+
+  const startLat = shipment.latitude;
+  const startLng = shipment.longitude;
+
   if (state.routes[shipmentId]) {
-    if (state.routes[shipmentId].remove) {
-      state.routes[shipmentId].remove(); // LRM route
-    } else {
-      map.removeLayer(state.routes[shipmentId]); // polyline
-    }
+    map.removeLayer(state.routes[shipmentId]);
   }
 
-  let destination = batangasPortCoords; // default
-  let lineColor = 'gray';
-  let usePolyline = false;
+  try {
+    const url = `https://cargosmarttsl-5.onrender.com/api/map/route?originLat=${startLat}&originLng=${startLng}&destLat=${destLat}&destLng=${destLng}`;
+    const res = await fetch(url);
 
-  if (shipmentId.includes("CEBU")) {
-    destination = cebuCoords;
-    lineColor = 'blue';
-    usePolyline = true; // Manila → Cebu is sea route
-  }
+    if (!res.ok) return;
 
-  if (usePolyline) {
-    // Draw polyline for sea route
-    state.routes[shipmentId] = L.polyline([
-      [manilaCoords[0], manilaCoords[1]],
-      [shipment.latitude, shipment.longitude],
-      [destination[0], destination[1]]
-    ], { color: lineColor, weight: 4, opacity: 0.7 }).addTo(map);
-  } else {
-    // Land route via LRM
-    state.routes[shipmentId] = L.Routing.control({
-      waypoints: [
-        L.latLng(manilaCoords),
-        L.latLng(shipment.latitude, shipment.longitude),
-        L.latLng(destination)
-      ],
-      lineOptions: {
-        styles: [{ color: lineColor, weight: 4, opacity: 0.7 }]
-      },
-      addWaypoints: false,
-      draggableWaypoints: false,
-      fitSelectedRoutes: true,
-      createMarker: () => null
+    const json = await res.json();
+    const coords = json.features?.[0]?.geometry?.coordinates;
+    if (!coords || coords.length < 2) return;
+
+    const latlng = coords.map((c) => [c[1], c[0]]);
+
+    state.routes[shipmentId] = L.polyline(latlng, {
+      color: "#0077b6",
+      weight: 4,
+      opacity: 0.9,
     }).addTo(map);
+  } catch (err) {
+    console.error("❌ Client route error:", err);
   }
 }
 
 // ==========================
-// Set Active Shipment
+// SET ACTIVE SHIPMENT
 // ==========================
 function setActiveShipment(shipmentId) {
+  shipmentId = String(shipmentId);
+
+  const ship = state.shipments[shipmentId];
+  if (!ship) return;
+
+  map.setView([ship.latitude, ship.longitude], 15);
+  state.markers[shipmentId]?.openPopup();
   state.activeShipmentId = shipmentId;
+  updateShipmentListUI();
+}
 
-  const { latitude, longitude } = state.shipments[shipmentId];
-  map.setView([latitude, longitude], 15);
-  state.markers[shipmentId].openPopup();
+function updateShipmentListUI() {
+  const activeId = state.activeShipmentId;
+  document.querySelectorAll(".shipment-card").forEach((card) => {
+    card.classList.toggle("active", card.dataset.tracking === activeId);
+  });
+}
 
+function getShipmentIdByDriverId_Client(driverId) {
+  for (const id in state.shipments) {
+    const s = state.shipments[id];
+    if (String(s.driver_id) === String(driverId)) {
+      return id;
+    }
+  }
+  return null;
+}
+
+/* ==============================
+   CLIENT GPS WebSocket Stream
+============================== */
+
+let lastPositions = {}; // shipmentId → last GPS
+let pendingGPSUpdates = []; // buffer when not active
+
+function initClientWebSocket() {
+  try {
+    if (
+      state.websocket &&
+      (state.websocket.readyState === WebSocket.OPEN ||
+        state.websocket.readyState === WebSocket.CONNECTING)
+    ) {
+      return;
+    }
+  } catch (_) {}
+
+  state.websocket = new WebSocket(CONFIG.wsUrl);
+
+  state.websocket.onopen = () => {
+    console.log("🟢 Client GPS WS connected");
+    updateConnectionStatus("connected", "Connected");
+    state.connectionAttempts = 0;
+  };
+
+  state.websocket.onclose = () => {
+    console.warn("🔻 Client GPS WS closed — reconnecting...");
+    updateConnectionStatus("disconnected", "Disconnected");
+    attemptReconnection();
+  };
+
+  state.websocket.onerror = (err) => {
+    console.warn("⚠ Client GPS WS error:", err);
+    updateConnectionStatus("disconnected", "Connection Error");
+  };
+
+  state.websocket.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+
+      /* ==============================
+         INIT batch from backend
+      =============================== */
+      if (data.type === "init" || data.type === "init_data") {
+        const allData = data.data || [];
+        console.log("🟦 CLIENT INIT DATA:", allData);
+
+        allData.forEach((s) => {
+          const shipmentId = String(s.id || s.shipmentId || s.tracking_number);
+          const lat = Number(s.latitude);
+          const lng = Number(s.longitude);
+
+          if (!isFinite(lat) || !isFinite(lng)) return;
+
+          lastPositions[shipmentId] = {
+            lat,
+            lng,
+            t: s.timestamp || Date.now(),
+          };
+
+          // Preload into map
+          updateShipmentData(shipmentId, {
+            latitude: lat,
+            longitude: lng,
+            specific_lat: s.specific_lat,
+            specific_lon: s.specific_lon,
+            delivery_lat: s.delivery_lat,
+            delivery_lon: s.delivery_lon,
+            driver_id: s.driver_id,
+          });
+        });
+
+        return;
+      }
+
+      /* ==============================
+         LIVE GPS UPDATE (streaming)
+      =============================== */
+      if (
+        ["gps_update", "update", "driver_location", "driver_gps"].includes(
+          data.type
+        )
+      ) {
+        let shipmentId = String(
+          data.shipmentId || data.id || data.tracking_number
+        );
+
+        // Fallback using driver ID
+        if (!shipmentId || shipmentId === "undefined") {
+          shipmentId = getShipmentIdByDriverId_Client(
+            data.driverId || data.driver_id
+          );
+        }
+
+        if (!shipmentId) return;
+
+        const newLat = Number(data.latitude || data.lat);
+        const newLng = Number(data.longitude || data.lng);
+
+        if (!isFinite(newLat) || !isFinite(newLng)) return;
+
+        const shipment = state.shipments[shipmentId];
+        if (!shipment) return; // not owned by this client
+
+        // ignore delivered
+        if (String(shipment.status).toLowerCase() === "delivered") return;
+
+        console.log(
+          `📡 CLIENT GPS SHIPMENT#${shipmentId} → ${newLat}, ${newLng}`
+        );
+
+        /* ==============================
+           JITTER FILTER
+        =============================== */
+        const last = lastPositions[shipmentId];
+        const moved =
+          !last ||
+          Math.abs(last.lat - newLat) > 0.00001 ||
+          Math.abs(last.lng - newLng) > 0.00001;
+
+        if (!moved) return;
+
+        lastPositions[shipmentId] = {
+          lat: newLat,
+          lng: newLng,
+          t: Date.now(),
+        };
+
+        /* ==============================
+           If map focusing this shipment → update now
+        =============================== */
+        if (state.activeShipmentId === shipmentId) {
+          console.log("🟢 Client LIVE apply:", shipmentId);
+          updateShipmentData(shipmentId, {
+            latitude: newLat,
+            longitude: newLng,
+            specific_lat: data.specific_lat,
+            specific_lon: data.specific_lon,
+            delivery_lat: data.delivery_lat,
+            delivery_lon: data.delivery_lon,
+            driver_id: data.driver_id,
+          });
+
+          // redraw route
+          if (state.shipments[shipmentId]?.delivery_lat) {
+            drawRoute(shipmentId);
+          }
+        } else {
+          /* ==============================
+             Shipment not selected → buffer
+          =============================== */
+          console.log("📦 CLIENT buffer GPS update:", shipmentId);
+          pendingGPSUpdates = pendingGPSUpdates.filter(
+            (u) => String(u.shipmentId) !== shipmentId
+          );
+
+          pendingGPSUpdates.push({
+            shipmentId,
+            latitude: newLat,
+            longitude: newLng,
+          });
+        }
+      }
+    } catch (err) {
+      console.error("CLIENT WS parse error:", err);
+    }
+  };
+}
+
+// ==========================
+// UPDATE SHIPMENT DATA
+// ==========================
+function updateShipmentData(shipmentId, data) {
+  console.log("DEBUG → updateShipmentData:", shipmentId, data);
+  shipmentId = String(shipmentId);
+
+  // Stop bad GPS from creating duplicate markers
+  if (!isFinite(data.latitude) || !isFinite(data.longitude)) {
+    console.warn("Skipping marker — invalid GPS for", shipmentId);
+    return;
+  }
+
+  // Update stored shipment data
+  state.shipments[shipmentId] = {
+    ...state.shipments[shipmentId],
+    latitude: data.latitude,
+    longitude: data.longitude,
+    speed: data.speed || 0,
+    timestamp: data.timestamp || Date.now(),
+    specific_lat: data.specific_lat,
+    specific_lon: data.specific_lon,
+    delivery_lat: data.delivery_lat,
+    delivery_lon: data.delivery_lon,
+    driver_id: data.driver_id || state.shipments[shipmentId]?.driver_id || null,
+  };
+
+  // Create marker ONLY once
+  if (!state.markers[shipmentId]) {
+    console.log("Creating marker ONE TIME for", shipmentId);
+
+    state.markers[shipmentId] = L.marker([data.latitude, data.longitude], {
+      icon: truckIcon,
+    }).addTo(map);
+
+    state.markers[shipmentId].on("click", () => setActiveShipment(shipmentId));
+  } else {
+    state.markers[shipmentId].setLatLng([data.latitude, data.longitude]);
+  }
+
+  drawRoute(shipmentId);
   updateShipmentListUI();
 }
 
 // ==========================
-// Shipment List UI
+// LOAD PROFILE (Client)
 // ==========================
-function updateShipmentListUI() {
-  if (!elements.shipmentList) return;
-  elements.shipmentList.innerHTML = '';
-
-  const sortedShipments = Object.entries(state.shipments)
-    .sort((a, b) => b[1].timestamp - a[1].timestamp);
-
-  sortedShipments.forEach(([shipmentId, data]) => {
-    const item = document.createElement('div');
-    item.className = `shipment-item ${shipmentId === state.activeShipmentId ? 'active' : ''}`;
-
-    const formattedTime = new Date(data.timestamp).toLocaleTimeString();
-    const formattedDate = new Date(data.timestamp).toLocaleDateString();
-
-    item.innerHTML = `
-      <div class="shipment-id">Shipment: ${shipmentId}</div>
-      <div class="shipment-coordinates">${data.latitude.toFixed(6)}, ${data.longitude.toFixed(6)}</div>
-      <div class="timestamp">${formattedTime} - ${formattedDate}</div>
-    `;
-
-    item.addEventListener('click', () => {
-      setActiveShipment(shipmentId);
-    });
-
-    elements.shipmentList.appendChild(item);
-  });
-}
-
-// ==========================
-// WebSocket
-// ==========================
-function initializeWebSocket() {
-  state.websocket = new WebSocket(CONFIG.wsUrl);
-
-  state.websocket.onopen = handleConnectionOpen;
-  state.websocket.onmessage = handleMessage;
-  state.websocket.onclose = handleConnectionClose;
-  state.websocket.onerror = handleConnectionError;
-}
-
-function handleConnectionOpen() {
-  updateConnectionStatus("connected", "Connected");
-  state.connectionAttempts = 0;
-}
-
-function handleMessage(event) {
-  try {
-    const data = JSON.parse(event.data);
-
-    if (data.type === "update") {
-      updateShipmentData(data.shipmentid, {
-        latitude: data.latitude,
-        longitude: data.longitude,
-        speed: data.speed,
-        timestamp: data.timestamp
-      });
-    } else if (data.type === "init") {
-      Object.entries(data.data).forEach(([shipmentId, shipmentData]) => {
-        updateShipmentData(shipmentId, shipmentData);
-      });
-    } else if (data.type === "error") {
-      console.error("Server error:", data.message);
-    }
-  } catch (err) {
-    console.error("Error parsing message:", err);
-  }
-}
-
-// Run app
-document.addEventListener('DOMContentLoaded', initApp);
-
-// Ensure map resize
-setTimeout(() => {
-  map.invalidateSize();
-}, 200);
-
-// ===================== Global Dropdown Toggle ===================== //
-document.addEventListener("click", (e) => {
-  const icon = document.getElementById("profileIcon");
-  const dropdown = document.getElementById("profileDropdown");
-  if (!icon || !dropdown) return;
-
-  if (icon.contains(e.target)) {
-    dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-  } else if (!dropdown.contains(e.target)) {
-    dropdown.style.display = "none";
-  }
-});
-
-// ===================== Reload Profile on Page Return ===================== //
-window.addEventListener("pageshow", () => {
-  loadProfile();
-});
-
-
-// ===================== Load Profile ===================== //
 async function loadProfile() {
   try {
-    const res = await fetch("https://caiden-recondite-psychometrically.ngrok-free.dev/api/profile", {
-      method: "GET",
-      credentials: "include"
-    });
+    const res = await fetch(
+      `https://cargosmarttsl-5.onrender.com/api/profile`,
+      {
+        method: "GET",
+        credentials: "include",
+      }
+    );
     if (!res.ok) throw new Error("Failed to fetch profile");
 
     const data = await res.json();
 
-    // Username
     const usernameEl = document.getElementById("username");
     if (usernameEl) usernameEl.textContent = data.contact_person || "Client";
 
-    // Profile icon
     let profileIcon = document.getElementById("profileIcon");
     if (profileIcon && data.photo) {
       if (profileIcon.tagName.toLowerCase() !== "img") {
@@ -374,135 +415,80 @@ async function loadProfile() {
         profileIcon.replaceWith(img);
         profileIcon = img;
       }
-      profileIcon.src = `https://caiden-recondite-psychometrically.ngrok-free.dev/uploads/${data.photo}`;
+      profileIcon.src = `https://cargosmarttsl-5.onrender.com/uploads/${data.photo}`;
       profileIcon.alt = "Profile";
     }
   } catch (err) {
-    console.error("❌ Error loading profile:", err);
+    console.error("Error loading profile:", err);
   }
 }
 
-// ===============================
-// 🔔 LOAD NOTIFICATION COUNT (Dashboard Badge Only)
-// ===============================
+/* =================== LOAD NOTIFICATION COUNT =================== */
 async function loadNotificationCount() {
   try {
-    const res = await fetch("https://caiden-recondite-psychometrically.ngrok-free.dev/api/client/notifications", {
-      credentials: "include"
+    const res = await fetch(`${API_BASE}/api/client/notifications`, {
+      credentials: "include",
     });
-
-    if (!res.ok) throw new Error(`Failed to fetch notifications (${res.status})`);
+    if (!res.ok)
+      throw new Error(`Failed to fetch notifications (${res.status})`);
 
     const notifications = await res.json();
     if (!Array.isArray(notifications)) return;
 
-    const unreadCount = notifications.filter(n => !n.is_read).length;
-
+    const unreadCount = notifications.filter((n) => !n.is_read).length;
     const notifCountEl = document.getElementById("notifCount");
     if (notifCountEl) {
       notifCountEl.textContent = unreadCount > 0 ? unreadCount : "";
       notifCountEl.style.display = unreadCount > 0 ? "inline-block" : "none";
     }
-
   } catch (err) {
-    console.error("❌ Error fetching notification count:", err);
+    console.error("Error fetching notification count:", err);
   }
 }
 
+loadProfile();
+loadNotificationCount();
 setInterval(loadNotificationCount, 30000);
-// ==========================
-// WebSocket: Message Handler
-// ==========================
-function handleMessage(event) {
-  try {
-    const data = JSON.parse(event.data);
-
-    if (data.type === "update") {
-      updateShipmentData(data.shipmentid, {
-        latitude: data.latitude,
-        longitude: data.longitude,
-        speed: data.speed,
-        timestamp: data.timestamp
-      });
-    } else if (data.type === "init") {
-      Object.entries(data.data).forEach(([shipmentId, shipmentData]) => {
-        updateShipmentData(shipmentId, shipmentData);
-      });
-    } else if (data.type === "error") {
-      console.error("Server error:", data.message);
-    }
-  } catch (err) {
-    console.error("Error parsing message:", err);
-  }
-}
-
 
 // ==========================
-// Shipment Updates
-// ==========================
-function updateShipmentData(shipmentId, data) {
-  const { latitude, longitude, speed, timestamp } = data;
-
-  // Save into state
-  state.shipments[shipmentId] = {
-    latitude,
-    longitude,
-    speed: speed || 0,
-    timestamp: timestamp || Date.now()
-  };
-
-  // Marker handling
-  if (!state.markers[shipmentId]) {
-    state.markers[shipmentId] = L.marker([latitude, longitude], { icon: truckIcon })
-      .addTo(map)
-      .bindPopup(`
-        <strong>Shipment: ${shipmentId}</strong><br>
-        Lat: ${latitude.toFixed(6)}, Lng: ${longitude.toFixed(6)}<br>
-        Speed: ${speed || 0} km/h
-      `);
-
-    state.markers[shipmentId].on("click", () => setActiveShipment(shipmentId));
-  } else {
-    state.markers[shipmentId].setLatLng([latitude, longitude]);
-    state.markers[shipmentId].getPopup().setContent(`
-      <strong>Shipment: ${shipmentId}</strong><br>
-      Lat: ${latitude.toFixed(6)}, Lng: ${longitude.toFixed(6)}<br>
-      Speed: ${speed || 0} km/h
-    `);
-  }
-
-  // Route drawing
-  drawRoute(shipmentId);
-
-  // Auto focus if active
-  if (!state.activeShipmentId || state.activeShipmentId === shipmentId) {
-    setActiveShipment(shipmentId);
-  }
-
-  updateShipmentListUI();
-}
-
-
-//jade binago
-// ==========================
-// Init Application
+// INIT APP
 // ==========================
 function initApp() {
-  initializeWebSocket();
+  initClientWebSocket();
   loadProfile();
   loadNotificationCount();
-
-  // load client shipment
   loadClientShipments();
 
-
+  // Reconnect when returning to tab
   window.addEventListener("focus", () => {
     if (state.websocket && state.websocket.readyState !== WebSocket.OPEN) {
-      initializeWebSocket();
+      initClientWebSocket();
     }
   });
 }
 
+document.addEventListener("DOMContentLoaded", initApp);
+
+// Ensure map layout refreshes
+setTimeout(() => map.invalidateSize(), 200);
+
+/* =================== Profile Dropdown =================== */
+document.addEventListener("click", (e) => {
+  const icon = document.getElementById("profileIcon");
+  const dropdown = document.getElementById("profileDropdown");
+  if (!icon || !dropdown) return;
+
+  if (icon.contains(e.target)) {
+    dropdown.style.display =
+      dropdown.style.display === "block" ? "none" : "block";
+  } else if (!dropdown.contains(e.target)) {
+    dropdown.style.display = "none";
+  }
+});
+
+window.addEventListener("pageshow", () => {
+  loadProfile();
+});
 
 //dinagdag ni jade
 
@@ -518,24 +504,37 @@ async function loadClientShipments() {
   shipmentList.innerHTML = `<p class="text-muted text-center mt-3">Loading shipments...</p>`;
 
   try {
-    const res = await fetch("https://caiden-recondite-psychometrically.ngrok-free.dev/api/client/shipments", {
-      credentials: "include"
-    });
+    const res = await fetch(
+      "https://cargosmarttsl-5.onrender.com/api/client/shipments",
+      {
+        credentials: "include",
+      }
+    );
 
     if (!res.ok) throw new Error("Failed to fetch client shipments");
     const shipments = await res.json();
 
-    // ✅ Allowed statuses only
-    const allowedStatuses = ["approved", "in transit"];
+    // Allowed statuses only
+    const allowedStatuses = ["shipping", "in transit"];
 
-    // ✅ Normalize and filter
+    // Normalize statuses and filter
     const activeShipments = shipments
-      .filter(s => allowedStatuses.includes(s.status.toLowerCase()))
-      .map(s => ({
+      .map((s) => ({
         ...s,
-        // Rename Approved → Order Shipped
-        status: s.status.toLowerCase() === "approved" ? "Order Shipped" : s.status
-      }));
+        status: s.status.toLowerCase(), // keep original status only
+      }))
+      .filter((s) => allowedStatuses.includes(s.status))
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    clientOwnedTrackingNumbers = activeShipments.map((s) => s.tracking_number);
+    clientOwnedShipmentIds = activeShipments.map((s) => String(s.id));
+
+    console.log("DEBUG → Active shipments:", activeShipments);
+    console.log("DEBUG → clientOwnedShipmentIds:", clientOwnedShipmentIds);
+    console.log(
+      "DEBUG → clientOwnedTrackingNumbers:",
+      clientOwnedTrackingNumbers
+    );
 
     // ✅ Handle empty shipments
     if (activeShipments.length === 0) {
@@ -545,10 +544,19 @@ async function loadClientShipments() {
 
     // ✅ Build dropdown manually (no auto population from API)
     statusSelect.innerHTML = `
-      <option value="all">All Shipments</option>
-      <option value="order shipped">Order Shipped</option>
-      <option value="in transit">In Transit</option>
-    `;
+  <option value="all">All Shipments</option>
+  <option value="shipping">Shipping</option>
+  <option value="in transit">In Transit</option>
+`;
+
+    shipmentList.addEventListener("click", (e) => {
+      const btn = e.target.closest(".btn-view");
+      if (!btn) return;
+
+      const shipmentId = btn.dataset.id;
+      console.log("DEBUG → View on map clicked:", shipmentId);
+      focusShipmentOnMap(shipmentId);
+    });
 
     // ==========================
     // Render shipment cards
@@ -558,8 +566,9 @@ async function loadClientShipments() {
       const query = searchInput.value.toLowerCase();
       shipmentList.innerHTML = "";
 
-      const filtered = activeShipments.filter(s => {
-        const matchesStatus = filter === "all" || s.status.toLowerCase() === filter;
+      const filtered = activeShipments.filter((s) => {
+        const matchesStatus =
+          filter === "all" || s.status.toLowerCase() === filter;
         const matchesSearch = s.tracking_number.toLowerCase().includes(query);
         return matchesStatus && matchesSearch;
       });
@@ -569,34 +578,72 @@ async function loadClientShipments() {
         return;
       }
 
-      filtered.forEach(s => {
+      filtered.forEach((s) => {
         const card = document.createElement("div");
         card.className = "shipment-card";
+        card.dataset.tracking = s.id;
 
-        // Progress bar color based on status
-        let progressColor = "#2e7fc0";
-        let progressWidth = "50%";
+        const normalizedStatus = s.status.toLowerCase();
+        let statusLabel = s.status;
+        let statusClass = "status-badge-default";
+        let progressWidth = "40";
 
-        if (s.status.toLowerCase().includes("in transit")) {
-          progressColor = "#2e7fc0";
-          progressWidth = "65%";
-        } else if (s.status.toLowerCase().includes("order shipped")) {
-          progressColor = "#17a2b8";
-          progressWidth = "35%";
+        if (normalizedStatus === "shipping") {
+          statusLabel = "Shipping";
+          statusClass = "status-badge-shipped";
+          progressWidth = "35";
+        } else if (normalizedStatus === "in transit") {
+          statusLabel = "In Transit";
+          statusClass = "status-badge-transit";
+          progressWidth = "65";
         }
 
+        const updatedAt = new Date(s.updated_at);
+
         card.innerHTML = `
-          <h6><i class="fas fa-truck-moving me-2"></i> ${s.tracking_number}</h6>
-          <p><strong>Status:</strong> ${s.status}</p>
-          <p><strong>From:</strong> ${s.origin} → ${s.destination}</p>
-          <p><strong>Updated:</strong> ${new Date(s.updated_at).toLocaleString()}</p>
-          <div class="progress">
-            <div class="progress-bar" style="width:${progressWidth}; background-color:${progressColor};"></div>
-          </div>
-          <div class="shipment-actions">
-            <button class="btn-view" data-id="${s.id}">View</button>
-          </div>
-        `;
+    <div class="shipment-card-header">
+      <div class="shipment-id">
+        <span class="shipment-label">Tracking ID</span>
+        <span class="shipment-value">${s.tracking_number}</span>
+      </div>
+      <span class="shipment-status ${statusClass}">${statusLabel}</span>
+    </div>
+
+    <div class="shipment-card-body">
+      <div class="shipment-route">
+        <i class="uil uil-location-point route-icon"></i>
+        <div class="route-text">
+          <span class="route-label">Route</span>
+          <span class="route-value">${s.origin} → ${s.destination}</span>
+        </div>
+      </div>
+
+      <div class="shipment-meta">
+        <span class="meta-label">Last updated</span>
+        <span class="meta-value">${updatedAt.toLocaleString()}</span>
+      </div>
+
+      <div class="shipment-progress-wrapper">
+        <div class="shipment-progress-track">
+          <div class="shipment-progress-fill" style="width:${progressWidth}%;"></div>
+        </div>
+        <div class="shipment-progress-steps">
+          <span class="step-dot step-done"></span>
+          <span class="step-dot ${
+            normalizedStatus.includes("in transit") ? "step-current" : ""
+          }"></span>
+          <span class="step-dot"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="shipment-card-footer">
+      <button class="btn-view" data-id="${s.id}">
+        <i class="uil uil-focus-add"></i>
+        View on map
+      </button>
+    </div>
+  `;
 
         shipmentList.appendChild(card);
       });
@@ -608,9 +655,52 @@ async function loadClientShipments() {
     // Event listeners for filters
     statusSelect.addEventListener("change", renderList);
     searchInput.addEventListener("input", renderList);
-
   } catch (err) {
     console.error("❌ Error loading client shipments:", err);
     shipmentList.innerHTML = `<p class="text-danger text-center mt-3">Failed to load shipments.</p>`;
   }
+}
+
+function focusShipmentOnMap(shipmentId) {
+  shipmentId = String(shipmentId);
+  console.log(
+    "DEBUG → focusShipmentOnMap:",
+    shipmentId,
+    state.shipments[shipmentId]
+  );
+
+  if (!state.shipments[shipmentId]) {
+    alert("GPS location not available yet for this shipment.");
+    return;
+  }
+
+  // HIDE other markers (but keep them alive)
+  for (const id in state.markers) {
+    if (id !== shipmentId) {
+      if (map.hasLayer(state.markers[id])) {
+        map.removeLayer(state.markers[id]);
+      }
+    }
+  }
+
+  const { latitude, longitude } = state.shipments[shipmentId];
+
+  // Center map and zoom
+  map.setView([latitude, longitude], 18, {
+    animate: true,
+    duration: 0.7,
+  });
+
+  // DO NOT openPopup (you removed popup binding)
+  // state.markers[shipmentId].openPopup();  <-- REMOVE
+
+  // If marker was removed before, re-add it
+  if (!map.hasLayer(state.markers[shipmentId])) {
+    state.markers[shipmentId].addTo(map);
+  }
+
+  // MARK AS ACTIVE (this fixes live updates)
+  state.activeShipmentId = shipmentId;
+
+  updateShipmentListUI();
 }

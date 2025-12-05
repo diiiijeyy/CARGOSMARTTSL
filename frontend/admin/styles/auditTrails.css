@@ -367,25 +367,42 @@ nav.close ~ .dashboard .top {
   color: #2e7fc0;
 }
 
-.pagination-wrapper {
-  padding-top: 0.8rem;
-}
-
-.pagination-wrapper .btn {
+/*--------------------------------------------------------------
+# Pagination
+--------------------------------------------------------------*/
+.pagination .page-link.custom-page {
+  background: transparent;
+  border: 1px solid #2e7fc0;
+  color: #2e7fc0;
   border-radius: 8px;
-  font-weight: 500;
-  font-size: 0.85rem;
-  padding: 5px 12px;
+  margin: 0 3px;
+  padding: 6px 12px;
+  transition: all 0.2s ease-in-out;
 }
 
-.pagination-wrapper .btn-primary {
-  background: #2e7fc0;
-  border: none;
+.pagination .page-link.custom-page:hover {
+  background: #60adf4;
+  color: #fff;
 }
 
-.pagination-wrapper .btn-light {
-  border: 1px solid #ddd;
+.pagination .page-item.active .page-link.custom-page {
+  background: #60adf4;
+  color: #fff;
+  border-color: #60adf4;
 }
+
+.pagination .page-item.disabled .page-link.custom-page {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.pagination-wrapper {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 15px;
+}
+
 
 /*--------------------------------------------------------------
 # Buttons (Filters & Export)

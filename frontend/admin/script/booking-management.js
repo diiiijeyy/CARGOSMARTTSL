@@ -7,7 +7,7 @@ const REFRESH_DELAY_MS = 5000;
 async function fetchNotifications() {
   try {
     const res = await fetch(
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/admin/notifications",
+      "https://cargosmarttsl-5.onrender.com/api/admin/notifications",
       { credentials: "include" }
     );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -42,8 +42,8 @@ function updateSummaryCards(data) {
   const declined = data.filter(
     (b) => (b.status || "").toLowerCase() === "declined"
   ).length;
-  const cancelled = data.filter(
-    (b) => (b.status || "").toLowerCase() === "cancel by client"
+  cancelled = data.filter(
+    (b) => (b.status || "").toLowerCase() === "cancelled by client"
   ).length;
 
   const el = (id) => document.getElementById(id);
@@ -75,25 +75,44 @@ function getStatusClass(status) {
     case "approved":
       return "text-primary fw-bold";
     case "declined":
+    case "cancelled by client":
       return "text-danger fw-bold";
-    case "cancel by client":
-      return "text-secondary fw-bold";
     default:
       return "text-muted";
   }
 }
 
+let isLoadingBookings = true;
+
 /* -------------------------------
-  Render Bookings
+   Render Bookings
 --------------------------------*/
 function renderBookings() {
   const tableBody = document.getElementById("bookingsBody");
   if (!tableBody) return;
   tableBody.innerHTML = "";
 
-  let filtered = [...allBookings];
+  // LOADING STATE
+  if (isLoadingBookings) {
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="9" class="text-center text-muted py-4">
+          <span class="spinner-border spinner-border-sm me-2"></span>
+          Loading bookings...
+        </td>
+      </tr>`;
+    return;
+  }
 
-  // Status filter
+  let filtered = window._filteredData || allBookings;
+
+  /* 🚫 DO NOT SHOW Delivered / In Transit */
+  filtered = filtered.filter((b) => {
+    const s = (b.status || "").toLowerCase();
+    return s !== "delivered" && s !== "in transit";
+  });
+
+  // STATUS FILTER
   const filterBtn = document.getElementById("bookingFilterBtn");
   if (
     filterBtn &&
@@ -106,7 +125,7 @@ function renderBookings() {
     );
   }
 
-  // =================== UNIVERSAL SEARCH (supports all text, numbers, symbols, and slashed date patterns) ===================
+  // UNIVERSAL SEARCH
   const searchInput = document.getElementById("bookingSearch");
   if (searchInput && searchInput.value.trim() !== "") {
     const query = searchInput.value.toLowerCase().trim();
@@ -116,10 +135,9 @@ function renderBookings() {
 
       for (const [key, val] of Object.entries(b)) {
         if (val === null || val === undefined) continue;
-
         let text = String(val).toLowerCase();
 
-        // --- Date handling ---
+        // Date handling
         if (
           key.includes("date") ||
           key.includes("created_at") ||
@@ -132,16 +150,12 @@ function renderBookings() {
             const year = d.getFullYear();
             const shortYear = String(year).slice(-2);
 
-            // ✅ Add every possible user-entered format
-            text += ` ${month}/${day} ${month}/${day}/${year} ${month}/${day}/${shortYear} `;
+            text += ` ${month}/${day} ${month}/${day}/${year} ${month}/${day}/${shortYear}`;
             text += ` ${("0" + month).slice(-2)}/${("0" + day).slice(
               -2
-            )}/${year} ${("0" + month).slice(-2)}/${("0" + day).slice(
-              -2
-            )}/${shortYear} `;
-            text += ` ${d.toLocaleDateString("en-US").toLowerCase()} ${d
-              .toDateString()
-              .toLowerCase()} `;
+            )}/${year}`;
+            text += ` ${d.toLocaleDateString("en-US").toLowerCase()}`;
+            text += ` ${d.toDateString().toLowerCase()}`;
           }
         }
 
@@ -158,7 +172,7 @@ function renderBookings() {
       pending: 0,
       approved: 1,
       declined: 2,
-      "cancel by client": 3,
+      "cancelled by client": 3,
     };
     const sa = statusOrder[a.status?.toLowerCase()] ?? 99;
     const sb = statusOrder[b.status?.toLowerCase()] ?? 99;
@@ -175,63 +189,133 @@ function renderBookings() {
   const paginated = filtered.slice(start, end);
 
   if (paginated.length === 0) {
-    tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">No bookings found</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">No bookings found</td></tr>`;
   } else {
     paginated.forEach((booking) => {
       const status = (booking.status || "").toLowerCase();
-      const hasExpected = Boolean(booking.expected_delivery_date);
-
-      const expectedCell = hasExpected
+      const expectedCell = booking.expected_delivery_date
         ? new Date(booking.expected_delivery_date).toLocaleDateString()
         : "-";
 
-      const optionsHtml = getStatusOptions(status);
-
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td>${booking.id}</td>
-        <td>${booking.client_name || "-"}</td>
-        <td>${booking.service_type || "-"}</td>
-        <td>${booking.mode || booking.delivery_mode || "-"}</td>
-        <td>
-        <span class="d-block mb-1 text-capitalize ${getStatusClass(
-          booking.status
-        )}">
-        ${booking.status || "-"}
-        </span>
-        
-        ${
-          ["approved", "declined", "cancel by client"].includes(status)
-            ? ""
-            : `
-        <select class="no-arrow"
-                data-current-status="${booking.status || ""}"
-                onchange="handleStatusChange(this, ${booking.id})">
-          ${getStatusOptions(status)}
-        </select>
-      `
-        }
-</td>
+  <td>${booking.id}</td>
+  <td>${booking.client_name || "-"}</td>
+  <td>${booking.service_type || "-"}</td>
+  <td>${booking.mode || booking.delivery_mode || "-"}</td>
 
-        <td>${
-          booking.created_at
-            ? new Date(booking.created_at).toLocaleString()
-            : "-"
-        }</td>
-        <td>
-          <button class="btn btn-sm btn-outline-primary" onclick="showBookingDetailsById(${
-            booking.id
-          })" title="View Booking Details">
-            <i class="fas fa-eye"></i>
-          </button>
-        </td>
-        <td>${expectedCell}</td>
-      `;
+  <!-- STATUS -->
+  <td>
+    <span class="d-block mb-1 text-capitalize ${getStatusClass(
+      booking.status
+    )}">
+      ${booking.status || "-"}
+    </span>
+
+    ${
+      ["approved", "declined", "cancelled by client"].includes(status)
+        ? ""
+        : `
+      <div class="action-btn-group">
+        <button class="action-btn action-view"
+                onclick="openPendingView(${booking.id})">
+          View Booking Details
+        </button>
+      </div>
+    `
+    }
+  </td>
+
+<!-- DECLINE / CANCEL REASON -->
+<td>${
+        ["declined", "cancelled by client"].includes(status)
+          ? booking.decline_reason ||
+            booking.cancel_reason ||
+            "No reason provided"
+          : "-"
+      }</td>
+
+
+  <!-- CREATED AT -->
+  <td>${
+    booking.created_at ? new Date(booking.created_at).toLocaleString() : "-"
+  }</td>
+
+  <!-- EXPECTED DELIVERY -->
+  <td>${expectedCell}</td>
+`;
+
       tableBody.appendChild(row);
     });
   }
 
   renderPagination(totalPages);
+  hideEmptyColumns();
+  // Delay execution so DOM updates FIRST
+  setTimeout(hideEmptyColumns, 0);
+}
+
+function hideEmptyColumns() {
+  const table = document.getElementById("bookingsTable");
+  if (!table) return;
+
+  const headerCells = table.querySelectorAll("thead th");
+  const bodyRows = table.querySelectorAll("tbody tr");
+
+  if (!bodyRows.length) return;
+
+  const colCount = headerCells.length;
+  const shouldHide = new Array(colCount).fill(true);
+
+  // Scan column content
+  bodyRows.forEach((row) => {
+    row.querySelectorAll("td").forEach((cell, index) => {
+      const text = cell.innerText.trim().toLowerCase();
+
+      if (text !== "-" && text !== "") {
+        shouldHide[index] = false;
+      }
+    });
+  });
+
+  // Apply hide/show
+  for (let i = 0; i < colCount; i++) {
+    const display = shouldHide[i] ? "none" : "";
+    headerCells[i].style.display = display;
+
+    bodyRows.forEach((row) => {
+      const cell = row.children[i];
+      if (cell) cell.style.display = display;
+    });
+  }
+}
+
+function openBookingDetailsBeforeApprove(bookingId) {
+  const booking = allBookings.find((b) => Number(b.id) === Number(bookingId));
+  if (!booking) return;
+
+  // Save bookingId for approval continuation
+  window._approveAfterViewing = bookingId;
+
+  // Open View Modal
+  showBookingDetails(booking);
+
+  // Modify the Update Booking button to proceed with approve flow
+  const updateBtn = document.getElementById("updateBookingBtn");
+  updateBtn.textContent = "Proceed to Approve";
+  updateBtn.onclick = () => continueApprovalProcess(bookingId);
+}
+
+function continueApprovalProcess(bookingId) {
+  // Close booking details modal
+  const modalEl = document.getElementById("bookingDetailsModal");
+  const inst = bootstrap.Modal.getInstance(modalEl);
+  inst.hide();
+
+  // Continue to Expected Date modal
+  setTimeout(() => {
+    openExpectedDeliveryModal(bookingId, true);
+  }, 300);
 }
 
 /* -------------------------------
@@ -246,13 +330,84 @@ function getStatusOptions(status) {
       <option value="Approved">Approve</option>
       <option value="Declined">Decline</option>
     `;
-  } else if (["approved", "declined", "cancel by client"].includes(status)) {
-    // ✅ Only show the "Update" placeholder, no other choices
+  } else if (["approved", "declined", "cancelled by client"].includes(status)) {
+    // ✅ Fixed: now includes "cancelled by client"
     options = `<option selected hidden>Update</option>`;
   }
 
   return options;
 }
+
+/* ============================
+   BL NUMBER MODAL
+=============================*/
+function openBLNumberModal(bookingId) {
+  const blModal = document.getElementById("blNumberModal");
+  const blInput = document.getElementById("blNumberInput");
+  const hiddenId = document.getElementById("blBookingId");
+
+  blInput.value = "";
+  hiddenId.value = bookingId;
+
+  new bootstrap.Modal(blModal).show();
+}
+
+// SAVE BL NUMBER
+document.getElementById("saveBLBtn").addEventListener("click", async () => {
+  const blInput = document.getElementById("blNumberInput");
+  const blError = document.getElementById("blError");
+  const bl = blInput.value.trim();
+  const bookingId = document.getElementById("blBookingId").value;
+
+  blInput.classList.remove("input-error");
+  blError.style.display = "none";
+
+  if (!bl) {
+    blInput.classList.add("input-error");
+    blError.style.display = "block";
+    return;
+  }
+
+  try {
+    // STEP 1 — Save BL Number
+    const res = await fetch(
+      `https://cargosmarttsl-5.onrender.com/api/admin/bookings/${bookingId}/tracking-number`,
+      {
+        credentials: "include",
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tracking_number: bl }),
+      }
+    );
+
+    if (!res.ok) {
+      const msg = await res.text();
+      throw new Error(msg || "Failed to save BL Number.");
+    }
+
+    // STEP 2 — NOW Approve booking
+    console.log("Calling APPROVE API after BL number is saved…");
+    await updateStatus(bookingId, "Approved");
+
+    // STEP 3 — Notify UI
+    showSuccessModal(
+      "BL Number Saved",
+      `Booking #${bookingId} approved and BL Number <b>${bl}</b> has been assigned.`
+    );
+
+    fetchBookings();
+
+    bootstrap.Modal.getInstance(
+      document.getElementById("blNumberModal")
+    ).hide();
+
+  } catch (err) {
+    console.error("BL Error:", err);
+    blInput.classList.add("input-error");
+    blError.textContent = "BL Number already exists.";
+    blError.style.display = "block";
+  }
+});
 
 /* -------------------------------
   DECLINE REASON MODAL
@@ -270,6 +425,7 @@ function ensureDeclineModal() {
           <div class="modal-body">
             <p>Please provide a reason for declining this booking:</p>
             <textarea id="declineReasonInput" class="form-control" rows="4" placeholder="Enter reason..."></textarea>
+            <div id="declineError" class="error-text">Reason is required.</div>
             <input type="hidden" id="declineBookingId">
           </div>
           <div class="modal-footer">
@@ -285,24 +441,54 @@ function ensureDeclineModal() {
 
 function openDeclineModal(bookingId) {
   ensureDeclineModal();
+
+  const dModal = document.getElementById("declineModal");
+  const bModalEl = document.getElementById("bookingDetailsModal");
+  const bModal = bootstrap.Modal.getInstance(bModalEl);
+
+  // Save ID
   document.getElementById("declineBookingId").value = bookingId;
   document.getElementById("declineReasonInput").value = "";
-  new bootstrap.Modal(document.getElementById("declineModal")).show();
+
+  // Check if booking details is open
+  const bookingWasOpen = bModalEl.classList.contains("show");
+  dModal.dataset.returnToBooking = bookingWasOpen ? "true" : "false";
+
+  // TEMPORARILY HIDE booking details so decline modal appears on top
+  if (bookingWasOpen && bModal) {
+    bModal.hide();
+  }
+
+  // OPEN decline modal
+  new bootstrap.Modal(dModal).show();
 }
 
 function submitDeclineReason() {
   const bookingId = document.getElementById("declineBookingId").value;
-  const reason = document.getElementById("declineReasonInput").value.trim();
+  const input = document.getElementById("declineReasonInput");
+  const err = document.getElementById("declineError");
+  const reason = input.value.trim();
+
+  input.classList.remove("input-error");
+  err.style.display = "none";
+
   if (!reason) {
-    showNotification({
-      variant: "warning",
-      title: "Reason Required",
-      message: "Please provide a reason before declining.",
-    });
+    input.classList.add("input-error");
+    err.style.display = "block";
     return;
   }
+
+  // Close decline modal
+  const dModalEl = document.getElementById("declineModal");
+  bootstrap.Modal.getInstance(dModalEl).hide();
+
+  // Close booking details modal ONLY after confirmed decline
+  const bookingModalEl = document.getElementById("bookingDetailsModal");
+  const inst = bootstrap.Modal.getInstance(bookingModalEl);
+  if (inst) inst.hide();
+
+  // Continue decline
   updateStatus(bookingId, "Declined", reason);
-  bootstrap.Modal.getInstance(document.getElementById("declineModal")).hide();
 }
 
 /* -------------------------------
@@ -438,10 +624,20 @@ function openExpectedDeliveryModal(bookingId, autoApprove = false) {
 
   hiddenBookingId.value = bookingId;
   input.value = "";
+
+  // Disable past dates
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const dd = String(today.getDate()).padStart(2, "0");
+  input.min = `${yyyy}-${mm}-${dd}`;
+
   modalEl.dataset.autoApprove = autoApprove ? "true" : "false";
 
   saveBtn.onclick = async () => {
     const dateValue = input.value;
+    const bookingId = hiddenBookingId.value;
+
     if (!dateValue) {
       const expectedModal = bootstrap.Modal.getInstance(
         document.getElementById("expectedDeliveryModal")
@@ -457,9 +653,9 @@ function openExpectedDeliveryModal(bookingId, autoApprove = false) {
     }
 
     try {
-      // 🧠 Save the expected delivery date FIRST
+      // STEP 1 — Save Expected Delivery Date
       const res = await fetch(
-        `https://caiden-recondite-psychometrically.ngrok-free.dev/api/admin/bookings/${bookingId}/expected-delivery`,
+        `https://cargosmarttsl-5.onrender.com/api/admin/bookings/${bookingId}/expected-delivery`,
         {
           credentials: "include",
           method: "PUT",
@@ -473,19 +669,17 @@ function openExpectedDeliveryModal(bookingId, autoApprove = false) {
         throw new Error(msg || "Failed to save expected delivery date.");
       }
 
-      // 🧩 If autoApprove is true → approve booking
+      // STEP 2 — Open BL number modal (NOT approve yet!)
       if (modalEl.dataset.autoApprove === "true") {
-        await updateStatus(bookingId, "Approved");
+        setTimeout(() => openBLNumberModal(bookingId), 300);
       } else {
-        // Only show success modal when it's just setting the date
         showSuccessModal(
           "Expected Date Set",
           "Expected Delivery Date has been saved successfully."
         );
       }
 
-      // 🔄 Refresh after both actions are done
-      await fetchBookings();
+      fetchBookings();
     } catch (err) {
       console.error("Error setting expected date:", err);
       showNotification({
@@ -494,7 +688,6 @@ function openExpectedDeliveryModal(bookingId, autoApprove = false) {
         message: err.message || "Failed to communicate with server.",
       });
     } finally {
-      // Close modal safely
       const modalInst = bootstrap.Modal.getInstance(modalEl);
       if (modalInst) modalInst.hide();
     }
@@ -502,6 +695,24 @@ function openExpectedDeliveryModal(bookingId, autoApprove = false) {
 
   new bootstrap.Modal(modalEl).show();
 }
+
+document.addEventListener("click", function (e) {
+  if (e.target.id === "missingDateOkBtn") {
+    const missModal = document.getElementById("missingDateModal");
+    const missInst = bootstrap.Modal.getInstance(missModal);
+    if (missInst) missInst.hide();
+
+    setTimeout(() => {
+      const expectedModal = new bootstrap.Modal(
+        document.getElementById("expectedDeliveryModal")
+      );
+      expectedModal.show();
+
+      const input = document.getElementById("expectedDeliveryInput");
+      if (input) input.focus();
+    }, 250);
+  }
+});
 
 /* -------------------------------
   APPROVE MODAL → THEN EXPECTED DELIVERY MODAL
@@ -525,10 +736,12 @@ function openApproveModal(bookingId) {
   newConfirmBtn.addEventListener("click", () => {
     bsModal.hide();
 
-    // Open Expected Delivery Modal after approval
+    // Step 1: Expected Delivery Date
     setTimeout(() => {
       openExpectedDeliveryModal(bookingId, true);
     }, 350);
+
+    // Step 2 will be triggered AFTER expected date save
   });
 }
 
@@ -538,7 +751,7 @@ function openApproveModal(bookingId) {
 async function saveExpectedDelivery(bookingId, expectedDate) {
   try {
     const res = await fetch(
-      `https://caiden-recondite-psychometrically.ngrok-free.dev/api/admin/bookings/${bookingId}/expected-delivery`,
+      `https://cargosmarttsl-5.onrender.com/api/admin/bookings/${bookingId}/expected-delivery`,
       {
         credentials: "include",
         method: "PUT", // match backend
@@ -608,8 +821,14 @@ function ensureBookingModal() {
 }
 
 function showBookingDetailsById(id) {
-  const booking = allBookings.find((b) => b.id === id);
-  if (booking) showBookingDetails(booking);
+  const booking = allBookings.find((b) => Number(b.id) === Number(id));
+
+  if (!booking) {
+    console.error("Booking not found:", id);
+    return;
+  }
+
+  showBookingDetails(booking);
 }
 
 /* -------------------------------
@@ -619,21 +838,24 @@ function showBookingDetails(booking) {
   ensureBookingModal();
   const modalEl = document.getElementById("bookingDetailsModal");
   modalEl.dataset.bookingId = booking.id;
+
+  const fmt = (v) => (v && v !== "" ? v : "-");
+  const fmtDate = (v) => (v ? new Date(v).toLocaleString() : "-");
+  const fmtWeight = (w, u) => (w ? `${w} ${u || ""}` : "-");
+
   const detailsBody = document.getElementById("bookingDetailsBody");
+
   detailsBody.innerHTML = `
-    ${renderField("Tracking Number", booking.tracking_number || booking.id)}
-    ${renderField("Client Name", booking.client_name || "-")}
-    ${renderField("Service Type", booking.service_type || "-")}
-    ${renderField(
-      "Delivery Mode",
-      booking.mode || booking.delivery_mode || "-"
-    )}
-    ${renderField(
-      "Created At",
-      booking.created_at ? new Date(booking.created_at).toLocaleString() : "-"
-    )}
-    ${renderField("Origin", booking.origin || "-")}
-    ${renderField("Destination", booking.destination || "-")}
+    ${renderField("Tracking Number", fmt(booking.tracking_number))}
+    ${renderField("Client Name", fmt(booking.client_name))}
+    ${renderField("Service Type", fmt(booking.service_type))}
+    ${renderField("Delivery Mode", fmt(booking.delivery_mode))}
+    ${renderField("Container Size", fmt(booking.container_size))}
+
+    ${renderField("Created At", fmtDate(booking.created_at))}
+    ${renderField("Origin", fmt(booking.port_origin))}
+    ${renderField("Destination", fmt(booking.port_delivery))}
+
     ${renderField(
       "Packing List",
       booking.packing_list
@@ -646,90 +868,48 @@ function showBookingDetails(booking) {
         ? `<a href="${booking.commercial_invoice}" target="_blank">View File</a>`
         : "-"
     )}
+
     ${renderField(
       "Gross Weight",
-      booking.gross_weight
-        ? booking.gross_weight + " " + (booking.gross_weight_unit || "")
-        : "-"
+      fmtWeight(booking.gross_weight, booking.gross_weight_unit)
     )}
     ${renderField(
       "Net Weight",
-      booking.net_weight
-        ? booking.net_weight + " " + (booking.net_weight_unit || "")
-        : "-"
+      fmtWeight(booking.net_weight, booking.net_weight_unit)
     )}
-    ${renderField("Number of Packages", booking.num_packages || "-")}
-    ${renderField("Consignee", booking.consignee || "-")}
-    ${renderFullWidthField("Remarks", booking.remarks || "-")}
+    ${renderField("Number of Packages", fmt(booking.num_packages))}
+
+    ${renderField("Shipper", fmt(booking.shipper))}
+    ${renderField("Consignee", fmt(booking.consignee))}
+
+    ${renderFullWidthField("Specific Location", fmt(booking.specific_location))}
+    ${renderFullWidthField("Remarks", fmt(booking.remarks))}
+
     ${renderField(
       "Status",
-      `<span class="${getStatusClass(booking.status)}">${
-        booking.status || "-"
-      }</span>`
+      `<span class="${getStatusClass(booking.status)}">${fmt(
+        booking.status
+      )}</span>`
     )}
+
     ${
-      booking.status?.toLowerCase() === "declined"
-        ? renderFullWidthField("Decline Reason", booking.decline_reason || "-")
+      booking.decline_reason
+        ? renderFullWidthField("Decline Reason", fmt(booking.decline_reason))
         : ""
     }
   `;
 
   const statusSelect = document.getElementById("bookingStatusSelect");
-  statusSelect.value = booking.status || "Approved";
-
   const updateBtn = document.getElementById("updateBookingBtn");
-  updateBtn.onclick = () => {
-    const newStatus = statusSelect.value;
-    if (!newStatus || newStatus === booking.status) {
-      showNotification({
-        variant: "warning",
-        title: "Update Required",
-        message: "Please select a new status before updating this booking.",
-      });
-      return;
-    }
 
-    // 🧠 Use same modal logic as dropdown status change
-    const bookingId = booking.id;
+  // Hide the old update section safely
+  if (statusSelect && statusSelect.parentElement) {
+    statusSelect.parentElement.style.display = "none";
+  }
 
-    // Reuse same confirmAction flow
-    if (newStatus.toLowerCase() === "approved") {
-      confirmAction({
-        variant: "approve",
-        message: `Are you sure you want to <b>approve</b> booking (#${bookingId})? <br>Once approved, you may proceed to set <b>Expected Delivery Date</b>.`,
-        onConfirm: () => openExpectedDeliveryModal(bookingId, true),
-        onCancel: () => {},
-      });
-    } else if (newStatus.toLowerCase() === "declined") {
-      openDeclineModal(bookingId);
-    } else if (newStatus.toLowerCase() === "completed") {
-      if (!booking.expected_delivery_date) {
-        confirmAction({
-          variant: "setdate",
-          message: `You must set an <b>Expected Delivery Date</b> before marking this booking as Completed.`,
-          onConfirm: () => openExpectedDeliveryModal(bookingId),
-          onCancel: () => {},
-        });
-      } else {
-        confirmAction({
-          variant: "complete",
-          message: `Mark booking (#${bookingId}) as <b>Completed</b>?`,
-          onConfirm: () => updateStatus(bookingId, "Completed"),
-          onCancel: () => {},
-        });
-      }
-    } else {
-      // fallback generic confirmation
-      confirmAction({
-        variant: "approve",
-        message: `Are you sure you want to set this booking to <b>${newStatus}</b>?`,
-        onConfirm: () => updateStatus(bookingId, newStatus),
-        onCancel: () => {},
-      });
-    }
-
-    bootstrap.Modal.getInstance(modalEl).hide();
-  };
+  if (updateBtn) {
+    updateBtn.style.display = "none"; // Always hidden now (we use new Approve/Decline)
+  }
 
   new bootstrap.Modal(modalEl).show();
 }
@@ -849,17 +1029,29 @@ function showNotification(arg1, arg2, arg3) {
   API FUNCTIONS
 --------------------------------*/
 async function fetchBookings() {
+  // Only show loading on first load
+  if (allBookings.length === 0) {
+    isLoadingBookings = true;
+    renderBookings();
+  }
+
   try {
     const res = await fetch(
-      "https://caiden-recondite-psychometrically.ngrok-free.dev/api/admin/bookings",
+      "https://cargosmarttsl-5.onrender.com/api/admin/bookings",
       { credentials: "include" }
     );
+
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    allBookings = await res.json();
+
+    const data = await res.json();
+
+    allBookings = data;
     updateSummaryCards(allBookings);
+  } catch (err) {
+    console.error("Failed to fetch bookings:", err);
+  } finally {
+    isLoadingBookings = false;
     renderBookings();
-  } catch (error) {
-    console.error("Failed to load bookings:", error);
   }
 }
 
@@ -871,7 +1063,7 @@ async function updateStatus(bookingId, newStatus, declineReason = null) {
     }
 
     const res = await fetch(
-      `https://caiden-recondite-psychometrically.ngrok-free.dev/api/admin/bookings/${bookingId}/status`,
+      `https://cargosmarttsl-5.onrender.com/api/admin/bookings/${bookingId}/status`,
       {
         credentials: "include",
         method: "PUT",
@@ -1094,13 +1286,14 @@ document.addEventListener("DOMContentLoaded", () => {
     dropdown.className = "dropdown-menu show";
     dropdown.style.position = "absolute";
     dropdown.style.display = "none";
+    // In your DOMContentLoaded event listener
     dropdown.innerHTML = `
-      <a class="dropdown-item" data-value="all" href="#">All</a>
-      <a class="dropdown-item" data-value="Approved" href="#">Approved</a>
-      <a class="dropdown-item" data-value="Pending" href="#">Pending</a>
-      <a class="dropdown-item" data-value="Declined" href="#">Declined</a>
-      <a class="dropdown-item" data-value="Cancel By Client" href="#">Cancel By Client</a>
-    `;
+  <a class="dropdown-item" data-value="all" href="#">All</a>
+  <a class="dropdown-item" data-value="pending" href="#">Pending</a>
+  <a class="dropdown-item" data-value="approved" href="#">Approved</a>
+  <a class="dropdown-item" data-value="declined" href="#">Declined</a>
+  <a class="dropdown-item" data-value="cancelled by client" href="#">Cancelled by Client</a>
+`;
     document.body.appendChild(dropdown);
 
     filterBtn.dataset.value = "all";
@@ -1135,13 +1328,15 @@ document.addEventListener("DOMContentLoaded", () => {
 // -------------------------------
 // Inert fix for all Bootstrap modals
 // -------------------------------
-document.addEventListener("show.bs.modal", (e) => {
-  e.target.removeAttribute("inert"); // Remove inert when modal opens
+document.addEventListener("shown.bs.modal", (e) => {
+  e.target.removeAttribute("inert");
 });
 
-document.addEventListener("hide.bs.modal", (e) => {
-  e.target.setAttribute("inert", ""); // Apply inert when modal closes
-  document.body.focus(); // send focus back safely
+document.addEventListener("hidden.bs.modal", (e) => {
+  setTimeout(() => {
+    e.target.setAttribute("inert", "true");
+    document.body.focus();
+  }, 50); // allow Bootstrap to finish backdrop cleanup
 });
 
 /* -------------------------------
@@ -1311,8 +1506,18 @@ function animateValue(el, start, end, duration, prefix = "", suffix = "") {
 --------------------------------*/
 function closeAllModals() {
   document.querySelectorAll(".modal.show").forEach((m) => {
-    const instance = bootstrap.Modal.getInstance(m);
-    if (instance) instance.hide();
+    let instance = bootstrap.Modal.getInstance(m);
+
+    // try to parse Bootstrap instance if not registered
+    if (!instance) {
+      try {
+        instance = new bootstrap.Modal(m);
+      } catch (err) {
+        return; // skip this modal, it's not a real bootstrap modal
+      }
+    }
+
+    instance.hide();
   });
   document.body.classList.remove("modal-open");
   document.body.style.removeProperty("padding-right");
@@ -1382,39 +1587,66 @@ document.addEventListener("DOMContentLoaded", () => {
         filterBtn.innerHTML = `<i class="fas fa-calendar-alt me-1"></i> This Year`;
         applyCurrentFilterAndSearch();
       } else if (selected === "custom") {
-        // Open modal for custom range
         const modal = new bootstrap.Modal(
           document.getElementById("dateRangeModal")
         );
         modal.show();
 
-        // Reset input
-        document.getElementById("dateRangeInput").value = "";
+        const fromEl = document.getElementById("customFromDate");
+        const toEl = document.getElementById("customToDate");
 
-        // Handle "Apply" inside modal
+        // Reset values
+        fromEl.value = "";
+        toEl.value = "";
+
+        // Prevent typing but allow calendar
+        fromEl.addEventListener("keypress", (e) => e.preventDefault());
+        toEl.addEventListener("keypress", (e) => e.preventDefault());
+
+        // Always open calendar when clicking input
+        fromEl.addEventListener(
+          "click",
+          () => fromEl.showPicker && fromEl.showPicker()
+        );
+        toEl.addEventListener(
+          "click",
+          () => toEl.showPicker && toEl.showPicker()
+        );
+
+        // Set max = today
+        const today = new Date().toISOString().split("T")[0];
+        fromEl.max = today;
+        toEl.max = today;
+
+        // Replace old Apply handler
         const applyBtn = document.getElementById("applyDateRangeBtn");
         const newApply = applyBtn.cloneNode(true);
         applyBtn.parentNode.replaceChild(newApply, applyBtn);
 
         newApply.addEventListener("click", () => {
-          const value = document.getElementById("dateRangeInput").value.trim();
-          if (!value.includes("to")) {
-            alert("Please use the format YYYY-MM-DD to YYYY-MM-DD");
-            return;
-          }
+          const from = fromEl.value;
+          const to = toEl.value;
 
-          const [from, to] = value.split("to").map((v) => v.trim());
           if (!from || !to) {
-            alert("Please provide both start and end dates.");
+            alert("Please select both From and To dates.");
             return;
           }
 
+          if (new Date(from) > new Date(to)) {
+            alert("Start date cannot be after end date.");
+            return;
+          }
+
+          // Save filter
           currentDateFilter = { range: "custom", from, to };
+
+          // Update button UI
+          filterBtn.innerHTML = `<i class="fas fa-calendar-alt me-1"></i> ${from} → ${to}`;
+
           bootstrap.Modal.getInstance(
             document.getElementById("dateRangeModal")
           ).hide();
 
-          filterBtn.innerHTML = `<i class="fas fa-calendar-alt me-1"></i> ${from} → ${to}`;
           applyCurrentFilterAndSearch();
         });
       }
@@ -1429,13 +1661,25 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 const originalRenderBookings = renderBookings;
+
 renderBookings = function () {
-  const tableBody = document.getElementById("bookingsBody");
-  if (!tableBody) return;
+  if (isLoadingBookings) {
+    const tableBody = document.getElementById("bookingsBody");
+    if (tableBody) {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="9" class="text-center text-muted py-4">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Loading bookings...
+          </td>
+        </tr>`;
+    }
+    return;
+  }
 
   let filtered = [...allBookings];
 
-  // STATUS filter
+  // status filter
   const filterStatusBtn = document.getElementById("bookingFilterBtn");
   if (
     filterStatusBtn &&
@@ -1448,60 +1692,114 @@ renderBookings = function () {
     );
   }
 
-  // DATE filter
+  // date filter
   if (currentDateFilter.from && currentDateFilter.to) {
     const start = new Date(currentDateFilter.from);
     const end = new Date(currentDateFilter.to);
     end.setHours(23, 59, 59);
+
     filtered = filtered.filter((b) => {
       const created = new Date(b.created_at);
       return created >= start && created <= end;
     });
   }
 
+  // search
   const searchInput = document.getElementById("bookingSearch");
   if (searchInput && searchInput.value.trim() !== "") {
     const query = searchInput.value.toLowerCase().trim();
-
-    filtered = filtered.filter((b) => {
-      let combined = "";
-
-      for (const [key, val] of Object.entries(b)) {
-        if (val === null || val === undefined) continue;
-
-        let text = String(val).toLowerCase();
-
-        if (
-          key.includes("date") ||
-          key.includes("created_at") ||
-          key.includes("expected")
-        ) {
-          const d = new Date(val);
-          if (!isNaN(d)) {
-            const month = d.getMonth() + 1;
-            const day = d.getDate();
-            const year = d.getFullYear();
-            const shortYear = String(year).slice(-2);
-
-            text += ` ${month}/${day} ${month}/${day}/${year} ${month}/${day}/${shortYear}`;
-            text += ` ${("0" + month).slice(-2)}/${("0" + day).slice(
-              -2
-            )}/${year} ${("0" + month).slice(-2)}/${("0" + day).slice(
-              -2
-            )}/${shortYear}`;
-            text += ` ${d.toLocaleDateString("en-US").toLowerCase()} ${d
-              .toDateString()
-              .toLowerCase()}`;
-          }
-        }
-
-        combined += text + " ";
-      }
-
-      return combined.includes(query);
-    });
+    filtered = filtered.filter((b) =>
+      JSON.stringify(b).toLowerCase().includes(query)
+    );
   }
 
-  allBookings = filtered;
+  // DO NOT overwrite allBookings
+  window._filteredData = filtered;
+
   originalRenderBookings();
 };
+
+function approveBooking(id) {
+  confirmAction({
+    variant: "approve",
+    message: `Approve booking #${id}? You will then set Expected Delivery Date.`,
+    onConfirm: () => openExpectedDeliveryModal(id, true),
+  });
+}
+
+function declineBooking(id) {
+  openDeclineModal(id);
+}
+
+function updateBookingNormally(bookingId) {
+  const statusSelect = document.getElementById("bookingStatusSelect");
+  const status = statusSelect.value.toLowerCase();
+
+  if (status === "approved") {
+    openExpectedDeliveryModal(bookingId, true);
+  } else if (status === "declined") {
+    openDeclineModal(bookingId);
+  }
+}
+
+function openPendingView(bookingId) {
+  const booking = allBookings.find((b) => Number(b.id) === Number(bookingId));
+  if (!booking) return;
+
+  showBookingDetails(booking); // This opens the modal
+
+  const modalEl = document.getElementById("bookingDetailsModal");
+  if (!modalEl) return;
+
+  // Remove previous listeners to avoid duplicates
+  modalEl.removeEventListener("shown.bs.modal", modalEl._pendingListener);
+
+  modalEl._pendingListener = () => {
+    const modalFooter = modalEl.querySelector(".modal-footer");
+    if (!modalFooter) return;
+
+    // Clear default footer
+    modalFooter.innerHTML = `
+  <button class="action-btn action-approve"
+          onclick="beginApproveInsideModal(${bookingId})">
+    Approve
+  </button>
+
+  <button class="action-btn action-decline"
+          onclick="openDeclineModal(${bookingId})">
+    Decline
+  </button>
+`;
+  };
+
+  // Attach listener
+  modalEl.addEventListener("shown.bs.modal", modalEl._pendingListener);
+}
+
+function beginApproveInsideModal(id) {
+  // Close details modal first
+  const modalEl = document.getElementById("bookingDetailsModal");
+  const inst = bootstrap.Modal.getInstance(modalEl);
+  inst.hide();
+
+  // Continue approval
+  setTimeout(() => openExpectedDeliveryModal(id, true), 300);
+}
+
+// Handle Decline Modal Cancel → Return to Booking Details
+document.addEventListener("click", function (e) {
+  if (e.target.matches("#declineModal .btn-light[data-bs-dismiss='modal']")) {
+    const dModal = document.getElementById("declineModal");
+    const shouldReturn = dModal.dataset.returnToBooking === "true";
+
+    if (shouldReturn) {
+      setTimeout(() => {
+        const bookingModal = document.getElementById("bookingDetailsModal");
+        const instance =
+          bootstrap.Modal.getInstance(bookingModal) ||
+          new bootstrap.Modal(bookingModal);
+        instance.show();
+      }, 200);
+    }
+  }
+});

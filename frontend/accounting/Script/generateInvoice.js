@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", loadApprovedShipments);
 
 async function loadApprovedShipments() {
   try {
-    const res = await fetch("https://caiden-recondite-psychometrically.ngrok-free.dev/api/accounting/approved-shipments");
+    const res = await fetch("https://cargosmarttsl-5.onrender.com/api/accounting/approved-shipments");
     const shipments = await res.json();
 
     const tbody = document.getElementById("approvedShipmentsBody");
@@ -37,7 +37,7 @@ async function generateInvoice(shipmentId) {
   if (!confirm("Generate invoice for this shipment?")) return;
 
   try {
-    const res = await fetch(`https://caiden-recondite-psychometrically.ngrok-free.dev/api/accounting/invoices/generate/${shipmentId}`, {
+    const res = await fetch(`https://cargosmarttsl-5.onrender.com/api/accounting/invoices/generate/${shipmentId}`, {
       method: "POST"
     });
 

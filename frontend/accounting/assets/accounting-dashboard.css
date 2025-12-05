@@ -277,7 +277,9 @@ nav.close ~ .dashboard .top {
 .data {
   color: #000 !important;
   font-weight: 700;
-  animation: fadePulse 1.5s ease-in-out 2;
+  opacity: 1; /* no fade */
+  transform: none; /* no scaling */
+  animation: none; /* remove pulse */
 }
 
 @keyframes fadePulse {
@@ -407,10 +409,6 @@ nav.close ~ .dashboard .top {
   background-color: #fff;
 }
 
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
-}
 
 .chart-container {
   width: 100%;
@@ -586,4 +584,35 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 .export-btn:active,
 .view-all-btn:active {
   transform: scale(0.97);
+}
+
+/*--------------------------------------------------------------
+# Pagination
+--------------------------------------------------------------*/
+.pagination .page-link.custom-page {
+  background: transparent;
+  border: 1px solid #60adf4;
+  color: #60adf4;
+  border-radius: 8px;
+  margin: 0 3px;
+  padding: 6px 12px;
+  -webkit-transition: all 0.2s ease-in-out;
+  -o-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+}
+
+.pagination .page-link.custom-page:hover {
+  background: #60adf4;
+  color: #fff;
+}
+
+.pagination .page-item.active .page-link.custom-page {
+  background: #60adf4;
+  color: #fff;
+  border-color: #60adf4;
+}
+
+.pagination .page-item.disabled .page-link.custom-page {
+  opacity: 0.4;
+  pointer-events: none;
 }

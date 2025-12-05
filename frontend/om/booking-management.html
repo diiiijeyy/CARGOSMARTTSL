@@ -14,7 +14,9 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -52,6 +54,12 @@
           </a>
         </li>
         <li>
+          <a href="./driver.html">
+            <i class="uil uil-truck"></i>
+            <span class="link-name">Drivers</span>
+          </a>
+        </li>
+        <li>
           <a href="booking-management.html" class="active">
             <i class="uil uil-schedule"></i>
             <span class="link-name">Bookings</span>
@@ -84,12 +92,13 @@
   <!-- End Navbar -->
 
   <main class="dashboard">
-    <!-- Top Bar -->
     <div class="top d-flex align-items-center justify-content-between px-3 py-2">
-      <i class="fas fa-bars hamburger-menu me-2" id="hamburgerMenu"></i>
-      <div class="d-flex flex-column">
-        <h4 class="dashboard-title mb-0">Bookings Management</h4>
-        <p class="dashboard-date mb-0" id="current-date">—</p>
+      <div class="d-flex align-items-center">
+        <i class="fas fa-bars hamburger-menu me-3" id="hamburgerMenu"></i>
+        <div class="d-flex flex-column">
+          <h4 class=" dashboard-title fw-semibold" id="greetingText">Good day, <span>Operational Manager</span>!</h4>
+          <p class="dashboard-date mb-0" id="current-date" data-field="currentDate">—</p>
+        </div>
       </div>
     </div>
 
@@ -97,15 +106,18 @@
       <div class="container-fluid mt-4">
         <div class="px-3">
           <div class="d-flex flex-column">
-            <h3 class="fw-semibold text-dark mb-1" style="font-size:1.3rem;">Welcome back!</h3>
-            <p class="text-muted mb-0" style="font-size:0.95rem;">Your booking updates for today:</p>
+            <h3 class="fw-semibold text-dark mb-1" style="font-size:1.3rem;">
+              Booking Management
+            </h3>
+            <p class="text-muted mb-0" style="font-size:0.95rem;">Here are your booking updates for today.</p>
           </div>
         </div>
 
-        <!-- KPI Cards -->
-        <div class="row g-3 mb-4 mt-1">
-          <div class="col-sm-6 col-md-3">
-            <div class="summary-card card shadow-sm border-0 h-100 filter-card" data-status="all">
+        <!--- KPI Cards --->
+        <div class="row g-3 mb-4 mt-1 justify-content-center">
+          <!-- Total Bookings -->
+          <div class="col-12 col-lg-4">
+            <div class="stat-card card shadow-sm border-0 h-100 filter-card" data-status="all">
               <div class="card-body d-flex justify-content-between align-items-center">
                 <div>
                   <h6 class="text-muted mb-1">Total Bookings</h6>
@@ -116,8 +128,9 @@
             </div>
           </div>
 
-          <div class="col-sm-6 col-md-3">
-            <div class="summary-card card shadow-sm border-0 h-100 filter-card" data-status="Approved">
+          <!-- Confirmed -->
+          <div class="col-12 col-lg-4">
+            <div class="stat-card card shadow-sm border-0 h-100 filter-card" data-status="Approved">
               <div class="card-body d-flex justify-content-between align-items-center">
                 <div>
                   <h6 class="text-muted mb-1">Confirmed</h6>
@@ -128,93 +141,233 @@
             </div>
           </div>
 
-          <div class="col-sm-6 col-md-3">
-            <div class="summary-card card shadow-sm border-0 h-100 filter-card" data-status="Pending">
+          <!-- Pending -->
+          <div class="col-12 col-lg-4">
+            <div class="stat-card card shadow-sm border-0 h-100 filter-card" data-status="Pending">
               <div class="card-body d-flex justify-content-between align-items-center">
                 <div>
                   <h6 class="text-muted mb-1">Pending</h6>
                   <h3 id="pendingBookings" class="fw-bold mb-0">0</h3>
                 </div>
-                <i class="bi bi-hourglass-split fs-3 "></i>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-sm-6 col-md-3">
-            <div class="summary-card card shadow-sm border-0 h-100 filter-card" data-status="Completed">
-              <div class="card-body d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 class="text-muted mb-1">Completed</h6>
-                  <h3 id="completedBookings" class="fw-bold  mb-0">0</h3>
-                </div>
-                <i class="bi bi-flag-fill fs-3 "></i>
+                <i class="bi bi-hourglass-split fs-3"></i>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Shipment Requests Section -->
-        <div class="card shadow-sm border-0">
-          <div class="card-header bg-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0 fw-bold">All Bookings</h5>
-            <button class="btn create-shipment-btn btn-sm">
-              <i class="fas fa-plus me-1"></i> Create Booking
-            </button>
-          </div>
-          <div class="card-body">
-                <span class="text-muted small d-block mb-3">
-                  This table provides a complete list of all client bookings. You can search and filter records, track booking status.
-                </span>
+        <!--- Shipment Requests Section --->
+        <div class="tablecontainer">
+          <div class="card shadow-sm border-1">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+              <h5 class="mb-0 fw-bold">All Bookings</h5>
+            </div>
+            <div class="card-body">
+              <span class="text-muted small d-block mb-3">
+                This table provides a complete list of all client bookings. You can search and filter records, track
+                booking status.
+              </span>
+              <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                <div class="search-bar d-flex align-items-center flex-grow-1" style="max-width:250px;">
+                  <i class="fas fa-search me-2 text-muted"></i>
+                  <input type="text" id="bookingSearch" class="form-control form-control-sm"
+                    placeholder="Search bookings...">
+                </div>
+                <button id="bookingFilterBtn" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal"
+                  data-bs-target="#statusFilterModal">
+                  <i class="fas fa-filter me-1"></i> Filter by Status
+                </button>
 
-
-            <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-              <div class="search-bar d-flex align-items-center flex-grow-1" style="max-width:250px;">
-                <i class="fas fa-search me-2 text-muted"></i>
-                <input type="text" id="bookingSearch" class="form-control form-control-sm"
-                  placeholder="Search bookings...">
+                <button id="filterDateBtn" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal"
+                  data-bs-target="#dateFilterModal">
+                  <i class="fas fa-calendar-alt me-1"></i> Filter by Date
+                </button>
               </div>
-              <button id="bookingFilterBtn" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-filter me-1"></i> Filter
-              </button>
-            </div>
 
-            <!-- Bookings Table -->
-            <div class="table-responsive">
-              <table class="table table-hover align-middle">
-                <thead class="table-dark">
-                  <tr>
-                    <th>Tracking Number</th>
-                    <th>Client Name</th>
-                    <th>Service Type</th>
-                    <th>Delivery Mode</th>
-                    <th>Status</th>
-                    <th>Created At</th>
-                    <th>Action</th>
-                    <th>Expected Delivery</th>
-                  </tr>
-                </thead>
-                <tbody id="bookingsBody">
-                  <!-- Rows inserted by JS -->
-                </tbody>
-              </table>
-            </div>
-            <!-- Pagination Controls -->
-           <div>
-            <ul class="pagination justify-content-center mt-3" id="pagination">
-              <!-- Buttons will be generated dynamically -->
-              </ul>
+              <!--- Bookings Table --->
+              <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                  <thead class="table-dark">
+                    <tr>
+                      <th>Tracking Number</th>
+                      <th>Client Name</th>
+                      <th>Service Type</th>
+                      <th>Delivery Mode</th>
+                      <th>Status</th>
+                      <th>Cancel Reason</th>
+                      <th>Created At</th>
+                      <th>Action</th>
+                      <th>Expected Delivery</th>
+                    </tr>
+                  </thead>
+                  <tbody id="bookingsBody">
+                  </tbody>
+                </table>
+              </div>
+              <div>
+                <ul class="pagination justify-content-center mt-3" id="pagination">
+                </ul>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </section>
-
   </main>
 
-  <!-- JS -->
+  <!--- Warning Modal --->
+  <div class="modal fade" id="missingDateModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:480px;">
+      <div class="modal-content warning-modal">
+        <div class="warning-modal-header">
+          <h5><i class="fas fa-exclamation-triangle me-2"></i>Missing Date</h5>
+        </div>
+        <div class="warning-modal-body">
+          <div class="warning-modal-icon">
+            <i class="fas fa-calendar-times"></i>
+          </div>
+          <p>Please select an <b>Expected Delivery Date</b> before saving.</p>
+        </div>
+        <div class="warning-modal-footer">
+          <button type="button" class="btn btn-warning" data-bs-dismiss="modal">
+            <i class="fas fa-check"></i> OK
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--- Approve booking Modal --->
+  <div class="modal fade" id="approveBookingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:500px;">
+      <div class="modal-content approve-modal">
+        <div class="approve-modal-header">
+          <h5><i class="fas fa-truck-loading me-2"></i>Approve Booking</h5>
+        </div>
+
+        <div class="approve-modal-body">
+          <div class="approve-modal-icon">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <p>Are you sure you want to <b>approve</b> this booking?</p>
+          <p class="text-muted small mt-2 mb-0">
+            Once approved, you will be required to set an <b>Expected Delivery Date</b>.
+          </p>
+        </div>
+
+        <div class="approve-modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-approve" id="confirmApproveBtn">
+            <i class="fas fa-check"></i> Approve
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--- Footer --->
+  <footer class="text-center mt-5">
+    <p>CargoSmart: Shipment Tracking System with Data Analytics</p>
+  </footer>
+
+  <!-- Custom Range Modal -->
+  <div class="modal fade" id="dateRangeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;width:92%;">
+      <div class="modal-content border-0 shadow-sm">
+
+        <div class="modal-header" style="background:#0077b6;color:#fff;">
+          <h6 class="modal-title mb-0">Select Date Range</h6>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+
+          <label class="form-label small text-muted mb-1">From</label>
+          <input type="date" id="customFromDate" class="form-control mb-3">
+
+          <label class="form-label small text-muted mb-1">To</label>
+          <input type="date" id="customToDate" class="form-control">
+
+          <small class="text-muted d-block mt-2">
+            Pick a date range using the calendar.
+          </small>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+          <button id="applyDateRangeBtn" type="button" class="btn btn-primary">Apply</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- BL Number Modal -->
+  <div class="modal fade" id="blNumberModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:480px;">
+      <div class="modal-content bl-modal">
+
+        <!-- Header -->
+        <div class="bl-modal-header">
+          <h5 class="modal-title">Enter BL Number</h5>
+        </div>
+
+        <!-- Body -->
+        <div class="bl-modal-body">
+          <div class="bl-modal-icon">
+            <i class="fas fa-file-signature"></i>
+          </div>
+
+          <p>Please enter the <b>Bill of Lading (BL) Number</b>.</p>
+
+          <div class="bl-modal-input">
+            <input id="blNumberInput" type="text" placeholder="Enter BL Number" />
+            <div id="blError" class="error-text">BL Number is required.</div>
+            <input type="hidden" id="blBookingId" />
+          </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="bl-modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="saveBLBtn">
+            <i class="fas fa-check me-1"></i> Save BL Number
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!--- JS Scripts --->
   <script>
-    // Display current date
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", () => {
+      const greetingEl = document.getElementById("greetingText");
+      const currentDateEl = document.getElementById("current-date");
+
+      const now = new Date();
+      const hour = now.getHours();
+
+      currentDateEl.textContent = now.toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
+
+      let greeting = "Good day";
+      if (hour >= 5 && hour < 12) greeting = "Good morning";
+      else if (hour >= 12 && hour < 17) greeting = "Good afternoon";
+      else greeting = "Good evening";
+
+      greetingEl.textContent = `${greeting}, Operational Manager!`;
+    });
+  </script>
+
+  <script>
+    // Date
+    document.addEventListener("DOMContentLoaded", () => {
       const currentDateElement = document.getElementById("current-date");
       const now = new Date();
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -225,12 +378,8 @@
     document.addEventListener("DOMContentLoaded", function () {
       const hamburgerMenu = document.getElementById("hamburgerMenu");
       const nav = document.querySelector("nav");
-
-      hamburgerMenu.addEventListener("click", function () {
-        nav.classList.toggle("active");
-      });
-
-      document.addEventListener("click", function (e) {
+      hamburgerMenu.addEventListener("click", () => nav.classList.toggle("active"));
+      document.addEventListener("click", (e) => {
         if (!nav.contains(e.target) && !hamburgerMenu.contains(e.target)) {
           nav.classList.remove("active");
         }
@@ -248,7 +397,9 @@
     });
   </script>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
   <script src="./script/booking-management.js"></script>
 </body>
+
 </html>
