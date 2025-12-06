@@ -13,7 +13,7 @@ let cachedDrivers = [];
 async function loadDrivers() {
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/admin/drivers",
+      "https://cargosmarttsl-1.onrender.com/api/admin/drivers",
       { credentials: "include" }
     );
 
@@ -210,7 +210,7 @@ async function toggleArchiveDriver(driverId) {
     async () => {
       try {
         const res = await fetch(
-          `https://cargosmarttsl-5.onrender.com/api/admin/drivers/${driverId}/${action}`,
+          `https://cargosmarttsl-1.onrender.com/api/admin/drivers/${driverId}/${action}`,
           {
             method: "PUT",
             credentials: "include",
@@ -250,7 +250,7 @@ async function toggleArchiveDriver(driverId) {
 async function fetchNotifications() {
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/admin/notifications",
+      "https://cargosmarttsl-1.onrender.com/api/admin/notifications",
       { credentials: "include" }
     );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);

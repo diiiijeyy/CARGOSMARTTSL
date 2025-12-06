@@ -13,7 +13,7 @@ function countThisMonthsBookings(bookings = []) {
 /* =================== Client Dashboard =================== */
 async function loadDashboard() {
   try {
-    const res = await fetch("https://cargosmarttsl-5.onrender.com/api/client/dashboard", {
+    const res = await fetch("https://cargosmarttsl-1.onrender.com/api/client/dashboard", {
       credentials: "include",
     });
     if (!res.ok) throw new Error("Failed to fetch dashboard data");
@@ -67,7 +67,7 @@ async function loadDashboard() {
 async function loadProfile() {
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/v1/user/profile",
+      "https://cargosmarttsl-1.onrender.com/api/v1/user/profile",
       {
         method: "GET",
         credentials: "include",
@@ -100,7 +100,7 @@ async function loadProfile() {
         profileIcon.replaceWith(img);
         profileIcon = img;
       }
-      profileIcon.src = `https://cargosmarttsl-5.onrender.com/uploads/${data.photo}`;
+      profileIcon.src = `https://cargosmarttsl-1.onrender.com/uploads/${data.photo}`;
       profileIcon.alt = "Profile";
     }
   } catch (err) {
@@ -112,7 +112,7 @@ async function loadProfile() {
 async function loadNotificationCount() {
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/client/notifications",
+      "https://cargosmarttsl-1.onrender.com/api/client/notifications",
       {
         credentials: "include",
       }
@@ -450,7 +450,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
       const year = new Date().getFullYear();
       const response = await fetch(
-        `https://cargosmarttsl-5.onrender.com/api/v1/dashboard/trends?year=${year}`,
+        `https://cargosmarttsl-1.onrender.com/api/v1/dashboard/trends?year=${year}`,
         {
           credentials: "include",
         }
@@ -696,7 +696,7 @@ function animateCounter(element, endValue, duration = 1000, format = (v) => v) {
 async function loadRecentUpdates() {
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/client/notifications",
+      "https://cargosmarttsl-1.onrender.com/api/client/notifications",
       {
         credentials: "include",
       }

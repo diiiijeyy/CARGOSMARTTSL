@@ -75,7 +75,7 @@ function showNotification(arg1, arg2, arg3) {
 async function fetchNotifications() {
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/admin/notifications",
+      "https://cargosmarttsl-1.onrender.com/api/admin/notifications",
       { credentials: "include" }
     );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -152,7 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       try {
         const res = await fetch(
-          `https://cargosmarttsl-5.onrender.com/api/invoices/generate/${shipmentId}`,
+          `https://cargosmarttsl-1.onrender.com/api/invoices/generate/${shipmentId}`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -357,7 +357,7 @@ function showSuccessModal(
 async function loadInvoices(statusFilter = "all", search = "") {
   try {
     const url =
-      "https://cargosmarttsl-5.onrender.com/api/invoices";
+      "https://cargosmarttsl-1.onrender.com/api/invoices";
     const res = await fetch(url, { credentials: "include" });
     if (!res.ok) throw new Error("Failed to fetch invoices");
     const invoices = await res.json();
@@ -460,7 +460,7 @@ function renderInvoices() {
           `
               : `
             <div class="d-flex justify-content-center align-items-center gap-2 flex-nowrap">
-              <a href="https://cargosmarttsl-5.onrender.com${
+              <a href="https://cargosmarttsl-1.onrender.com${
                 inv.pdf_url || `/invoices/${inv.invoice_number}.pdf`
               }" 
                 target="_blank" class="btn btn-sm btn-primary" title="View PDF Invoice">
@@ -591,7 +591,7 @@ async function openGenerate(shipmentId) {
 
   try {
     const res = await fetch(
-      `https://cargosmarttsl-5.onrender.com/api/admin/shipments/${shipmentId}`,
+      `https://cargosmarttsl-1.onrender.com/api/admin/shipments/${shipmentId}`,
       { credentials: "include" }
     );
     if (!res.ok) throw new Error("Failed to fetch shipment");
@@ -655,7 +655,7 @@ async function markAsPaid(invoiceId) {
     async () => {
       try {
         const res = await fetch(
-          `https://cargosmarttsl-5.onrender.com/api/invoices/${invoiceId}/pay`,
+          `https://cargosmarttsl-1.onrender.com/api/invoices/${invoiceId}/pay`,
           {
             method: "PUT",
             credentials: "include",
@@ -709,7 +709,7 @@ async function undoInvoice(invoiceId) {
     async () => {
       try {
         const res = await fetch(
-          `https://cargosmarttsl-5.onrender.com/api/invoices/${invoiceId}/undo`,
+          `https://cargosmarttsl-1.onrender.com/api/invoices/${invoiceId}/undo`,
           {
             method: "DELETE",
             credentials: "include",

@@ -1,6 +1,6 @@
 //CONFIGURATION
 
-const API_BASE_URL = "https://cargosmarttsl-5.onrender.com";
+const API_BASE_URL = "https://cargosmarttsl-1.onrender.com";
 
 // ========================
 // POPULATE READ-ONLY PROFILE CARD & IMAGE
@@ -28,7 +28,7 @@ function populateProfileCard(data) {
   const imgDiv = document.querySelector(".profile-image");
   if (imgDiv) {
     imgDiv.innerHTML = data.photo
-      ? `<img src="https://cargosmarttsl-5.onrender.com/uploads/${data.photo}" 
+      ? `<img src="https://cargosmarttsl-1.onrender.com/uploads/${data.photo}" 
           alt="Profile Photo" 
           class="img-fluid rounded-circle" 
           style="width:150px;height:150px;object-fit:cover;border-radius:50%;">`
@@ -60,7 +60,7 @@ window.addEventListener("pageshow", () => {
 async function loadProfile() {
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/profile",
+      "https://cargosmarttsl-1.onrender.com/api/profile",
       {
         method: "GET",
         credentials: "include",
@@ -114,7 +114,7 @@ async function loadProfile() {
         profileIcon.replaceWith(img);
         profileIcon = img;
       }
-      profileIcon.src = `https://cargosmarttsl-5.onrender.com/uploads/${data.photo}`;
+      profileIcon.src = `https://cargosmarttsl-1.onrender.com/uploads/${data.photo}`;
       profileIcon.alt = "Profile";
     }
   } catch (err) {
@@ -133,7 +133,7 @@ async function loadProfile() {
 async function loadNotificationCount() {
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/client/notifications",
+      "https://cargosmarttsl-1.onrender.com/api/client/notifications",
       {
         credentials: "include",
       }
@@ -184,7 +184,7 @@ async function saveProfile(e) {
 
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/profile",
+      "https://cargosmarttsl-1.onrender.com/api/profile",
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -229,7 +229,7 @@ async function saveProfile(e) {
 async function removePhoto() {
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/profile/photo",
+      "https://cargosmarttsl-1.onrender.com/api/profile/photo",
       {
         method: "DELETE",
         credentials: "include",
@@ -291,7 +291,7 @@ async function uploadPhoto() {
 
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/profile/photo",
+      "https://cargosmarttsl-1.onrender.com/api/profile/photo",
       {
         method: "POST",
         credentials: "include",
@@ -371,7 +371,7 @@ async function changePassword(e) {
 
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/profile/password",
+      "https://cargosmarttsl-1.onrender.com/api/profile/password",
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },

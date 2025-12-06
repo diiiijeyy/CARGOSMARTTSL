@@ -7,7 +7,7 @@ const REFRESH_DELAY_MS = 5000;
 async function fetchNotifications() {
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/admin/notifications",
+      "https://cargosmarttsl-1.onrender.com/api/admin/notifications",
       { credentials: "include" }
     );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -371,7 +371,7 @@ document.getElementById("saveBLBtn").addEventListener("click", async () => {
   try {
     // STEP 1 — Save BL Number
     const res = await fetch(
-      `https://cargosmarttsl-5.onrender.com/api/admin/bookings/${bookingId}/tracking-number`,
+      `https://cargosmarttsl-1.onrender.com/api/admin/bookings/${bookingId}/tracking-number`,
       {
         credentials: "include",
         method: "PUT",
@@ -655,7 +655,7 @@ function openExpectedDeliveryModal(bookingId, autoApprove = false) {
     try {
       // STEP 1 — Save Expected Delivery Date
       const res = await fetch(
-        `https://cargosmarttsl-5.onrender.com/api/admin/bookings/${bookingId}/expected-delivery`,
+        `https://cargosmarttsl-1.onrender.com/api/admin/bookings/${bookingId}/expected-delivery`,
         {
           credentials: "include",
           method: "PUT",
@@ -751,7 +751,7 @@ function openApproveModal(bookingId) {
 async function saveExpectedDelivery(bookingId, expectedDate) {
   try {
     const res = await fetch(
-      `https://cargosmarttsl-5.onrender.com/api/admin/bookings/${bookingId}/expected-delivery`,
+      `https://cargosmarttsl-1.onrender.com/api/admin/bookings/${bookingId}/expected-delivery`,
       {
         credentials: "include",
         method: "PUT", // match backend
@@ -1037,7 +1037,7 @@ async function fetchBookings() {
 
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/admin/bookings",
+      "https://cargosmarttsl-1.onrender.com/api/admin/bookings",
       { credentials: "include" }
     );
 
@@ -1063,7 +1063,7 @@ async function updateStatus(bookingId, newStatus, declineReason = null) {
     }
 
     const res = await fetch(
-      `https://cargosmarttsl-5.onrender.com/api/admin/bookings/${bookingId}/status`,
+      `https://cargosmarttsl-1.onrender.com/api/admin/bookings/${bookingId}/status`,
       {
         credentials: "include",
         method: "PUT",

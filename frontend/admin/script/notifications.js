@@ -4,8 +4,12 @@
 function getApiBaseUrl() {
   const isLocal =
     location.hostname === "localhost" || location.hostname === "127.0.0.1";
-  return isLocal ? "http://localhost:5001" : "";
+  
+  return isLocal
+    ? "http://localhost:5001" // local backend
+    : "https://cargosmarttsl-1.onrender.com"; // deployed backend
 }
+
 
 // ⚙️ Set this true if page is for admin dashboard
 const isAdmin = true;

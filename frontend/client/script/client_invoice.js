@@ -44,7 +44,7 @@ function updateCurrentDate() {
 async function loadUsername() {
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/client/profile",
+      "https://cargosmarttsl-1.onrender.com/api/client/profile",
       {
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -132,7 +132,7 @@ async function loadInvoices(statusFilter = "all", search = "") {
 
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/client/invoices",
+      "https://cargosmarttsl-1.onrender.com/api/client/invoices",
       {
         credentials: "include",
       }
@@ -365,7 +365,7 @@ function autoBreakText(text, maxLength = 45) {
 // ================ Download Invoice PDF ================
 function downloadInvoicePDF(invoiceNumber) {
   try {
-    const pdfUrl = `https://cargosmarttsl-5.onrender.com/api/client/invoice/${invoiceNumber}/pdf`;
+    const pdfUrl = `https://cargosmarttsl-1.onrender.com/api/client/invoice/${invoiceNumber}/pdf`;
     const fileName = `Invoice_${invoiceNumber}.pdf`;
 
     const link = document.createElement("a");
@@ -418,7 +418,7 @@ window.addEventListener("pageshow", () => {
 async function loadProfile() {
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/profile",
+      "https://cargosmarttsl-1.onrender.com/api/profile",
       {
         method: "GET",
         credentials: "include",
@@ -446,7 +446,7 @@ async function loadProfile() {
         profileIcon.replaceWith(img);
         profileIcon = img;
       }
-      profileIcon.src = `https://cargosmarttsl-5.onrender.com/uploads/${data.photo}`;
+      profileIcon.src = `https://cargosmarttsl-1.onrender.com/uploads/${data.photo}`;
       profileIcon.alt = "Profile";
     }
   } catch (err) {
@@ -460,7 +460,7 @@ async function loadProfile() {
 async function loadNotificationCount() {
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/client/notifications",
+      "https://cargosmarttsl-1.onrender.com/api/client/notifications",
       {
         credentials: "include",
       }

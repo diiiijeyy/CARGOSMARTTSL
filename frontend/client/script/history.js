@@ -426,7 +426,7 @@ function setupEventListeners() {
   async function loadProfile() {
     try {
       const res = await fetch(
-        "https://cargosmarttsl-5.onrender.com/api/profile",
+        "https://cargosmarttsl-1.onrender.com/api/profile",
         {
           method: "GET",
           credentials: "include",
@@ -454,7 +454,7 @@ function setupEventListeners() {
           profileIcon.replaceWith(img);
           profileIcon = img;
         }
-        profileIcon.src = `https://cargosmarttsl-5.onrender.com/uploads/${data.photo}`;
+        profileIcon.src = `https://cargosmarttsl-1.onrender.com/uploads/${data.photo}`;
         profileIcon.alt = "Profile";
       }
     } catch (err) {
@@ -492,7 +492,7 @@ document.addEventListener("DOMContentLoaded", () => {
 async function loadNotificationCount() {
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/client/notifications",
+      "https://cargosmarttsl-1.onrender.com/api/client/notifications",
       {
         credentials: "include",
       }
@@ -530,7 +530,7 @@ window.addEventListener("load", function () {
 async function fetchShipmentHistory() {
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/bookings/history",
+      "https://cargosmarttsl-1.onrender.com/api/bookings/history",
       {
         credentials: "include",
       }

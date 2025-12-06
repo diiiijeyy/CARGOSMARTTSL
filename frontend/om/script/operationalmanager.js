@@ -4,7 +4,7 @@
 document.addEventListener("DOMContentLoaded", async function () {
   // ===== 1. Summary KPIs =====
   fetch(
-    "https://cargosmarttsl-5.onrender.com/api/analytics/kpis"
+    "https://cargosmarttsl-1.onrender.com/api/analytics/kpis"
   )
     .then((res) => res.json())
     .then((data) => {
@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // ===== 2. Shipment Status Bar =====
   fetch(
-    "https://cargosmarttsl-5.onrender.com/api/analytics/operational/shipment-status"
+    "https://cargosmarttsl-1.onrender.com/api/analytics/operational/shipment-status"
   )
     .then((res) => res.json())
     .then((data) => {
@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // ===== 3. Shipment Volume Line =====
   fetch(
-    "https://cargosmarttsl-5.onrender.com/api/om/analytics/shipment-volume-compare"
+    "https://cargosmarttsl-1.onrender.com/api/om/analytics/shipment-volume-compare"
   )
     .then((res) => res.json())
     .then((data) => {
@@ -118,7 +118,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // ===== 4. Weekly Bookings =====
   fetch(
-    "https://cargosmarttsl-5.onrender.com/api/analytics/weekly-bookings"
+    "https://cargosmarttsl-1.onrender.com/api/analytics/weekly-bookings"
   )
     .then((res) => res.json())
     .then((data) => {
@@ -136,7 +136,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // ===== 5. Booking Status (Doughnut) =====
   fetch(
-    "https://cargosmarttsl-5.onrender.com/api/analytics/operational/booking-status"
+    "https://cargosmarttsl-1.onrender.com/api/analytics/operational/booking-status"
   )
     .then((res) => res.json())
     .then((data) => {
@@ -168,7 +168,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // ===== 6. On-Time vs Late =====
   fetch(
-    "https://cargosmarttsl-5.onrender.com/api/analytics/operational/on-time-late"
+    "https://cargosmarttsl-1.onrender.com/api/analytics/operational/on-time-late"
   )
     .then((res) => res.json())
     .then((data) => {
@@ -205,7 +205,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const tableBody = document.querySelector("[data-table='recentShipments']");
   if (tableBody) {
     fetch(
-      "https://cargosmarttsl-5.onrender.com/api/operational/shipments/recent"
+      "https://cargosmarttsl-1.onrender.com/api/operational/shipments/recent"
     )
       .then((res) => res.json())
       .then((rows) => {
@@ -244,7 +244,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/operational/shipments/recent"
+      "https://cargosmarttsl-1.onrender.com/api/operational/shipments/recent"
     );
     if (!res.ok) throw new Error("Failed to fetch recent shipments");
 

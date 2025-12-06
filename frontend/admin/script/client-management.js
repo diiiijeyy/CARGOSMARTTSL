@@ -10,7 +10,7 @@ const notifCountEl = document.getElementById("notifCount");
 async function fetchNotifications() {
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/admin/notifications",
+      "https://cargosmarttsl-1.onrender.com/api/admin/notifications",
       { credentials: "include" }
     );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -51,7 +51,7 @@ async function loadClients() {
 
   try {
     const response = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/admin/clients?includeArchived=true"
+      "https://cargosmarttsl-1.onrender.com/api/admin/clients?includeArchived=true"
     );
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
@@ -312,7 +312,7 @@ async function toggleArchiveClient(clientId) {
     async () => {
       try {
         const response = await fetch(
-          `https://cargosmarttsl-5.onrender.com/api/admin/clients/${clientId}/${action}`,
+          `https://cargosmarttsl-1.onrender.com/api/admin/clients/${clientId}/${action}`,
           { method: "PATCH" }
         );
         if (!response.ok)
@@ -409,7 +409,7 @@ async function viewClient(clientId) {
 
   try {
     const res = await fetch(
-      `https://cargosmarttsl-5.onrender.com/api/admin/clients/${clientId}/shipments`
+      `https://cargosmarttsl-1.onrender.com/api/admin/clients/${clientId}/shipments`
     );
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
@@ -606,7 +606,7 @@ document
 
     try {
       const res = await fetch(
-        `https://cargosmarttsl-5.onrender.com/api/admin/clients/${id}`,
+        `https://cargosmarttsl-1.onrender.com/api/admin/clients/${id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -725,7 +725,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       const response = await fetch(
-        "https://cargosmarttsl-5.onrender.com/api/admin/clients",
+        "https://cargosmarttsl-1.onrender.com/api/admin/clients",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function fetchAgingReport() {
     try {
       const res = await fetch(
-        "https://cargosmarttsl-5.onrender.com/api/reports/aging",
+        "https://cargosmarttsl-1.onrender.com/api/reports/aging",
         { credentials: "include" }
       );
       if (!res.ok) throw new Error("Failed to fetch aging report");
@@ -276,7 +276,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function loadDashboard() {
     try {
       const res = await fetch(
-        "https://cargosmarttsl-5.onrender.com/api/accounting/dashboard",
+        "https://cargosmarttsl-1.onrender.com/api/accounting/dashboard",
         {
           credentials: "include",
         }
@@ -388,7 +388,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const ctx = canvas.getContext("2d");
 
       const res = await fetch(
-        "https://cargosmarttsl-5.onrender.com/api/analytics/payment-status",
+        "https://cargosmarttsl-1.onrender.com/api/analytics/payment-status",
         { credentials: "include" }
       );
       let data = await res.json();
@@ -444,7 +444,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function loadPaymentDecisionAnalytics() {
     try {
       const res = await fetch(
-        "https://cargosmarttsl-5.onrender.com/api/analytics/payment-decision",
+        "https://cargosmarttsl-1.onrender.com/api/analytics/payment-decision",
         { credentials: "include" }
       );
       paymentDecisionData = await res.json();
@@ -464,7 +464,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function loadLedger(clientId, clientName) {
     try {
       const res = await fetch(
-        `https://cargosmarttsl-5.onrender.com/api/accounting/clients/${clientId}/ledger`,
+        `https://cargosmarttsl-1.onrender.com/api/accounting/clients/${clientId}/ledger`,
         { credentials: "include" }
       );
       if (!res.ok) throw new Error("Failed to fetch ledger");
@@ -513,7 +513,7 @@ document.addEventListener("DOMContentLoaded", () => {
       showConfirm("Mark this invoice as paid?", async () => {
         try {
           const res = await fetch(
-            `https://cargosmarttsl-5.onrender.com/api/invoices/${id}/pay`,
+            `https://cargosmarttsl-1.onrender.com/api/invoices/${id}/pay`,
             { method: "PUT", credentials: "include" }
           );
           if (!res.ok) throw new Error("Failed to mark invoice paid");

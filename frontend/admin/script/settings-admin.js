@@ -65,7 +65,7 @@ function showNotification({ variant = "info", title, message }) {
 
 async function fetchNotifications() {
   try {
-    const res = await fetch("http://localhost:5001/api/admin/notifications", {
+    const res = await fetch("https://cargosmarttsl-1.onrender.com/api/admin/notifications", {
       credentials: "include",
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -181,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // OPTIONAL backend notification
       try {
-        await fetch("http://localhost:5001/api/admin/notifications", {
+        await fetch("https://cargosmarttsl-1.onrender.com/api/admin/notifications", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",

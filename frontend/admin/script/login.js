@@ -1,6 +1,6 @@
 /* =================== Configuration =================== */
 const API_BASE_URL = window.location.origin.includes("ngrok")
-  ? "https://cargosmarttsl-5.onrender.com"
+  ? "https://cargosmarttsl-1.onrender.com"
   : "localhost:5001";
 
 // Get email from hidden field or modal data
@@ -659,7 +659,7 @@ document.addEventListener("DOMContentLoaded", () => {
   logoutBtn?.addEventListener("click", async () => {
     try {
       await fetch(
-        `https://cargosmarttsl-5.onrender.com/api/logout`,
+        `https://cargosmarttsl-1.onrender.com/api/logout`,
         { method: "POST", credentials: "include" }
       );
       localStorage.removeItem("token");

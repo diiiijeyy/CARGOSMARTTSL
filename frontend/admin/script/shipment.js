@@ -21,9 +21,9 @@ let adminLiveLine = null;
    ============================== */
 const CONFIG = {
   apiUrl:
-    "https://cargosmarttsl-5.onrender.com/api/admin/shipments",
+    "https://cargosmarttsl-1.onrender.com/api/admin/shipments",
   notifUrl:
-    "https://cargosmarttsl-5.onrender.com/api/admin/notifications",
+    "https://cargosmarttsl-1.onrender.com/api/admin/notifications",
   wsUrl: "wss://caiden-recondite-psychometrically.ngrok-free.dev",
   defaultCenter: [14.5995, 120.9842],
   defaultZoom: 13,

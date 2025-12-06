@@ -1,6 +1,6 @@
 /* =================== CLIENT BOOKINGS =================== */
 document.addEventListener("DOMContentLoaded", () => {
-  const API_BASE = "https://cargosmarttsl-5.onrender.com";
+  const API_BASE = "https://cargosmarttsl-1.onrender.com";
 
   const tableBody = document.querySelector('[data-table="recentBookings"]');
   const pagination = document.getElementById("pagination");

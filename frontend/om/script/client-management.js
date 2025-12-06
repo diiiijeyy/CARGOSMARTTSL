@@ -36,7 +36,7 @@ async function loadClients() {
     tableBody.innerHTML = ""; // Clear table
 
     try {
-        const response = await fetch("http://localhost:5001/api/clients"); // Adjust route if needed
+        const response = await fetch("https://cargosmarttsl-1.onrender.com/api/clients"); // Adjust route if needed
         const clients = await response.json();
 
         clients.forEach(client => {
@@ -83,7 +83,7 @@ async function showClientBookings(clientId) {
     bookingTableBody.innerHTML = ""; // Clear previous data
 
     try {
-        const response = await fetch(`http://localhost:5001/api/bookings/${clientId}`);
+        const response = await fetch(`https://cargosmarttsl-1.onrender.com/api/bookings/${clientId}`);
         const bookings = await response.json();
 
         bookings.forEach(booking => {
@@ -199,7 +199,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             // Send the data to the server to insert the new client into the database
-            const response = await fetch("http://localhost:5001/api/clients", {
+            const response = await fetch("https://cargosmarttsl-1.onrender.com/api/clients", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

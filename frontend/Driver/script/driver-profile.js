@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
 async function loadDriverProfile() {
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/driver/profile",
+      "https://cargosmarttsl-1.onrender.com/api/driver/profile",
       { credentials: "include" }
     );
 
@@ -56,7 +56,7 @@ async function saveProfile() {
 
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/driver/profile",
+      "https://cargosmarttsl-1.onrender.com/api/driver/profile",
       {
         method: "PATCH",
         credentials: "include",
@@ -94,7 +94,7 @@ async function changePassword() {
 
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/driver/password",
+      "https://cargosmarttsl-1.onrender.com/api/driver/password",
       {
         method: "PATCH",
         credentials: "include",

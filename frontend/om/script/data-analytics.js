@@ -73,7 +73,7 @@ function showNotification(arg1, arg2, arg3) {
 async function fetchNotifications() {
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/admin/notifications",
+      "https://cargosmarttsl-1.onrender.com/api/admin/notifications",
       { credentials: "include" }
     );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -259,7 +259,7 @@ async function initShipmentVolumeChart(
     const ctx = canvas.getContext("2d");
 
     // ✅ Build API URL dynamically
-    let url = `https://cargosmarttsl-5.onrender.com/api/analytics/shipment-volume?filter=${filterType}`;
+    let url = `https://cargosmarttsl-1.onrender.com/api/analytics/shipment-volume?filter=${filterType}`;
     if (filterType === "custom" && customRange.start && customRange.end) {
       url += `&start=${customRange.start}&end=${customRange.end}`;
     }
@@ -533,7 +533,7 @@ async function initOnTimeLate(filterType = "this_month", customRange = {}) {
 
   try {
     // ✅ Build API URL dynamically
-    let url = `https://cargosmarttsl-5.onrender.com/api/admin/reports/on-time-vs-delayed?filter=${filterType}`;
+    let url = `https://cargosmarttsl-1.onrender.com/api/admin/reports/on-time-vs-delayed?filter=${filterType}`;
     if (filterType === "custom" && customRange.start && customRange.end) {
       url += `&start=${customRange.start}&end=${customRange.end}`;
     }
@@ -925,7 +925,7 @@ async function initRevenueChart(filter = "this_month", customRange = {}) {
 
   try {
     // Build API URL
-    let url = `https://cargosmarttsl-5.onrender.com/api/reports/revenue-trend?filter=${filter}`;
+    let url = `https://cargosmarttsl-1.onrender.com/api/reports/revenue-trend?filter=${filter}`;
     if (filter === "custom" && customRange.start && customRange.end) {
       url += `&start=${customRange.start}&end=${customRange.end}`;
     }
@@ -1052,7 +1052,7 @@ async function initInvoiceStatus(filter = "this_month", customRange = {}) {
   const ctx = canvas.getContext("2d");
 
   try {
-    let url = `https://cargosmarttsl-5.onrender.com/api/reports/payment-status?filter=${filter}`;
+    let url = `https://cargosmarttsl-1.onrender.com/api/reports/payment-status?filter=${filter}`;
 
     if (filter === "custom" && customRange.start && customRange.end) {
       url += `&start=${customRange.start}&end=${customRange.end}`;
@@ -1121,7 +1121,7 @@ async function loadRevenueByClientChart(
     // ----------------------------
     // Build API URL
     // ----------------------------
-    let url = `https://cargosmarttsl-5.onrender.com/api/reports/client-revenue?filter=${filter}`;
+    let url = `https://cargosmarttsl-1.onrender.com/api/reports/client-revenue?filter=${filter}`;
 
     if (filter === "custom" && customRange.start && customRange.end) {
       url += `&start=${customRange.start}&end=${customRange.end}`;
@@ -1239,7 +1239,7 @@ async function initShipmentStatus(filterType = "this_month", customRange = {}) {
 
   try {
     // Build API URL (Correct: shipment-status)
-    let url = `https://cargosmarttsl-5.onrender.com/api/analytics/shipment-status?filter=${filterType}`;
+    let url = `https://cargosmarttsl-1.onrender.com/api/analytics/shipment-status?filter=${filterType}`;
 
     if (filterType === "custom" && customRange.start && customRange.end) {
       url += `&start=${customRange.start}&end=${customRange.end}`;
@@ -1407,7 +1407,7 @@ async function initTopClients(filterType = "this_month", customRange = {}) {
     const ctx = canvas.getContext("2d");
 
     // ✅ Build API URL dynamically with filters
-    let url = `https://cargosmarttsl-5.onrender.com/api/analytics/top-clients-bookings?filter=${filterType}`;
+    let url = `https://cargosmarttsl-1.onrender.com/api/analytics/top-clients-bookings?filter=${filterType}`;
     if (filterType === "custom" && customRange.start && customRange.end) {
       url += `&start=${customRange.start}&end=${customRange.end}`;
     }
@@ -1692,7 +1692,7 @@ async function loadClientsOverview() {
   if (!tableBody) return;
 
   const res = await fetch(
-    "https://cargosmarttsl-5.onrender.com/api/reports/analytics/clients",
+    "https://cargosmarttsl-1.onrender.com/api/reports/analytics/clients",
     { credentials: "include" }
   );
   const clients = await res.json();
@@ -1725,7 +1725,7 @@ async function initAgingReport() {
   const ctx = canvas.getContext("2d");
 
   const res = await fetch(
-    "https://cargosmarttsl-5.onrender.com/api/reports/aging",
+    "https://cargosmarttsl-1.onrender.com/api/reports/aging",
     { credentials: "include" }
   );
   const data = await res.json();
@@ -1822,7 +1822,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   let clients = [];
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/reports/clients-with-shipments",
+      "https://cargosmarttsl-1.onrender.com/api/reports/clients-with-shipments",
       { credentials: "include" }
     );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -1902,7 +1902,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       // Build API
       let url =
-        "https://cargosmarttsl-5.onrender.com/api/analytics/client-history";
+        "https://cargosmarttsl-1.onrender.com/api/analytics/client-history";
       if (clientId !== "all") url += `?client_id=${clientId}`;
 
       try {

@@ -10,7 +10,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   // ---------- CONFIG ----------
-  const API_BASE = "https://cargosmarttsl-5.onrender.com";
+  const API_BASE = "https://cargosmarttsl-1.onrender.com";
   const LOCATIONIQ_TOKEN = "pk.cb06d9dc8a074f0eab5d70fb8a492649";
   const GEOAPIFY_KEY = "e5e95eba533c4eb69344256d49166905";
 

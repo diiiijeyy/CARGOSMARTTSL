@@ -1,7 +1,7 @@
 // ==========================
 // GLOBAL API BASE
 // ==========================
-const API_BASE = "https://cargosmarttsl-5.onrender.com";
+const API_BASE = "https://cargosmarttsl-1.onrender.com";
 
 let clientOwnedTrackingNumbers = [];
 let clientOwnedShipmentIds = [];
@@ -9,7 +9,7 @@ let clientOwnedShipmentIds = [];
 const CONFIG = {
   apiUrl: `${API_BASE}/api/admin/shipments`,
   clientShipmentsUrl: `${API_BASE}/api/client/shipments`,
-  wsUrl: "wss://cargosmarttsl-5.onrender.com/client",
+  wsUrl: "wss://cargosmarttsl-1.onrender.com/client",
   defaultCenter: [14.5995, 120.9842],
   defaultZoom: 13,
   mapTileUrl: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -116,7 +116,7 @@ async function drawRoute(shipmentId) {
   }
 
   try {
-    const url = `https://cargosmarttsl-5.onrender.com/api/map/route?originLat=${startLat}&originLng=${startLng}&destLat=${destLat}&destLng=${destLng}`;
+    const url = `https://cargosmarttsl-1.onrender.com/api/map/route?originLat=${startLat}&originLng=${startLng}&destLat=${destLat}&destLng=${destLng}`;
     const res = await fetch(url);
 
     if (!res.ok) return;
@@ -389,7 +389,7 @@ function updateShipmentData(shipmentId, data) {
 async function loadProfile() {
   try {
     const res = await fetch(
-      `https://cargosmarttsl-5.onrender.com/api/profile`,
+      `https://cargosmarttsl-1.onrender.com/api/profile`,
       {
         method: "GET",
         credentials: "include",
@@ -415,7 +415,7 @@ async function loadProfile() {
         profileIcon.replaceWith(img);
         profileIcon = img;
       }
-      profileIcon.src = `https://cargosmarttsl-5.onrender.com/uploads/${data.photo}`;
+      profileIcon.src = `https://cargosmarttsl-1.onrender.com/uploads/${data.photo}`;
       profileIcon.alt = "Profile";
     }
   } catch (err) {
@@ -505,7 +505,7 @@ async function loadClientShipments() {
 
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/client/shipments",
+      "https://cargosmarttsl-1.onrender.com/api/client/shipments",
       {
         credentials: "include",
       }

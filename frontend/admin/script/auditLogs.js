@@ -77,7 +77,7 @@ function showNotification(arg1, arg2, arg3) {
 async function fetchNotifications() {
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/admin/notifications",
+      "https://cargosmarttsl-1.onrender.com/api/admin/notifications",
       { credentials: "include" }
     );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -148,7 +148,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Fetch Logs
   try {
     const response = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/audit-logs"
+      "https://cargosmarttsl-1.onrender.com/api/audit-logs"
     );
     if (!response.ok) throw new Error("Failed to fetch logs.");
 

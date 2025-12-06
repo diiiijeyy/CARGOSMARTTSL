@@ -7,6 +7,12 @@
  *  ✔ ETA Updated by Live GPS
  *********************************************/
 
+const API_BASE_URL = 
+  location.hostname === "localhost" || location.hostname === "127.0.0.1"
+    ? "http://localhost:5001"
+    : "https://cargosmarttsl-1.onrender.com";
+
+
 /* ================================
    GLOBAL STATE
 ================================ */
@@ -37,8 +43,7 @@ let lastGPSTime = null;
 let driverWS = null;
 let wsConnected = false;
 let wsUrl =
-  (location.protocol === "https:" ? "wss://" : "ws://") +
-  location.host +
+  API_BASE_URL.replace("http://", "ws://").replace("https://", "wss://") +
   "/driver";
 
 // Throttle GPS sending

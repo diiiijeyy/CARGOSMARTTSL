@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
 async function initKpis() {
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/analytics/kpis",
+      "https://cargosmarttsl-1.onrender.com/api/analytics/kpis",
       { credentials: "include" }
     );
     const data = await res.json();
@@ -99,7 +99,7 @@ async function initRevenueChart() {
   try {
     const ctx = document.getElementById("revenue-chart").getContext("2d");
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/analytics/revenue",
+      "https://cargosmarttsl-1.onrender.com/api/analytics/revenue",
       { credentials: "include" }
     );
     const data = await res.json();
@@ -234,7 +234,7 @@ async function initPaymentStatusChart() {
       .getElementById("payment-status-chart")
       .getContext("2d");
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/analytics/payment-status",
+      "https://cargosmarttsl-1.onrender.com/api/analytics/payment-status",
       {
         credentials: "include",
       }
@@ -294,7 +294,7 @@ async function loadPaymentDecisionAnalytics() {
   const tableBody = document.getElementById("payment-decision-table-body");
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/analytics/payment-decision",
+      "https://cargosmarttsl-1.onrender.com/api/analytics/payment-decision",
       { credentials: "include" }
     );
     const data = await res.json();
@@ -383,7 +383,7 @@ async function initShipmentVolumeChart() {
       .getElementById("shipment-volume-chart")
       .getContext("2d");
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/dashboard/shipment-volume",
+      "https://cargosmarttsl-1.onrender.com/api/dashboard/shipment-volume",
       { credentials: "include" }
     );
     const data = await res.json();
@@ -492,7 +492,7 @@ async function initBookingStatusChart() {
 
     const ctx = canvas.getContext("2d");
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/analytics/booking-status",
+      "https://cargosmarttsl-1.onrender.com/api/analytics/booking-status",
       { credentials: "include" }
     );
     const data = await res.json();
@@ -536,7 +536,7 @@ async function initTopClients() {
     if (!container) return;
 
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/analytics/top-clients",
+      "https://cargosmarttsl-1.onrender.com/api/analytics/top-clients",
       { credentials: "include" }
     );
     const clients = await res.json();
@@ -575,7 +575,7 @@ async function initTopClients() {
 async function initRecentShipments() {
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/admin/shipments",
+      "https://cargosmarttsl-1.onrender.com/api/admin/shipments",
       { credentials: "include" }
     );
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -620,7 +620,7 @@ const notifCountEl = document.getElementById("notifCount");
 async function fetchNotifications() {
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/admin/notifications",
+      "https://cargosmarttsl-1.onrender.com/api/admin/notifications",
       { credentials: "include" }
     );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -786,7 +786,7 @@ function renderBookings() {
 async function updatePaymentDDS() {
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/analytics/payment-status",
+      "https://cargosmarttsl-1.onrender.com/api/analytics/payment-status",
       { credentials: "include" }
     );
     const data = await res.json();
@@ -833,7 +833,7 @@ async function updatePaymentDDS() {
 async function updateShipmentVolumeDDS() {
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/dashboard/shipment-volume",
+      "https://cargosmarttsl-1.onrender.com/api/dashboard/shipment-volume",
       { credentials: "include" }
     );
     const data = await res.json();
@@ -860,7 +860,7 @@ async function updateShipmentVolumeDDS() {
 async function updateTopClientsDDS() {
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/analytics/top-clients",
+      "https://cargosmarttsl-1.onrender.com/api/analytics/top-clients",
       { credentials: "include" }
     );
     const data = await res.json();

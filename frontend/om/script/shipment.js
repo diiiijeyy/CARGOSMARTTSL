@@ -21,10 +21,10 @@ let adminLiveLine = null;
    ============================== */
 const CONFIG = {
   apiUrl:
-    "https://cargosmarttsl-5.onrender.com/api/admin/shipments",
+    "https://cargosmarttsl-1.onrender.com/api/admin/shipments",
   notifUrl:
-    "https://cargosmarttsl-5.onrender.com/api/admin/notifications",
-  wsUrl: "wss://cargosmarttsl-5.onrender.com",
+    "https://cargosmarttsl-1.onrender.com/api/admin/notifications",
+  wsUrl: "wss://cargosmarttsl-1.onrender.com",
   defaultCenter: [14.5995, 120.9842],
   defaultZoom: 13,
   mapTileUrl: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -1369,7 +1369,7 @@ async function loadActiveDrivers(shipmentId) {
 
   try {
     const res = await fetch(
-      "https://cargosmarttsl-5.onrender.com/api/admin/drivers/active",
+      "https://cargosmarttsl-1.onrender.com/api/admin/drivers/active",
       { credentials: "include" }
     );
 
@@ -1412,7 +1412,7 @@ async function loadActiveDrivers(shipmentId) {
 async function assignDriverToShipment(shipmentId, driverId) {
   try {
     const res = await fetch(
-      `https://cargosmarttsl-5.onrender.com/api/admin/shipments/${shipmentId}/assign-driver`,
+      `https://cargosmarttsl-1.onrender.com/api/admin/shipments/${shipmentId}/assign-driver`,
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
