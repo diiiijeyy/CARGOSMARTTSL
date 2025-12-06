@@ -1,3 +1,9 @@
+const API_BASE_URL =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+    ? "http://localhost:5001"
+    : "https://cargosmarttsl-1.onrender.com";
+
 document.addEventListener("DOMContentLoaded", function () {
     const loginContainer = document.getElementById("login-container");
     const signupContainer = document.getElementById("signup-container");
@@ -11,12 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const attemptMessage = document.getElementById("attemptMessage"); // Reference to the attempt message element
     const emailInput = document.getElementById("username"); // Reference to the email input
     const alertMessage = document.getElementById("alertMessage"); // Reference to alert message element
-    const API_BASE_URL =
-  window.location.hostname === "localhost" ||
-  window.location.hostname === "127.0.0.1"
-    ? "http://localhost:5001"
-    : "https://cargosmarttsl-1.onrender.com";
-
+  
 
     let loginAttempts = 0; // Initialize attempt counter
 

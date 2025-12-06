@@ -1,8 +1,9 @@
 /* =================== Configuration =================== */
-const API_BASE_URL = window.location.origin.includes("ngrok")
-  ? "https://cargosmarttsl-1.onrender.com"
-  : "localhost:5001";
-
+const API_BASE_URL =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+    ? "http://localhost:5001"
+    : "https://cargosmarttsl-1.onrender.com";
 // Get email from hidden field or modal data
 function getVerifyEmail() {
   const hidden = document.getElementById("verifyEmail");
