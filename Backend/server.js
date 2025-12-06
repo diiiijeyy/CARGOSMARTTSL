@@ -66,7 +66,7 @@ app.use((req, res, next) => {
 app.use(
   cors({
     origin: [
-      "https://cargosmarttsl-5.onrender.com",
+      "https://cargosmarttsl-1.onrender.com",
       "https://tslcargosmart.xyz",
       "https://www.tslcargosmart.xyz",
       "http://localhost:5500",
