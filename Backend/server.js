@@ -94,15 +94,20 @@ app.set("trust proxy", 1);
 // SESSION
 app.use(
   session({
+    store: new pgSession({
+      pool: pool,            // Reuse your existing DB pool
+      tableName: "user_sessions", // You may rename this table
+      createTableIfMissing: true, // Auto-create if not existing
+    }),
     secret: process.env.Session_Secret || "dev-secret",
     resave: false,
     saveUninitialized: false,
     proxy: true,
     cookie: {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: 24 * 60 * 60 * 1000,
+      secure: true,        // Render is HTTPS → MUST be true
+      sameSite: "none",    // Required for HTTPS + cookies
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
     },
   })
 );
