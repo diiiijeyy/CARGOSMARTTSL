@@ -66,14 +66,16 @@ app.use((req, res, next) => {
 app.use(
   cors({
     origin: [
-      "https://cargosmarttsl-5.onrender.com", // backend on render
-      "https://your-frontend-domain.vercel.app", // frontend domain (add once deployed)
+      "https://cargosmarttsl-5.onrender.com",
+      "https://tslcargosmart.xyz",
+      "https://www.tslcargosmart.xyz",
       "http://localhost:5500",
       "http://127.0.0.1:5500"
     ],
     credentials: true,
   })
 );
+
 
 
 // =====================================
