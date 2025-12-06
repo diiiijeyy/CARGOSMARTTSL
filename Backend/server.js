@@ -157,11 +157,16 @@ pool.query("SELECT NOW()", (err) => {
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: process.env.EMAIL_PORT,
+  secure: false, // use TLS later if needed
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+  tls: {
+    rejectUnauthorized: false
+  }
 });
+ 
 
 transporter.verify((err, success) => {
   if (err) console.error("❌ Mail transporter error:", err);
