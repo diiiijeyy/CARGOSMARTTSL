@@ -91,26 +91,7 @@ app.use("/invoices", express.static(path.join(__dirname, "invoices")));
 // TRUST NGROK / REVERSE PROXY
 app.set("trust proxy", 1);
 
-// SESSION
-app.use(
-  session({
-    store: new pgSession({
-      pool: pool,            // Reuse your existing DB pool
-      tableName: "user_sessions", // You may rename this table
-      createTableIfMissing: true, // Auto-create if not existing
-    }),
-    secret: process.env.Session_Secret || "dev-secret",
-    resave: false,
-    saveUninitialized: false,
-    proxy: true,
-    cookie: {
-      httpOnly: true,
-      secure: true,        // Render is HTTPS → MUST be true
-      sameSite: "none",    // Required for HTTPS + cookies
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-    },
-  })
-);
+
 
 function requireDriverAuth(req, res, next) {
   if (!req.session || !req.session.user) {
@@ -153,6 +134,26 @@ pool.query("SELECT NOW()", (err) => {
   if (err) console.error("❌ Database connection error:", err);
   else console.log("✅ Database connected successfully");
 });
+
+app.use(
+  session({
+    store: new pgSession({
+      pool: pool,          // Do NOT move this above the pool definition
+      tableName: "session" // Render will auto-create this if needed
+    }),
+    secret: process.env.Session_Secret || "dev-secret",
+    resave: false,
+    saveUninitialized: false,
+    proxy: true,
+    cookie: {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      maxAge: 24 * 60 * 60 * 1000,
+    },
+  })
+);
+
 
 //-----------------------//
 //  CLIENT VERIFICATION //
