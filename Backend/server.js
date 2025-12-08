@@ -977,7 +977,7 @@ app.post("/api/login", async (req, res) => {
     let isAdminUser = false;
 
     //  Try admin/staff first (username IS email)
-    let result = await pool.query("SELECT * FROM public.users  WHERE username = $1 OR email = $1", [
+    let result = await pool.query("SELECT * FROM users WHERE username = $1", [
       input,
     ]);
     if (result.rows.length > 0) {
