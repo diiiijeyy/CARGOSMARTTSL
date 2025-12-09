@@ -210,16 +210,13 @@ app.post("/api/client/signup", async (req, res) => {
           .status(400)
           .json({ error: "Email already registered and verified." });
       } else {
-        // Remove old unverified record
+        // Delete unverified old entry
         await pool.query("DELETE FROM clients WHERE email = $1", [email]);
       }
     }
 
     // 2️⃣ Generate verification code
-    const verificationCode = Math.floor(
-      100000 + Math.random() * 900000
-    ).toString();
-
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
     const codeExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -249,20 +246,15 @@ app.post("/api/client/signup", async (req, res) => {
     // ================================
     const emailHTML = `
       <div style="font-family: Arial, sans-serif; padding: 20px; background: #EFF3FF;">
-        
         <div style="max-width: 600px; margin: auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
           
-          <!-- Header -->
           <div style="background: #60ADF4; padding: 20px; text-align: center;">
             <h2 style="margin: 0; color: white; font-weight: 600;">
               Welcome to TSL Freight Movers
             </h2>
-            <p style="margin: 0; color: white; opacity: .9;">
-              Email Verification Required
-            </p>
+            <p style="margin: 0; color: white; opacity: .9;">Email Verification Required</p>
           </div>
 
-          <!-- Body -->
           <div style="padding: 25px;">
             <p style="font-size: 15px; color: #333;">
               Hello ${contact_person || "there"},
@@ -271,7 +263,6 @@ app.post("/api/client/signup", async (req, res) => {
               Before you can access your client dashboard, please verify your email address.
             </p>
 
-            <!-- Code Box -->
             <div style="
               background: #F3F9FF;
               border: 1px solid #60ADF4;
@@ -291,19 +282,12 @@ app.post("/api/client/signup", async (req, res) => {
               </p>
             </div>
 
-            <p style="font-size: 14px; color: #555;">
-              This code will expire in <b>5 minutes</b>.
-              For your security, please do not share this code with anyone.
-            </p>
-
-            <p style="font-size: 14px; color: #555;">
-              If you did not create an account, simply ignore this email.
-            </p>
+            <p style="font-size: 14px; color: #555;">This code will expire in <b>5 minutes</b>. Do not share this code.</p>
+            <p style="font-size: 14px; color: #555;">If you did not create an account, ignore this email.</p>
 
             <hr style="border: none; border-top: 1px solid #ddd; margin: 25px 0;">
             <p style="font-size: 12px; color: #888; text-align: center;">
-              © ${new Date().getFullYear()} TSL Freight Movers Inc.<br/>
-              All rights reserved.
+              © ${new Date().getFullYear()} TSL Freight Movers Inc.<br/>All rights reserved.
             </p>
           </div>
 
@@ -311,15 +295,16 @@ app.post("/api/client/signup", async (req, res) => {
       </div>
     `;
 
-    // 4️⃣ Send email using VERIFIED SENDER (IMPORTANT)
+    // 4️⃣ Send email using VERIFIED sender
     await transporter.sendMail({
-      from: `"TSL Freight Movers" <${process.env.SMTP_FROM}>`, // FIXED
+      from: `"TSL Freight Movers" <${process.env.SMTP_FROM}>`,
       to: email,
       subject: "Verify Your Email - TSL Freight Movers",
       html: emailHTML,
     });
 
     res.json({ message: "Verification code sent to your email." });
+
   } catch (error) {
     console.error("Signup error:", error);
     res.status(500).json({ error: "Internal server error." });
