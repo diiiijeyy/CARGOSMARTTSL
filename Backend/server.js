@@ -216,13 +216,14 @@ app.post("/api/client/signup", async (req, res) => {
     }
 
     // 2️⃣ Generate verification code
-    const verificationCode = Math.floor(node
+    const verificationCode = Math.floor(
       100000 + Math.random() * 900000
     ).toString();
-    const codeExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
+
+    const codeExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 3️⃣ Insert into DB
+    // 3️⃣ Insert to DB
     await pool.query(
       `INSERT INTO clients 
         (company_name, contact_person, contact_number, email, address, password,
@@ -244,7 +245,7 @@ app.post("/api/client/signup", async (req, res) => {
     );
 
     // ================================
-    // ✨ Beautiful Email HTML Template
+    // ✨ Email HTML Template
     // ================================
     const emailHTML = `
       <div style="font-family: Arial, sans-serif; padding: 20px; background: #EFF3FF;">
@@ -299,7 +300,6 @@ app.post("/api/client/signup", async (req, res) => {
               If you did not create an account, simply ignore this email.
             </p>
 
-            <!-- Footer -->
             <hr style="border: none; border-top: 1px solid #ddd; margin: 25px 0;">
             <p style="font-size: 12px; color: #888; text-align: center;">
               © ${new Date().getFullYear()} TSL Freight Movers Inc.<br/>
@@ -311,9 +311,9 @@ app.post("/api/client/signup", async (req, res) => {
       </div>
     `;
 
-    // 4️⃣ Send email
+    // 4️⃣ Send email using VERIFIED SENDER (IMPORTANT)
     await transporter.sendMail({
-      from: `"TSL Freight Movers" <${process.env.EMAIL_USER}>`,
+      from: `"TSL Freight Movers" <${process.env.SMTP_FROM}>`, // FIXED
       to: email,
       subject: "Verify Your Email - TSL Freight Movers",
       html: emailHTML,
