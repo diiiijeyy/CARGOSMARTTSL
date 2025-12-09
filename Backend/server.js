@@ -31,6 +31,23 @@ const WebSocket = require("ws");
 const wss = new WebSocket.Server({ server });
 
 // ==========================
+// BREVO SMTP TRANSPORTER
+// ==========================
+const transporter = nodemailer.createTransport({
+  host: "smtp-relay.brevo.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.EMAIL_USER,   // must be Brevo login like 9d73fd001@smtp-brevo.com
+    pass: process.env.EMAIL_PASS,   // your Brevo SMTP key
+  },
+  tls: {
+    rejectUnauthorized: false,
+  },
+});
+
+
+// ==========================
 // 📡 Broadcast driver GPS to Admin panels
 // ==========================
 function broadcastToAdmins(payload) {
@@ -162,19 +179,6 @@ app.use(
 //  CLIENT VERIFICATION //
 //---------------------//
 
-// Nodemailer setup
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: process.env.EMAIL_PORT,
-  secure: false, // use TLS later if needed
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false
-  }
-});
  
 
 transporter.verify((err, success) => {
@@ -210,17 +214,16 @@ app.post("/api/client/signup", async (req, res) => {
           .status(400)
           .json({ error: "Email already registered and verified." });
       } else {
-        // Delete unverified old entry
         await pool.query("DELETE FROM clients WHERE email = $1", [email]);
       }
     }
 
     // 2️⃣ Generate verification code
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const codeExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    const codeExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 3️⃣ Insert to DB
+    // 3️⃣ Insert into DB
     await pool.query(
       `INSERT INTO clients 
         (company_name, contact_person, contact_number, email, address, password,
@@ -241,26 +244,21 @@ app.post("/api/client/signup", async (req, res) => {
       ]
     );
 
-    // ================================
-    // ✨ Email HTML Template
-    // ================================
+    // Email HTML Template
     const emailHTML = `
       <div style="font-family: Arial, sans-serif; padding: 20px; background: #EFF3FF;">
         <div style="max-width: 600px; margin: auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
           
           <div style="background: #60ADF4; padding: 20px; text-align: center;">
-            <h2 style="margin: 0; color: white; font-weight: 600;">
-              Welcome to TSL Freight Movers
-            </h2>
+            <h2 style="margin: 0; color: white; font-weight: 600;">Welcome to TSL Freight Movers</h2>
             <p style="margin: 0; color: white; opacity: .9;">Email Verification Required</p>
           </div>
 
           <div style="padding: 25px;">
             <p style="font-size: 15px; color: #333;">
-              Hello ${contact_person || "there"},
-              <br><br>
-              Thank you for registering with <strong>TSL Freight Movers</strong>.
-              Before you can access your client dashboard, please verify your email address.
+              Hello ${contact_person || "there"},<br><br>
+              Thank you for registering with <strong>TSL Freight Movers</strong>.<br>
+              Please verify your email address using the code below:
             </p>
 
             <div style="
@@ -269,33 +267,30 @@ app.post("/api/client/signup", async (req, res) => {
               padding: 18px;
               border-radius: 8px;
               margin: 25px 0;
-              text-align: center;
-            ">
+              text-align: center;">
               <p style="
                 font-size: 32px;
                 letter-spacing: 6px;
                 margin: 0;
                 font-weight: bold;
-                color: #0077b6;
-              ">
+                color: #0077b6;">
                 ${verificationCode}
               </p>
             </div>
 
-            <p style="font-size: 14px; color: #555;">This code will expire in <b>5 minutes</b>. Do not share this code.</p>
-            <p style="font-size: 14px; color: #555;">If you did not create an account, ignore this email.</p>
+            <p style="font-size: 14px; color: #555;">This code expires in <b>5 minutes</b>.</p>
+            <p style="font-size: 14px; color: #555;">If you didn't request this, ignore this email.</p>
 
             <hr style="border: none; border-top: 1px solid #ddd; margin: 25px 0;">
             <p style="font-size: 12px; color: #888; text-align: center;">
               © ${new Date().getFullYear()} TSL Freight Movers Inc.<br/>All rights reserved.
             </p>
           </div>
-
         </div>
       </div>
     `;
 
-    // 4️⃣ Send email using VERIFIED sender
+    // 4️⃣ Send Email
     await transporter.sendMail({
       from: `"TSL Freight Movers" <${process.env.SMTP_FROM}>`,
       to: email,
@@ -312,7 +307,7 @@ app.post("/api/client/signup", async (req, res) => {
 });
 
 /* ----------------------------------------
-   🟢 STEP 2: VERIFY CODE (Now Sends Welcome Email)
+   🟢 STEP 2: VERIFY CODE (Send Welcome Email)
 ---------------------------------------- */
 app.post("/api/client/verify", async (req, res) => {
   const { email, code } = req.body;
@@ -348,7 +343,7 @@ app.post("/api/client/verify", async (req, res) => {
       });
     }
 
-    // Update as verified
+    // Mark as verified
     await pool.query(
       `UPDATE clients 
        SET is_verified = true, verification_code = NULL, code_expires_at = NULL 
@@ -357,7 +352,7 @@ app.post("/api/client/verify", async (req, res) => {
     );
 
     // ======================================
-    // ✨ Send Welcome Email Template  babaguhin link
+    // ✨ Welcome Email HTML
     // ======================================
     const emailHTML = `
       <div style="font-family: Arial, sans-serif; padding: 20px; background: #EFF3FF;">
@@ -383,12 +378,12 @@ app.post("/api/client/verify", async (req, res) => {
             </p>
 
             <p style="font-size: 15px; color: #333;">
-              You can now log in and start managing your bookings, shipments, invoices, and real-time tracking from your client dashboard.
+              You can now log in and start managing your bookings, shipments, invoices, and real-time tracking.
             </p>
 
             <!-- Button -->
             <div style="text-align: center; margin: 30px 0;">
-              <a href="https://tslfreightmovers.com/client/login" 
+              <a href="https://tslcargosmart.xyz/login"
                 style="
                   background: #60ADF4;
                   color: white;
@@ -404,7 +399,7 @@ app.post("/api/client/verify", async (req, res) => {
             </div>
 
             <p style="font-size: 14px; color: #555;">
-              If you have any questions or need assistance, feel free to contact us anytime.
+              If you have any questions or need assistance, feel free to contact us.
             </p>
 
             <!-- Footer -->
@@ -420,15 +415,18 @@ app.post("/api/client/verify", async (req, res) => {
       </div>
     `;
 
-    // Send the email
+    // ================================
+    // ✉ Send Welcome Email using BREVO
+    // ================================
     await transporter.sendMail({
-      from: `"TSL Freight Movers" <${process.env.EMAIL_USER}>`,
+      from: `"TSL Freight Movers" <${process.env.SMTP_FROM}>`,
       to: email,
       subject: "Your Email Has Been Verified - TSL Freight Movers",
       html: emailHTML,
     });
 
     res.json({ message: "Email verified successfully!" });
+
   } catch (error) {
     console.error("Verification error:", error);
     res.status(500).json({ error: "Internal server error." });
@@ -445,6 +443,7 @@ app.post("/api/client/resend-code", async (req, res) => {
     const result = await pool.query("SELECT * FROM clients WHERE email = $1", [
       email,
     ]);
+
     if (result.rows.length === 0) {
       return res
         .status(404)
@@ -457,11 +456,12 @@ app.post("/api/client/resend-code", async (req, res) => {
       return res.status(400).json({ error: "Account already verified." });
     }
 
-    // Generate new code
+    // Generate NEW CODE
     const verificationCode = Math.floor(
       100000 + Math.random() * 900000
     ).toString();
-    const codeExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+    const codeExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
     await pool.query(
       `
@@ -473,24 +473,21 @@ app.post("/api/client/resend-code", async (req, res) => {
     );
 
     // ================================
-    // Beautiful HTML Email Template
+    // ✨ HTML Email Template
     // ================================
     const emailHTML = `
       <div style="font-family: Arial, sans-serif; padding: 20px; background: #EFF3FF;">
         
-        <!-- Header -->
+        <!-- Wrapper -->
         <div style="max-width: 600px; margin: auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
           
           <div style="background: #60ADF4; padding: 20px; text-align: center;">
             <h2 style="margin: 0; color: white; font-weight: 600;">
               TSL Freight Movers
             </h2>
-            <p style="margin: 0; color: white; opacity: .9;">
-              Email Verification Code
-            </p>
+            <p style="margin: 0; color: white; opacity: .9;">Email Verification Code</p>
           </div>
 
-          <!-- Body -->
           <div style="padding: 25px;">
             <p style="font-size: 15px; color: #333;">
               Hello,
@@ -498,55 +495,54 @@ app.post("/api/client/resend-code", async (req, res) => {
               Here is your new verification code to continue accessing your TSL Freight Movers account.
             </p>
 
-            <!-- Code Box -->
             <div style="
               background: #F3F9FF;
               border: 1px solid #60ADF4;
               padding: 18px;
               border-radius: 8px;
               margin: 25px 0;
-              text-align: center;
-            ">
+              text-align: center;">
+              
               <p style="
                 font-size: 32px;
                 letter-spacing: 6px;
                 margin: 0;
                 font-weight: bold;
-                color: #0077b6;
-              ">
+                color: #0077b6;">
                 ${verificationCode}
               </p>
             </div>
 
-            <p style="font-size: 14px; color: #555;">
-              This code is valid for <b>5 minutes</b>.  
-              Please do not share your verification code with anyone.
-            </p>
+            <p style="font-size: 14px; color: #555;">This code is valid for <b>5 minutes</b>.</p>
 
             <p style="font-size: 14px; color: #555;">
               If you did not request this code, please ignore this message.
             </p>
 
-            <!-- Footer -->
             <hr style="border: none; border-top: 1px solid #ddd; margin: 25px 0;">
             <p style="font-size: 12px; color: #888; text-align: center;">
               © ${new Date().getFullYear()} TSL Freight Movers Inc.<br/>
               All rights reserved.
             </p>
-          </div>
 
+          </div>
         </div>
+
       </div>
     `;
 
+    // ===========================================
+    // 📧 Send Email via BREVO (Fix: use SMTP_FROM)
+    // ===========================================
     await transporter.sendMail({
-      from: `"TSL Freight Movers" <${process.env.EMAIL_USER}>`,
+      from: `"TSL Freight Movers" <${process.env.SMTP_FROM}>`,
       to: email,
       subject: "Your Verification Code - TSL Freight Movers",
       html: emailHTML,
     });
 
     res.json({ message: "New verification code sent to your email." });
+
   } catch (error) {
     console.error("Resend code error:", error);
     res.status(500).json({ error: "Internal server error." });
@@ -655,35 +651,73 @@ app.post("/api/send-reset-code", async (req, res) => {
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     const createdAt = new Date();
 
-    // Save to password_resets table
+    // Store or update reset code
     await pool.query(
-      "INSERT INTO password_resets (email, code, created_at) VALUES ($1, $2, $3) ON CONFLICT (email) DO UPDATE SET code = $2, created_at = $3",
+      `
+      INSERT INTO password_resets (email, code, created_at)
+      VALUES ($1, $2, $3)
+      ON CONFLICT (email)
+      DO UPDATE SET code = $2, created_at = $3
+    `,
       [email, code, createdAt]
     );
 
-    // Email
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
+    // ==================================
+    // ✉️ Send Reset Code Email (BREVO)
+    // ==================================
+    const emailHTML = `
+      <div style="font-family: Arial, sans-serif; padding: 20px; background: #EFF3FF;">
+        
+        <div style="max-width: 600px; margin: auto; background: white; padding: 25px; border-radius: 10px;">
+          <h2 style="color: #0077b6; margin-bottom: 10px;">Password Reset Code</h2>
+          <p style="font-size: 15px; color: #333;">
+            Here is your password reset verification code:
+          </p>
+
+          <div style="
+            background: #F3F9FF;
+            border: 1px solid #60ADF4;
+            padding: 18px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 20px;">
+            <p style="
+              font-size: 32px;
+              letter-spacing: 6px;
+              margin: 0;
+              font-weight: bold;
+              color: #0077b6;">
+              ${code}
+            </p>
+          </div>
+
+          <p style="font-size: 14px; color: #555;">
+            This code is valid for <b>5 minutes</b>.
+          </p>
+
+          <p style="font-size: 14px; color: #555;">
+            If you did not request this reset, please ignore this email.
+          </p>
+
+          <hr style="border-top: 1px solid #ddd; margin-top: 25px;">
+          <p style="font-size: 12px; color: #888; text-align: center;">
+            © ${new Date().getFullYear()} TSL Freight Movers Inc. All Rights Reserved.
+          </p>
+        </div>
+
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: `"TSL Freight Movers" <${process.env.SMTP_FROM}>`, // FIXED
+      to: email,
+      subject: "Password Reset Code - TSL Freight Movers",
+      html: emailHTML,
     });
 
-    const mailOptions = {
-      from: `"TSL Freight Movers" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: "New Verification Code - TSL Freight Movers",
-      html: `
-        <h2>Here’s your password reset code</h2>
-        <h1 style="letter-spacing: 4px;">${code}</h1>
-        <p>This code will expire in <b>5 minutes</b>.</p>
-      `,
-    };
-
-    await transporter.sendMail(mailOptions);
-
     res.json({ message: "Reset code sent." });
+
   } catch (err) {
     console.error("Send Reset Code Error:", err);
     res.status(500).json({ error: "Failed to send reset code." });
@@ -2075,7 +2109,7 @@ app.post("/api/admin/bookings", async (req, res) => {
 // ADMIN: UPDATE STATUS USING BOOKING ID RUDY
 // ===============================================
 // =====================================================
-// ADMIN: UPDATE BOOKING STATUS (FINAL FIXED VERSION)
+// ADMIN: UPDATE BOOKING STATUS (BREVO SMTP VERSION)
 // =====================================================
 
 app.put("/api/admin/bookings/:id/status", async (req, res) => {
@@ -2094,7 +2128,7 @@ app.put("/api/admin/bookings/:id/status", async (req, res) => {
 
     const normalized = status.trim().toLowerCase();
 
-    if (!allowedStatuses.map((s) => s.toLowerCase()).includes(normalized)) {
+    if (!allowedStatuses.map(s => s.toLowerCase()).includes(normalized)) {
       return res.status(400).json({
         error: "Invalid status. Allowed: " + allowedStatuses.join(", "),
       });
@@ -2194,6 +2228,7 @@ app.put("/api/admin/bookings/:id/status", async (req, res) => {
       message = `Your booking #${tn} was declined. Reason: ${
         decline_reason || "Not specified"
       }`;
+
       emailHTML = `
         <div style="font-family: Arial; padding: 20px;">
           <h2 style="color:red;">Booking Declined</h2>
@@ -2207,6 +2242,7 @@ app.put("/api/admin/bookings/:id/status", async (req, res) => {
     if (normalized === "completed") {
       title = "Booking Completed";
       message = `Your booking #${tn} has been delivered successfully.`;
+
       emailHTML = `
         <div style="font-family: Arial; padding: 20px;">
           <h2>Booking Completed</h2>
@@ -2219,6 +2255,7 @@ app.put("/api/admin/bookings/:id/status", async (req, res) => {
     if (normalized === "cancelled by client") {
       title = "Booking Cancelled";
       message = `Your booking #${tn} has been cancelled by the client.`;
+
       emailHTML = `
         <div style="font-family: Arial; padding: 20px;">
           <h2>Booking Cancelled</h2>
@@ -2242,11 +2279,11 @@ app.put("/api/admin/bookings/:id/status", async (req, res) => {
     }
 
     // ===========================================================
-    // 5. SEND EMAIL
-    // ===========================================================
+    // 5. SEND EMAIL (BREVO SAFE)
+// ===========================================================
     if (client?.email) {
       await transporter.sendMail({
-        from: `"TSL Freight Movers" <${process.env.EMAIL_USER}>`,
+        from: `"TSL Freight Movers" <${process.env.SMTP_FROM}>`,
         to: client.email,
         subject: title,
         html: emailHTML,
@@ -3403,7 +3440,7 @@ app.put(
 
       const booking = check.rows[0];
 
-      // If tracking_number is NOT NULL or NOT empty → reject overwrite
+      // Prevent overwrite
       if (booking.tracking_number && booking.tracking_number.trim() !== "") {
         return res
           .status(400)
@@ -3461,9 +3498,10 @@ async function sendEmail({ to, subject, html, attachments = [] }) {
     console.error("sendEmail: transporter missing!");
     return null;
   }
+
   try {
     return await transporter.sendMail({
-      from: `"TSL Freight Movers" <${process.env.EMAIL_USER}>`,
+      from: `"TSL Freight Movers" <${process.env.SMTP_FROM}>`,   // FIXED
       to,
       subject,
       html,
@@ -6212,69 +6250,52 @@ app.post(
         ]
       );
 
-      // 7️⃣ Send Gmail Notification
-      try {
-        const mailOptions = {
-          from: `"TSL Freight Movers INC." <tslhead@gmail.com>`,
-          to: shipment.email,
-          subject: `Your Invoice ${newInvoiceNumber} is ready`,
-          html: `
-          <div style="font-family: Arial, sans-serif; color: #333;">
-            <h2 style="color:#60adf4;">TSL Freight Movers INC.</h2>
-            <p>Dear <strong>${shipment.contact_person}</strong>,</p>
-            <p>Your invoice <strong>${newInvoiceNumber}</strong> has been generated for your shipment:</p>
+     // 7️⃣ Send Email Notification (Brevo SMTP)
+try {
+  await transporter.sendMail({
+    from: `"TSL Freight Movers INC." <${process.env.SMTP_FROM}>`,  // FIXED
+    to: shipment.email,
+    subject: `Your Invoice ${newInvoiceNumber} is ready`,
+    html: `
+      <div style="font-family: Arial, sans-serif; color: #333;">
+        <h2 style="color:#60adf4;">TSL Freight Movers INC.</h2>
 
-            <table style="border-collapse: collapse; width: 100%; margin-top: 10px;">
-              <tr><td><strong>Tracking #:</strong></td><td>${
-                shipment.tracking_number
-              }</td></tr>
-              <tr><td><strong>Origin:</strong></td><td>${
-                shipment.port_origin
-              }</td></tr>
-              <tr><td><strong>Destination:</strong></td><td>${
-                shipment.port_delivery
-              }</td></tr>
-              <tr><td><strong>Service Type:</strong></td><td>${
-                shipment.service_type
-              }</td></tr>
-              <tr><td><strong>Delivery Mode:</strong></td><td>${
-                shipment.delivery_mode
-              }</td></tr>
-            </table>
+        <p>Dear <strong>${shipment.contact_person}</strong>,</p>
+        <p>Your invoice <strong>${newInvoiceNumber}</strong> has been generated for your shipment:</p>
 
-            <hr style="margin: 15px 0;">
+        <table style="border-collapse: collapse; width: 100%; margin-top: 10px;">
+          <tr><td><strong>Tracking #:</strong></td><td>${shipment.tracking_number}</td></tr>
+          <tr><td><strong>Origin:</strong></td><td>${shipment.port_origin}</td></tr>
+          <tr><td><strong>Destination:</strong></td><td>${shipment.port_delivery}</td></tr>
+          <tr><td><strong>Service Type:</strong></td><td>${shipment.service_type}</td></tr>
+          <tr><td><strong>Delivery Mode:</strong></td><td>${shipment.delivery_mode}</td></tr>
+        </table>
 
-            <p><strong>Subtotal:</strong> PHP ${amountDue.toLocaleString(
-              undefined,
-              { minimumFractionDigits: 2 }
-            )}</p>
-            <p><strong>Tax (${taxRate}%):</strong> PHP ${taxAmount.toLocaleString(
-            undefined,
-            { minimumFractionDigits: 2 }
-          )}</p>
-            <p><strong>Total Due:</strong> <span style="font-size: 16px;">PHP ${totalAmount.toLocaleString(
-              undefined,
-              { minimumFractionDigits: 2 }
-            )}</span></p>
-            <p><strong>Due Date:</strong> ${dueDate.toLocaleDateString()}</p>
+        <hr style="margin: 15px 0;">
 
-            <p>Thank you for choosing <strong>TSL Freight Movers INC.</strong></p>
-            <p style="color: gray; font-size: 12px;">This is an automated email. Please do not reply directly.</p>
-          </div>
-        `,
-          attachments: [
-            {
-              filename: `${newInvoiceNumber}.pdf`,
-              path: path.join(__dirname, "invoices", `${newInvoiceNumber}.pdf`),
-            },
-          ],
-        };
+        <p><strong>Subtotal:</strong> PHP ${amountDue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+        <p><strong>Tax (${taxRate}%):</strong> PHP ${taxAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+        <p><strong>Total Due:</strong> 
+          <span style="font-size: 16px;">PHP ${totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+        </p>
+        <p><strong>Due Date:</strong> ${dueDate.toLocaleDateString()}</p>
 
-        await transporter.sendMail(mailOptions);
-        console.log(`📧 Invoice email sent to ${shipment.email}`);
-      } catch (mailErr) {
-        console.error("⚠️ Email sending failed:", mailErr);
-      }
+        <p>Thank you for choosing <strong>TSL Freight Movers INC.</strong></p>
+        <p style="color: gray; font-size: 12px;">This is an automated email. Please do not reply directly.</p>
+      </div>
+    `,
+    attachments: [
+      {
+        filename: `${newInvoiceNumber}.pdf`,
+        path: path.join(__dirname, "invoices", `${newInvoiceNumber}.pdf`),
+      },
+    ],
+  });
+
+  console.log(`📧 Invoice email sent to ${shipment.email}`);
+} catch (mailErr) {
+  console.error("⚠️ Email sending failed:", mailErr);
+}
 
       // ✅ Done
       res.json({
@@ -7916,25 +7937,23 @@ app.post("/api/admin/drivers", async (req, res) => {
 //==============================//
 async function sendDriverAccountEmail({ to, email, password }) {
   try {
-    // Debug logs to verify ENV is loaded
     console.log("DRIVER_EMAIL_USER:", process.env.EMAIL_USER);
-    console.log(
-      "DRIVER_EMAIL_PASS loaded?",
-      process.env.EMAIL_PASS ? "YES" : "NO"
-    );
+    console.log("DRIVER_EMAIL_PASS loaded?", process.env.EMAIL_PASS ? "YES" : "NO");
+    console.log("SMTP_FROM:", process.env.SMTP_FROM);
 
-    // Create transporter
+    // Create Brevo Transporter
     const transporter = nodemailer.createTransport({
-      service: "gmail", // SAME as your working mailer
+      host: "smtp-relay.brevo.com",
+      port: 587,
+      secure: false,
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS, // MUST be app password WITHOUT SPACES
+        user: process.env.EMAIL_USER, // example: 9d73fd001@smtp-brevo.com
+        pass: process.env.EMAIL_PASS, // xsmtp_xxxxxxxxxxxxx
       },
     });
 
-    // Email content
     const mailOptions = {
-      from: `"TSL Freight Movers Inc." <${process.env.EMAIL_USER}>`,
+      from: `"TSL Freight Movers Inc." <${process.env.SMTP_FROM}>`,
       to,
       subject: "Your Driver Account Login Credentials",
       html: `
@@ -7959,10 +7978,10 @@ async function sendDriverAccountEmail({ to, email, password }) {
       `,
     };
 
-    // Send email
     const info = await transporter.sendMail(mailOptions);
     console.log("Driver email sent:", info.messageId);
     return true;
+
   } catch (err) {
     console.error("FULL DRIVER EMAIL ERROR:", err);
     return false;
@@ -8442,7 +8461,6 @@ app.patch(
           RETURNING *`;
         params = [shipmentId];
 
-        // Free driver after delivery
         await pool.query(
           `UPDATE drivers SET work_status = 'available' WHERE id = $1`,
           [driverId]
@@ -8467,93 +8485,81 @@ app.patch(
 
       if (status === "Shipping") {
         subject = "Your Shipment Is Now Shipping";
-        msg = `
-          <p>Your shipment <strong>#${tn}</strong> is now being processed by our logistics team.</p>
-        `;
+        msg = `<p>Your shipment <strong>#${tn}</strong> is now being processed.</p>`;
       }
 
       if (status === "In Transit") {
         subject = "Your Shipment Is Now In Transit";
         msg = `
           <p>Your shipment <strong>#${tn}</strong> is now on the way.</p>
-          <p>You may check your dashboard for live tracking updates.</p>
-        `;
+          <p>You may check your dashboard for live tracking updates.</p>`;
       }
 
       if (status === "Delivered") {
         subject = "Your Shipment Has Been Delivered";
         msg = `
           <p>Your shipment <strong>#${tn}</strong> has been successfully delivered.</p>
-          <p>Delivered At: ${updatedShipment.delivered_at}</p>
-        `;
+          <p>Delivered At: ${updatedShipment.delivered_at}</p>`;
       }
 
       // =======================
-      // 5️⃣ EMAIL HTML TEMPLATE
+      // 5️⃣ EMAIL HTML
       // =======================
-      const buildEmailHTML = (title, body, shipment) => {
-        return `
-          <div style="font-family:Arial; padding:20px;">
-            <h2 style="color:#0077b6">${title}</h2>
+      const emailHTML = `
+        <div style="font-family:Arial; padding:20px;">
+          <h2 style="color:#0077b6">${subject}</h2>
 
-            <p>Dear ${clientName},</p>
-            ${body}
+          <p>Dear ${clientName},</p>
+          ${msg}
 
-            <h3 style="margin-top:25px;">Shipment Details</h3>
-            <table style="line-height:1.6;">
-              <tr><td><strong>Tracking #:</strong></td><td>${tn}</td></tr>
-              <tr><td><strong>Status:</strong></td><td>${shipment.status}</td></tr>
-              <tr><td><strong>Service Type:</strong></td><td>${shipment.service_type}</td></tr>
-              <tr><td><strong>Shipment Type:</strong></td><td>${shipment.shipment_type}</td></tr>
-              <tr><td><strong>Delivery Mode:</strong></td><td>${shipment.delivery_mode}</td></tr>
-              <tr><td><strong>Origin:</strong></td><td>${shipment.port_origin}</td></tr>
-              <tr><td><strong>Destination:</strong></td><td>${shipment.port_delivery}</td></tr>
-              <tr><td><strong>Driver Assigned:</strong></td><td>${driverFullName}</td></tr>
-            </table>
+          <h3 style="margin-top:25px;">Shipment Details</h3>
+          <table style="line-height:1.6;">
+            <tr><td><strong>Tracking #:</strong></td><td>${tn}</td></tr>
+            <tr><td><strong>Status:</strong></td><td>${updatedShipment.status}</td></tr>
+            <tr><td><strong>Service Type:</strong></td><td>${shipment.service_type}</td></tr>
+            <tr><td><strong>Shipment Type:</strong></td><td>${shipment.shipment_type}</td></tr>
+            <tr><td><strong>Delivery Mode:</strong></td><td>${shipment.delivery_mode}</td></tr>
+            <tr><td><strong>Origin:</strong></td><td>${shipment.port_origin}</td></tr>
+            <tr><td><strong>Destination:</strong></td><td>${shipment.port_delivery}</td></tr>
+            <tr><td><strong>Driver Assigned:</strong></td><td>${driverFullName}</td></tr>
+          </table>
 
-            <br/>
-            <p>Thank you for choosing <strong>TSL Freight Movers</strong>.</p>
-          </div>
-        `;
-      };
-
-      const emailHTML = buildEmailHTML(subject, msg, updatedShipment);
+          <br/>
+          <p>Thank you for choosing <strong>TSL Freight Movers</strong>.</p>
+        </div>
+      `;
 
       // =======================
-      // 6️⃣ SEND EMAILS
+      // 6️⃣ SEND EMAIL — BREVO
       // =======================
-      const adminEmail = process.env.EMAIL_USER;
       const clientEmail = shipment.client_email;
+      const adminEmail = process.env.ADMIN_ALERTS || process.env.SMTP_FROM;
 
       if (clientEmail) {
-        transporter.sendMail({
-          from: `"TSL Freight Movers" <${process.env.EMAIL_USER}>`,
+        await transporter.sendMail({
+          from: `"TSL Freight Movers" <${process.env.SMTP_FROM}>`,
           to: clientEmail,
           subject,
           html: emailHTML,
         });
       }
 
-      if (adminEmail) {
-        transporter.sendMail({
-          from: `"TSL Freight Movers" <${process.env.EMAIL_USER}>`,
-          to: adminEmail,
-          subject: `[ADMIN COPY] ${subject}`,
-          html: emailHTML,
-        });
-      }
+      await transporter.sendMail({
+        from: `"TSL Freight Movers" <${process.env.SMTP_FROM}>`,
+        to: adminEmail,
+        subject: `[ADMIN COPY] ${subject}`,
+        html: emailHTML,
+      });
 
       // =======================
       // 7️⃣ IN-APP NOTIFICATION
       // =======================
-      if (shipment.client_id) {
-        await pool.query(
-          `INSERT INTO client_notifications 
-            (client_id, shipment_id, title, message, type, is_read, created_at)
-           VALUES ($1,$2,$3,$4,'status',FALSE,NOW())`,
-          [shipment.client_id, shipmentId, subject, msg]
-        );
-      }
+      await pool.query(
+        `INSERT INTO client_notifications 
+          (client_id, shipment_id, title, message, type, is_read, created_at)
+         VALUES ($1,$2,$3,$4,'status',FALSE,NOW())`,
+        [shipment.client_id, shipmentId, subject, msg]
+      );
 
       // =======================
       // 8️⃣ RESPONSE
@@ -8563,6 +8569,7 @@ app.patch(
         message: `Shipment marked as ${status}`,
         shipment: updatedShipment,
       });
+
     } catch (err) {
       console.error("❌ Driver status update error:", err);
       return res.status(500).json({ error: "Failed to update status" });
