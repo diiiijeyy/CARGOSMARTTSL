@@ -132,6 +132,7 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
+
 pool.query("SELECT NOW()", (err) => {
   if (err) console.error("❌ Database connection error:", err);
   else console.log("✅ Database connected successfully");
@@ -215,7 +216,7 @@ app.post("/api/client/signup", async (req, res) => {
     }
 
     // 2️⃣ Generate verification code
-    const verificationCode = Math.floor(
+    const verificationCode = Math.floor(node
       100000 + Math.random() * 900000
     ).toString();
     const codeExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
@@ -1198,7 +1199,7 @@ app.post("/api/login", async (req, res) => {
 
      const allowedOrigins = [
   "https://cargosmarttsl-5.onrender.com",
-  "https://your-frontend-domain.vercel.app",
+  "https:tslcargosmart.xyz",
   "http://localhost:5500",
   "http://127.0.0.1:5500"
 ];
